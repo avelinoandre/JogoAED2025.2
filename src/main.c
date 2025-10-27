@@ -15,6 +15,8 @@ int main(void) {
     InitWindow(1600, 900, "SMASH TOONS");
     SetTargetFPS(60);
 
+    SetExitKey(KEY_NULL);
+
     Menu menu;
     InitMenu(&menu);
 

@@ -6,12 +6,12 @@ void DrawSobreScreen(void) {
 
     ClearBackground((Color){20, 20, 30, 255});
 
-    DrawText("SMASH TOONS", 150, 120, 50, YELLOW);
+    DrawText("SMASH TOONS", screenWidth/2 - 250, 120, 80, YELLOW);
 
-    DrawText("Um jogo Beat 'em Up desenvolvido em C com Raylib.", 120, 240, 20, LIGHTGRAY);
-    DrawText("Desenvolvido por Andre Avelino Freitas de Oliveira.", 120, 270, 20, LIGHTGRAY);
+    DrawText("Um jogo Beat 'em Up desenvolvido em C com Raylib.", screenWidth/2 - 290, 240, 35, LIGHTGRAY);
+    DrawText("Desenvolvido por André, Caio, Gabriel e Rodrigo.", screenWidth/2 - 290, 300, 35, LIGHTGRAY);
 
-    DrawText("Pressione ESC para voltar", 196, screenHeight - 80, 20, GRAY);
+    DrawText("Pressione ESC para voltar", screenWidth/2 - 120, screenHeight - 80, 20, GRAY);
 }
 
 int UpdateSobreScreen(void) {
