@@ -1,5 +1,5 @@
-#ifndef COMO_JOGAR_H
-#define COMO_JOGAR_H
+#ifndef COMOJOGAR_H
+#define COMOJOGAR_H
 
 #include "raylib.h"
 

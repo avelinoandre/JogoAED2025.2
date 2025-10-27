@@ -39,23 +39,33 @@ void DrawMenu(Menu *menu) {
     int titleSize = 80;
     Vector2 titleSizeMeasure = MeasureTextEx(menu->font, title, titleSize, 4);
     DrawTextEx(menu->font, title,
-        (Vector2){screenWidth/2 - titleSizeMeasure.x/2, 80},
+        (Vector2){screenWidth/3 - titleSizeMeasure.x/2, 120},
         titleSize, 4, YELLOW);
 
-    int baseY = 250;
+    int baseY = 200;
     int spacing = 70;
 
     for (int i = 0; i < MENU_OPTION_COUNT; i++) {
-        Color color = (i == menu->selected) ? ORANGE : RAYWHITE;
-        int fontSize = (i == menu->selected) ? 50 : 40;
+        
+        Color color;
+        int fontSize;
+
+        if (i == menu->selected) {
+            color = ORANGE;
+            fontSize = 50;
+        } else {
+            color = RAYWHITE;
+            fontSize = 40;
+        }
+
         Vector2 textSize = MeasureTextEx(menu->font, options[i], fontSize, 2);
         DrawTextEx(menu->font, options[i],
-            (Vector2){screenWidth/2 - textSize.x/2, baseY + i * spacing},
+            (Vector2){screenWidth/2 - 60 - textSize.x/2, (baseY + 100) + i * spacing},
             fontSize, 2, color);
     }
 
-    DrawText("Use ↑ e ↓ para navegar, ENTER para selecionar",
-             screenWidth/2 - 250, screenHeight - 80, 20, GRAY);
+    DrawText("Use SETA CIMA e SETA BAIXO para navegar, ENTER para selecionar",
+             screenWidth/3 - 70, screenHeight - 80, 20, GRAY);
 }
 
 void UnloadMenu(Menu *menu) {

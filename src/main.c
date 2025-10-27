@@ -12,7 +12,7 @@ typedef enum {
 } GameState;
 
 int main(void) {
-    InitWindow(800, 450, "SMASH TOONS");
+    InitWindow(1600, 900, "SMASH TOONS");
     SetTargetFPS(60);
 
     Menu menu;

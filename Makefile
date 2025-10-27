@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -Iinclude -Isrc -Isrc/menu
 
 # Diretórios
 SRC_DIR = src
-MENU_DIR = $(SRC_DIR)/menu
+MENU_DIR = $(SRC_DIR)/MENU
 OBJ_DIR = obj
 BIN_DIR = bin
 LIB_DIR = lib

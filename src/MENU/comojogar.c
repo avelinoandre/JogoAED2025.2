@@ -1,12 +1,18 @@
 #include "comoJogar.h"
 
 void DrawComoJogarScreen(void) {
+    const int screenWidth = GetScreenWidth();
+    const int screenHeight = GetScreenHeight();
+    
     ClearBackground((Color){20, 20, 30, 255});
-    DrawText("COMO JOGAR", 260, 80, 50, YELLOW);
-    DrawText("W, A, S, D - Mover o personagem", 180, 200, 20, LIGHTGRAY);
-    DrawText("ESPACO - Atacar", 180, 230, 20, LIGHTGRAY);
-    DrawText("ESC - Voltar ao menu", 180, 260, 20, LIGHTGRAY);
-    DrawText("Pressione ESC para voltar", 250, 400, 20, GRAY);
+
+    DrawText("COMO JOGAR", screenWidth/2 - 250, 120, 80, YELLOW);
+
+    DrawText("W, A, S, D - Mover o personagem", screenWidth/2 - 230, 240, 35, LIGHTGRAY);
+    DrawText("ESPACO - Atacar", screenWidth/2 - 230, 300, 35, LIGHTGRAY);
+    DrawText("ESC - Voltar ao menu", screenWidth/2 - 230, 360, 35, LIGHTGRAY);
+
+    DrawText("Pressione ESC para voltar",screenWidth/2 - 120, screenHeight - 80, 20, GRAY);
 }
 
 int UpdateComoJogarScreen(void) {
