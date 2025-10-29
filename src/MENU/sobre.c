@@ -15,6 +15,8 @@ void DrawSobreScreen(void) {
 }
 
 int UpdateSobreScreen(void) {
-    if (IsKeyPressed(KEY_ESCAPE)) return 1;
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        return 1;
+    }
     return 0;
 }

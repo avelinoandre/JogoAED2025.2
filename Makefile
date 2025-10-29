@@ -1,6 +1,7 @@
 # Compilador e flags
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude -Isrc -Isrc/menu
+# Corrigido -Isrc/menu para -Isrc/MENU
+CFLAGS = -Wall -Wextra -Iinclude -Isrc -Isrc/MENU
 
 # Diretórios
 SRC_DIR = src
@@ -8,6 +9,7 @@ MENU_DIR = $(SRC_DIR)/MENU
 OBJ_DIR = obj
 BIN_DIR = bin
 LIB_DIR = lib
+VPATH = $(SRC_DIR) $(MENU_DIR) $(LIB_DIR)
 
 # Arquivos fonte e objetos
 SRCS = $(wildcard $(SRC_DIR)/*.c) \
@@ -31,15 +33,7 @@ $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $^ -o $@ $(LIBS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJ_DIR)/%.o: $(MENU_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJ_DIR)/%.o: $(LIB_DIR)/%.c
+$(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
