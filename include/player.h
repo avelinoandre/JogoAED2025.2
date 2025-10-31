@@ -1,20 +1,24 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef PLAYER_H_
+#define PLAYER_H_
 
 #include "raylib.h"
+#include "animation.h"
 
 typedef struct Player {
     Vector2 position;
     float speed;
-    int health;
     int maxHealth;
-    
-    Texture2D texture;
+    int health;
     float scale;
-    int currentFrame;
-    int framesCounter;
     int direction;
     bool isMoving;
+
+    Texture2D atlas;       
+    SpriteAnimation animIdle; 
+    SpriteAnimation animWalk; 
+
+    float frameWidth;
+    float frameHeight;
 
 } Player;
 

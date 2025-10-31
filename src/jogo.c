@@ -25,8 +25,6 @@ void DrawGame(void) {
     
     DrawPlayerHealthBar(&player);
     
-    DrawText("Use W,A,S,D para mover | ESPACO para levar dano", 20, 50, 30, WHITE);
-    DrawText("Pressione ESC para voltar ao menu", 400, 800, 40, GRAY);
 }
 
 void UnloadGame(void) {

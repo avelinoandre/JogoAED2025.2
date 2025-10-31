@@ -1,22 +1,47 @@
 #include "player.h"
+#include "animation.h"
+
+#define PLAYER_WALK_FRAMES 6
+#define PLAYER_ANIM_FPS 10
 
 void InitPlayer(Player *player, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
     player->speed = 5.0f;
     player->maxHealth = 100;
     player->health = player->maxHealth;
-    
-    player->texture = LoadTexture("assets/Sprites/JohnyBravo/Johnymovimentacao/JohnyBravo7.png");
     player->scale = 4.0f;
-    
-    player->currentFrame = 0;
-    player->framesCounter = 0;
     player->direction = 1;
     player->isMoving = false;
+
+    player->atlas = LoadTexture("assets/Sprites/JohnyBravo/JohnyBravo.png");
+
+    player->frameWidth = 35.0f; 
+    player->frameHeight = 46.0f; 
+
+    Rectangle idleRects[] = {
+        { 0.0f, 0.0f, player->frameWidth, player->frameHeight }
+    };
+    player->animIdle = CreateSpriteAnimation(player->atlas, PLAYER_ANIM_FPS, idleRects, 1);
+
+    float x_offset = 1 * player->frameWidth; //COLUNA DE ANIMAÇÃO
+    
+    Rectangle walkRects[PLAYER_WALK_FRAMES];
+    for (int i = 0; i < PLAYER_WALK_FRAMES; i++) {
+        walkRects[i] = (Rectangle){ 
+            x_offset,
+            i * player->frameHeight,
+            player->frameWidth,
+            player->frameHeight
+        };
+    }
+
+    player->animWalk = CreateSpriteAnimation(player->atlas, PLAYER_ANIM_FPS, walkRects, PLAYER_WALK_FRAMES);
+    
 }
 
 void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     
+    bool wasMoving = player->isMoving;
     player->isMoving = false;
 
     if (IsKeyDown(KEY_W)) {
@@ -38,35 +63,21 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         player->direction = 1;
     }
 
-    if (player->isMoving) {
-        player->framesCounter++;
-        if (player->framesCounter >= 5) {
-            player->framesCounter = 0;
-            player->currentFrame++;
-            if (player->currentFrame > 5) {
-                player->currentFrame = 0;
-            }
-        }
-    } else {
-        player->currentFrame = 0;
-        player->framesCounter = 0;
+    if (player->isMoving && !wasMoving) {
+        player->animWalk.timeStarted = GetTime();
     }
     
-    float playerWidth = ((float)player->texture.width / 6.0f) * player->scale;
-    float playerHeight = (float)player->texture.height * player->scale;
+    if (!player->isMoving && wasMoving) {
+        player->animIdle.timeStarted = GetTime();
+    }
 
-    if (player->position.x < 0) {
-        player->position.x = 0;
-    }
-    if (player->position.y < 0) {
-        player->position.y = 0;
-    }
-    if (player->position.x + playerWidth > screenWidth) {
-        player->position.x = screenWidth - playerWidth;
-    }
-    if (player->position.y + playerHeight > screenHeight) {
-        player->position.y = screenHeight - playerHeight;
-    }
+    float playerWidth = player->frameWidth * player->scale;
+    float playerHeight = player->frameHeight * player->scale;
+
+    if (player->position.x < 0) player->position.x = 0;
+    if (player->position.y < 0) player->position.y = 0;
+    if (player->position.x + playerWidth > screenWidth) player->position.x = screenWidth - playerWidth;
+    if (player->position.y + playerHeight > screenHeight) player->position.y = screenHeight - playerHeight;
     
     if (IsKeyPressed(KEY_SPACE)) {
         player->health -= 20;
@@ -77,31 +88,31 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
 }
 
 void DrawPlayer(const Player *player) {
-    float frameWidth = (float)player->texture.width;
-    float frameHeight = (float)player->texture.height;
-
-    Rectangle sourceRec;
-    sourceRec.y = 0.0f;
-    sourceRec.height = frameHeight;
-
-    if (player->direction == 1) {
-        sourceRec.x = frameWidth * player->currentFrame;
-        sourceRec.width = frameWidth;
-    } else {
-        sourceRec.x = frameWidth * (player->currentFrame + 1);
-        sourceRec.width = -frameWidth;
-    }
     
+    const SpriteAnimation* currentAnim;
+    if (player->isMoving) {
+        currentAnim = &player->animWalk;
+    } else {
+        currentAnim = &player->animIdle;
+    }
+
+    int index = (int)((GetTime() - currentAnim->timeStarted) * currentAnim->framesPerSecond) % currentAnim->rectanglesLength;
+    Rectangle sourceRec = currentAnim->rectangles[index];
+
+    if (player->direction == -1) {
+        sourceRec.width = -sourceRec.width;
+    }
+
     Rectangle destRec = {
         player->position.x,
         player->position.y,
-        frameWidth * player->scale,
-        frameHeight * player->scale
+        player->frameWidth * player->scale,
+        player->frameHeight * player->scale
     };
     
     Vector2 origin = { 0.0f, 0.0f };
     
-    DrawTexturePro(player->texture, sourceRec, destRec, origin, 0.0f, WHITE);
+    DrawTexturePro(player->atlas, sourceRec, destRec, origin, 0.0f, WHITE);
 }
 
 void DrawPlayerHealthBar(const Player *player) {
@@ -120,5 +131,9 @@ void DrawPlayerHealthBar(const Player *player) {
 }
 
 void UnloadPlayer(Player *player) {
-    UnloadTexture(player->texture);
+
+    DisposeSpriteAnimation(player->animIdle);
+    DisposeSpriteAnimation(player->animWalk);
+    UnloadTexture(player->atlas);
+
 }
