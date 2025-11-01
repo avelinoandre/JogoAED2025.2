@@ -3,6 +3,7 @@
 #include "sobre.h"
 #include "comoJogar.h"
 #include "jogo.h" 
+#include "bullet.h" // <-- 1. INCLUÍDO
 
 typedef enum {
     STATE_MENU,
@@ -21,7 +22,7 @@ int main(void) {
     Menu menu;
     InitMenu(&menu);
     InitGame();
-
+    InitBulletPool();
     GameState state = STATE_MENU;
     bool running = true;
 
@@ -37,7 +38,8 @@ int main(void) {
             } break;
 
             case STATE_GAME:
-                if (UpdateGame()) state = STATE_MENU;
+                if (UpdateGame()) state = STATE_MENU; 
+                UpdateBulletPool(screenWidth, screenHeight);
                 break;
 
             case STATE_SOBRE:
@@ -62,6 +64,7 @@ int main(void) {
 
             case STATE_GAME:
                 DrawGame();
+                DrawBulletPool();
                 break;
 
             case STATE_SOBRE:
@@ -81,6 +84,7 @@ int main(void) {
 
     UnloadGame();
     UnloadMenu(&menu);
+    UnloadBulletAssets();
     CloseWindow();
     return 0;
 }
