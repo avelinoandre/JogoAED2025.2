@@ -2,7 +2,9 @@
 #define PLAYER_H_
 
 #include "raylib.h"
-#include "animation.h"
+
+#define PLAYER_IDLE_FRAMES 4
+#define PLAYER_WALK_FRAMES 5
 
 typedef struct Player {
     Vector2 position;
@@ -13,12 +15,12 @@ typedef struct Player {
     int direction;
     bool isMoving;
 
-    Texture2D atlas;       
-    SpriteAnimation animIdle; 
-    SpriteAnimation animWalk; 
+    Texture2D idleTextures[PLAYER_IDLE_FRAMES];
+    Texture2D walkTextures[PLAYER_WALK_FRAMES];
 
-    float frameWidth;
-    float frameHeight;
+    int currentFrame;
+    int framesCounter;
+    int framesSpeed;
 
 } Player;
 
