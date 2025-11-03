@@ -1,9 +1,16 @@
 #include "bullet.h"
+#include "raylib.h" 
 
 #define BULLET_SCALE 4.0f
+#define MAX_AMMO 10       
+#define RELOAD_TIME 3.0f  
 
 static Texture2D bulletTexture; 
 static Bullet bulletPool[MAX_BULLETS];
+
+static int currentAmmo;
+static bool isReloading;
+static float reloadTimer;
 
 void InitBulletPool(void) {
 
@@ -15,6 +22,9 @@ void InitBulletPool(void) {
     
     bulletTexture = LoadTexture("assets/Sprites/BALA.png"); 
 
+    currentAmmo = MAX_AMMO;
+    isReloading = false;
+    reloadTimer = 0.0f;
 }
 
 
@@ -36,20 +46,49 @@ void DrawBulletPool(void) {
 }
 
 void SpawnBullet(Vector2 startPos, int direction) {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        if (!bulletPool[i].active) {
-            bulletPool[i].active = true;
-            bulletPool[i].position = startPos;
+    
+    if (isReloading) {
+        return;
+    }
 
-            bulletPool[i].speed.x = BULLET_SPEED * direction;
-            bulletPool[i].speed.y = 0; 
+    if (currentAmmo > 0) {
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if (!bulletPool[i].active) {
+                bulletPool[i].active = true;
+                bulletPool[i].position = startPos;
 
-            return;
+                bulletPool[i].speed.x = BULLET_SPEED * direction;
+                bulletPool[i].speed.y = 0; 
+
+                currentAmmo--; 
+                
+                if (currentAmmo == 0) {
+                    isReloading = true;
+                    reloadTimer = RELOAD_TIME;
+                }
+
+                return; 
+            }
         }
+    }
+    else if (!isReloading) 
+    {
+        isReloading = true;
+        reloadTimer = RELOAD_TIME;
     }
 }
 
 void UpdateBulletPool(int screenWidth, int screenHeight) {
+
+    if (isReloading) {
+        reloadTimer -= GetFrameTime(); 
+        
+        if (reloadTimer <= 0) {
+            isReloading = false;
+            currentAmmo = MAX_AMMO; 
+            reloadTimer = 0.0f;
+        }
+    }
 
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bulletPool[i].active) {
@@ -70,4 +109,24 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
 
 void UnloadBulletAssets(void) {
     UnloadTexture(bulletTexture);
+}
+
+int GetCurrentAmmo(void) {
+    return currentAmmo;
+}
+
+bool IsReloading(void) {
+    return isReloading;
+}
+
+void DrawAmmoCount(void) {
+    int posX = 20;
+    int posY = 20 + 20 + 10; 
+    int fontSize = 20;
+
+    if (IsReloading()) {
+        DrawText("RECARREGANDO...", posX, posY, fontSize, RED);
+    } else {
+        DrawText(TextFormat("Balas: %d / %d", GetCurrentAmmo(), MAX_AMMO), posX, posY, fontSize, WHITE);
+    }
 }

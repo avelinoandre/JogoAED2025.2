@@ -1,6 +1,7 @@
 #include "jogo.h"
 #include "player.h"
 #include "raylib.h"
+#include "bullet.h"
 
 static Player player;
 static const int screenWidth = 1600;
@@ -24,6 +25,8 @@ void DrawGame(void) {
     DrawPlayer(&player);
     
     DrawPlayerHealthBar(&player);
+    DrawAmmoCount(); 
+    DrawBulletPool();
     
 }
 

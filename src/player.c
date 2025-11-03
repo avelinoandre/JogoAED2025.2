@@ -40,19 +40,32 @@ void InitPlayer(Player *player, int startX, int startY) {
 
 void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     
-    if (IsKeyPressed(KEY_X) && !player->isAttacking) {
-        player->isAttacking = true;
-        player->currentFrame = 0;
-        player->framesCounter = 0;
-        player->framesSpeed = PLAYER_ANIM_SPEED_ATAQUE;
+if (IsKeyPressed(KEY_X) && !player->isAttacking) {
+    player->isAttacking = true;
+    player->currentFrame = 0;
+    player->framesCounter = 0;
+    player->framesSpeed = PLAYER_ANIM_SPEED_ATAQUE;
 
-        Texture2D tempTexture = player->isMoving ? player->walkTextures[player->currentFrame] : player->idleTextures[player->currentFrame];
-        float pW = (float)tempTexture.width * player->scale;
-        float pH = (float)tempTexture.height * player->scale;
+    Texture2D attackTexture = player->attackTextures[0];
+    float playerHeight = (float)attackTexture.height * player->scale;
+    float playerWidth = (float)attackTexture.width * player->scale;
 
-        Vector2 startPos = { player->position.x + (pW / 2), player->position.y + (pH / 2) };
-        SpawnBullet(startPos, player->direction);
+    Vector2 startPos;
+
+    float offsetY = playerHeight * 0.38f; 
+    float offsetX_Right = playerWidth * 1.0f;
+    float offsetX_Left = playerWidth * 0.2f; 
+    
+    startPos.y = player->position.y + offsetY;
+    
+    if (player->direction == 1) { 
+        startPos.x = player->position.x + offsetX_Right;
+    } else { 
+        startPos.x = player->position.x + offsetX_Left;
     }
+    
+    SpawnBullet(startPos, player->direction);
+}
 
     bool wasMoving = player->isMoving;
     player->isMoving = false;

@@ -20,5 +20,8 @@ void InitBulletPool(void);
 void UpdateBulletPool(int screenWidth, int screenHeight);
 void DrawBulletPool(void);
 void SpawnBullet(Vector2 startPos, int direction);
+int GetCurrentAmmo();
+bool IsReloading(void);
+void DrawAmmoCount(void);
 
 #endif // BULLET_H_
