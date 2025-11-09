@@ -2,15 +2,23 @@
 #include "raylib.h" 
 
 #define BULLET_SCALE 4.0f
-#define MAX_AMMO 10       
-#define RELOAD_TIME 3.0f  
+#define AMMO_PACK_SCALE 4.0f
+#define MAX_AMMO 10 
+// #define RELOAD_TIME 3.0f  
+#define AMMO_PACK_FRAMES 7     
+#define AMMO_PACK_FRAME_SPEED 0.25f
 
 static Texture2D bulletTexture; 
+static Texture2D ammoPackTexture;
+static Texture2D ammoPackTextures[AMMO_PACK_FRAMES];
 static Bullet bulletPool[MAX_BULLETS];
+static AmmoPack ammoPack;
 
 static int currentAmmo;
 static bool isReloading;
-static float reloadTimer;
+// static float reloadTimer;
+static int ammoPackCurrentFrame = 0;
+static float ammoPackFrameTimer = 0.0f;
 
 void InitBulletPool(void) {
 
@@ -21,10 +29,18 @@ void InitBulletPool(void) {
     }
     
     bulletTexture = LoadTexture("assets/Sprites/BALA.png"); 
+    ammoPackTextures[0] = LoadTexture("assets/Sprites/bullet/bullet_animation1.png");
+    ammoPackTextures[1] = LoadTexture("assets/Sprites/bullet/bullet_animation2.png");
+    ammoPackTextures[2] = LoadTexture("assets/Sprites/bullet/bullet_animation3.png");
+    ammoPackTextures[3] = LoadTexture("assets/Sprites/bullet/bullet_animation4.png");
+    ammoPackTextures[4] = LoadTexture("assets/Sprites/bullet/bullet_animation5.png");
+    ammoPackTextures[5] = LoadTexture("assets/Sprites/bullet/bullet_animation6.png");
+    ammoPackTextures[6] = LoadTexture("assets/Sprites/bullet/bullet_animation7.png");
 
+    ammoPack.active = false;
     currentAmmo = MAX_AMMO;
     isReloading = false;
-    reloadTimer = 0.0f;
+    // reloadTimer = 0.0f;
 }
 
 
@@ -46,8 +62,7 @@ void DrawBulletPool(void) {
 }
 
 void SpawnBullet(Vector2 startPos, int direction) {
-    
-    if (isReloading) {
+    if (isReloading) { 
         return;
     }
 
@@ -56,37 +71,56 @@ void SpawnBullet(Vector2 startPos, int direction) {
             if (!bulletPool[i].active) {
                 bulletPool[i].active = true;
                 bulletPool[i].position = startPos;
-
                 bulletPool[i].speed.x = BULLET_SPEED * direction;
-                bulletPool[i].speed.y = 0; 
+                bulletPool[i].speed.y = 0;
 
-                currentAmmo--; 
-                
+                currentAmmo--;
+
                 if (currentAmmo == 0) {
                     isReloading = true;
-                    reloadTimer = RELOAD_TIME;
                 }
 
-                return; 
+                return;
             }
         }
     }
     else if (!isReloading) 
     {
         isReloading = true;
-        reloadTimer = RELOAD_TIME;
+    }
+}
+
+void SpawnAmmoPack(Vector2 position) {
+    if (!ammoPack.active) {
+        ammoPack.active = true;
+        ammoPack.position = position; 
+
+        ammoPackCurrentFrame = 0;
+        ammoPackFrameTimer = 0.0f;
     }
 }
 
 void UpdateBulletPool(int screenWidth, int screenHeight) {
 
-    if (isReloading) {
-        reloadTimer -= GetFrameTime(); 
+    // if (isReloading) {
+    //     reloadTimer -= GetFrameTime(); 
         
-        if (reloadTimer <= 0) {
-            isReloading = false;
-            currentAmmo = MAX_AMMO; 
-            reloadTimer = 0.0f;
+    //     if (reloadTimer <= 0) {
+    //         isReloading = false;
+    //         currentAmmo = MAX_AMMO; 
+    //         reloadTimer = 0.0f;
+    //     }
+    // }
+    if (ammoPack.active) {
+        ammoPackFrameTimer += GetFrameTime();
+        
+        if (ammoPackFrameTimer >= AMMO_PACK_FRAME_SPEED) {
+            ammoPackFrameTimer = 0.0f; 
+            ammoPackCurrentFrame++;  
+            
+            if (ammoPackCurrentFrame >= AMMO_PACK_FRAMES) {
+                ammoPackCurrentFrame = 0;
+            }
         }
     }
 
@@ -109,6 +143,9 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
 
 void UnloadBulletAssets(void) {
     UnloadTexture(bulletTexture);
+    for (int i = 0; i < AMMO_PACK_FRAMES; i++) {
+        UnloadTexture(ammoPackTextures[i]);
+    }
 }
 
 int GetCurrentAmmo(void) {
@@ -121,12 +158,35 @@ bool IsReloading(void) {
 
 void DrawAmmoCount(void) {
     int posX = 20;
-    int posY = 20 + 20 + 10; 
+    int posY = 20 + 20 + 10;
     int fontSize = 20;
 
     if (IsReloading()) {
-        DrawText("RECARREGANDO...", posX, posY, fontSize, RED);
+        DrawText("SEM MUNIÇÃO!", posX, posY, fontSize, RED);
     } else {
         DrawText(TextFormat("Balas: %d / %d", GetCurrentAmmo(), MAX_AMMO), posX, posY, fontSize, WHITE);
     }
+}
+
+void DrawAmmoPack(void) {
+    if (ammoPack.active) {
+        DrawTextureEx(ammoPackTextures[ammoPackCurrentFrame], ammoPack.position, 0.0f, AMMO_PACK_SCALE, WHITE);
+    }
+}
+
+AmmoPack* GetAmmoPack(void) {
+    return &ammoPack;
+}
+
+Texture2D GetAmmoPackTexture(void) {
+    return ammoPackTextures[ammoPackCurrentFrame];
+}
+
+void ReloadAmmo(void) {
+    currentAmmo = MAX_AMMO;
+    isReloading = false;
+    ammoPack.active = false;
+
+    ammoPackCurrentFrame = 0;
+    ammoPackFrameTimer = 0.0f;
 }

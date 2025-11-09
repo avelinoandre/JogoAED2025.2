@@ -16,12 +16,24 @@ typedef struct Bullet {
     Color color;
 } Bullet;
 
+typedef struct AmmoPack {
+    Vector2 position;
+    bool active;
+} AmmoPack;
+
 void InitBulletPool(void);
 void UpdateBulletPool(int screenWidth, int screenHeight);
 void DrawBulletPool(void);
 void SpawnBullet(Vector2 startPos, int direction);
+void SpawnAmmoPack(Vector2 position);;
 int GetCurrentAmmo();
 bool IsReloading(void);
 void DrawAmmoCount(void);
+void DrawAmmoPack(void);
+AmmoPack* GetAmmoPack(void);
+Texture2D GetAmmoPackTexture(void); 
+void ReloadAmmo(void); 
+
+void UnloadBulletAssets(void);
 
 #endif // BULLET_H_

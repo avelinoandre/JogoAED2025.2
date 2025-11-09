@@ -40,32 +40,32 @@ void InitPlayer(Player *player, int startX, int startY) {
 
 void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     
-if (IsKeyPressed(KEY_X) && !player->isAttacking) {
-    player->isAttacking = true;
-    player->currentFrame = 0;
-    player->framesCounter = 0;
-    player->framesSpeed = PLAYER_ANIM_SPEED_ATAQUE;
+    if (IsKeyPressed(KEY_X) && !player->isAttacking) {
+        player->isAttacking = true;
+        player->currentFrame = 0;
+        player->framesCounter = 0;
+        player->framesSpeed = PLAYER_ANIM_SPEED_ATAQUE;
 
-    Texture2D attackTexture = player->attackTextures[0];
-    float playerHeight = (float)attackTexture.height * player->scale;
-    float playerWidth = (float)attackTexture.width * player->scale;
+        Texture2D attackTexture = player->attackTextures[0];
+        float playerHeight = (float)attackTexture.height * player->scale;
+        float playerWidth = (float)attackTexture.width * player->scale;
 
-    Vector2 startPos;
+        Vector2 startPos;
 
-    float offsetY = playerHeight * 0.38f; 
-    float offsetX_Right = playerWidth * 1.0f;
-    float offsetX_Left = playerWidth * 0.2f; 
-    
-    startPos.y = player->position.y + offsetY;
-    
-    if (player->direction == 1) { 
-        startPos.x = player->position.x + offsetX_Right;
-    } else { 
-        startPos.x = player->position.x + offsetX_Left;
+        float offsetY = playerHeight * 0.38f; 
+        float offsetX_Right = playerWidth * 1.0f;
+        float offsetX_Left = playerWidth * 0.2f; 
+        
+        startPos.y = player->position.y + offsetY;
+        
+        if (player->direction == 1) { 
+            startPos.x = player->position.x + offsetX_Right;
+        } else { 
+            startPos.x = player->position.x + offsetX_Left;
+        }
+        
+        SpawnBullet(startPos, player->direction);
     }
-    
-    SpawnBullet(startPos, player->direction);
-}
 
     bool wasMoving = player->isMoving;
     player->isMoving = false;
@@ -184,6 +184,16 @@ void DrawPlayerHealthBar(const Player *player) {
     DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
     DrawRectangle(barX, barY, currentHealthWidth, barHeight, GREEN);
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
+}
+
+Texture2D GetPlayerCurrentTexture(const Player *player) {
+    if (player->isAttacking) {
+        return player->attackTextures[player->currentFrame];
+    } else if (player->isMoving) {
+        return player->walkTextures[player->currentFrame];
+    } else {
+        return player->idleTextures[player->currentFrame];
+    }
 }
 
 void UnloadPlayer(Player *player) {

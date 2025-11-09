@@ -32,5 +32,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight);
 void DrawPlayer(const Player *player);
 void DrawPlayerHealthBar(const Player *player);
 void UnloadPlayer(Player *player);
+Texture2D GetPlayerCurrentTexture(const Player *player);
+void SpawnBullet(Vector2 startPos, int direction);
 
 #endif
