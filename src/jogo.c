@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "bullet.h"
 #include "enemy.h"
+#include "mapa.h"
 #include <stdlib.h> 
 #include <time.h>
 
@@ -13,6 +14,8 @@ static const int screenHeight = 900;
 static float enemySpawnTimer = 0.0f;
 
 void InitGame(void) {
+    InitMap();
+
     srand(time(NULL));
     InitPlayer(&player, screenWidth / 2, screenHeight / 2);
     
@@ -71,6 +74,8 @@ int UpdateGame(void) {
 
 void DrawGame(void) {
     ClearBackground(DARKGRAY);
+
+    DrawCurrentMap();
     DrawPlayer(&player);
     
     DrawEnemyPool();
@@ -83,6 +88,7 @@ void DrawGame(void) {
 }
 
 void UnloadGame(void) {
+    UnloadMap();
     UnloadPlayer(&player);
     UnloadEnemyAssets();
     UnloadBulletAssets();

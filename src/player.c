@@ -1,5 +1,6 @@
 #include "player.h"
 #include "bullet.h"
+#include "mapa.h"
 #include <stdio.h>
 
 #define PLAYER_ANIM_SPEED_PARADO 50
@@ -132,9 +133,28 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     float playerWidth = (float)currentTexture.width * player->scale;
     float playerHeight = (float)currentTexture.height * player->scale;
 
-    if (player->position.x < 0) player->position.x = 0;
+    if (player->position.x + playerWidth > screenWidth) {
+        SceneNode* current = GetCurrentScene();
+        
+        if (current->next != NULL) {
+            SetCurrentScene(current->next);
+            player->position.x = 10.0f;
+        } else {
+            player->position.x = screenWidth - playerWidth;
+        }
+    }
+    else if (player->position.x < 0) {
+        SceneNode* current = GetCurrentScene();
+        
+        if (current->previous != NULL) {
+            SetCurrentScene(current->previous);
+            player->position.x = screenWidth - playerWidth - 10.0f;
+        } else {
+            player->position.x = 0;
+        }
+    }
+
     if (player->position.y < 0) player->position.y = 0;
-    if (player->position.x + playerWidth > screenWidth) player->position.x = screenWidth - playerWidth;
     if (player->position.y + playerHeight > screenHeight) player->position.y = screenHeight - playerHeight;
 
     if (IsKeyPressed(KEY_SPACE)) {
