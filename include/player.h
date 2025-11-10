@@ -34,5 +34,6 @@ void DrawPlayerHealthBar(const Player *player);
 void UnloadPlayer(Player *player);
 Texture2D GetPlayerCurrentTexture(const Player *player);
 void SpawnBullet(Vector2 startPos, int direction);
+Rectangle GetPlayerRect(const Player *player);
 
 #endif

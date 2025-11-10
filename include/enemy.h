@@ -9,10 +9,14 @@
 #define ENEMY_HEALTH 100
 #define ENEMY_SCALE 4.0f
 
+#define ENEMY_DAMAGE 10
+#define ENEMY_ATTACK_COOLDOWN 1.0f 
+
 typedef struct Enemy {
     Vector2 position;
     int health;
     bool active;
+    float attackTimer;
 } Enemy;
 
 void InitEnemyPool(void);

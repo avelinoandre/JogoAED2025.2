@@ -7,6 +7,7 @@
 // #define RELOAD_TIME 3.0f  
 #define AMMO_PACK_FRAMES 7     
 #define AMMO_PACK_FRAME_SPEED 0.25f
+#define BULLET_DAMAGE 25
 
 static Texture2D bulletTexture; 
 static Texture2D ammoPackTexture;
@@ -139,6 +140,32 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
             }
         }
     }
+}
+
+bool CheckBulletCollision(Rectangle targetRect, int *damageTaken) {
+    extern Texture2D bulletTexture; 
+    
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (!bulletPool[i].active) continue;
+
+        float scaledWidth = bulletTexture.width * BULLET_SCALE;
+        float scaledHeight = bulletTexture.height * BULLET_SCALE;
+        Rectangle bulletRect = {
+            bulletPool[i].position.x - (scaledWidth / 2.0f),
+            bulletPool[i].position.y - (scaledHeight / 2.0f),
+            scaledWidth,
+            scaledHeight
+        };
+
+        if (CheckCollisionRecs(targetRect, bulletRect)) {
+            bulletPool[i].active = false; 
+            *damageTaken = BULLET_DAMAGE; 
+            return true;
+        }
+    }
+    
+    *damageTaken = 0;
+    return false; 
 }
 
 void UnloadBulletAssets(void) {

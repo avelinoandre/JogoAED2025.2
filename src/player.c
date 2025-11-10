@@ -196,6 +196,31 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
     }
 }
 
+Rectangle GetPlayerRect(const Player *player) {
+    Texture2D currentTexture;
+    int frame = player->currentFrame;
+
+    if (player->isAttacking) {
+        if (frame >= PLAYER_ATTACK_FRAMES) frame = PLAYER_ATTACK_FRAMES - 1; 
+        currentTexture = player->attackTextures[frame];
+    } else if (player->isMoving) {
+        if (frame >= PLAYER_WALK_FRAMES) frame = PLAYER_WALK_FRAMES - 1;
+        currentTexture = player->walkTextures[frame];
+    } else {
+        if (frame >= PLAYER_IDLE_FRAMES) frame = PLAYER_IDLE_FRAMES - 1;
+        currentTexture = player->idleTextures[frame];
+    }
+
+    Rectangle rect = {
+        player->position.x,
+        player->position.y,
+        (float)currentTexture.width * player->scale,
+        (float)currentTexture.height * player->scale
+    };
+    
+    return rect;
+}
+
 void UnloadPlayer(Player *player) {
 
     for (int i = 0; i < PLAYER_IDLE_FRAMES; i++) {

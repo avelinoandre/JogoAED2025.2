@@ -30,10 +30,11 @@ int GetCurrentAmmo();
 bool IsReloading(void);
 void DrawAmmoCount(void);
 void DrawAmmoPack(void);
+bool CheckBulletCollision(Rectangle targetRect, int *damageTaken);
 AmmoPack* GetAmmoPack(void);
 Texture2D GetAmmoPackTexture(void); 
 void ReloadAmmo(void); 
 
 void UnloadBulletAssets(void);
 
-#endif // BULLET_H_
+#endif
