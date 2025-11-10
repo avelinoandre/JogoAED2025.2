@@ -116,16 +116,6 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
         }
     }
 
-    if (isReloading && !ammoPack.active) {
-        passiveReloadTimer += GetFrameTime(); 
-
-        if (passiveReloadTimer >= PASSIVE_RELOAD_TIME) {
-            AddPassiveAmmo(); 
-            passiveReloadTimer = 0.0f; 
-        }
-    } else {
-        passiveReloadTimer = 0.0f;
-    }
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bulletPool[i].active) {
 
