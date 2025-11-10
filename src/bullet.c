@@ -4,7 +4,6 @@
 #define BULLET_SCALE 4.0f
 #define AMMO_PACK_SCALE 4.0f
 #define MAX_AMMO 10 
-// #define RELOAD_TIME 3.0f  
 #define AMMO_PACK_FRAMES 7     
 #define AMMO_PACK_FRAME_SPEED 0.25f
 #define BULLET_DAMAGE 25
@@ -17,7 +16,6 @@ static AmmoPack ammoPack;
 
 static int currentAmmo;
 static bool isReloading;
-// static float reloadTimer;
 static int ammoPackCurrentFrame = 0;
 static float ammoPackFrameTimer = 0.0f;
 
@@ -41,7 +39,6 @@ void InitBulletPool(void) {
     ammoPack.active = false;
     currentAmmo = MAX_AMMO;
     isReloading = false;
-    // reloadTimer = 0.0f;
 }
 
 
@@ -102,16 +99,6 @@ void SpawnAmmoPack(Vector2 position) {
 }
 
 void UpdateBulletPool(int screenWidth, int screenHeight) {
-
-    // if (isReloading) {
-    //     reloadTimer -= GetFrameTime(); 
-        
-    //     if (reloadTimer <= 0) {
-    //         isReloading = false;
-    //         currentAmmo = MAX_AMMO; 
-    //         reloadTimer = 0.0f;
-    //     }
-    // }
     if (ammoPack.active) {
         ammoPackFrameTimer += GetFrameTime();
         
@@ -143,8 +130,6 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
 }
 
 bool CheckBulletCollision(Rectangle targetRect, int *damageTaken) {
-    extern Texture2D bulletTexture; 
-    
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (!bulletPool[i].active) continue;
 

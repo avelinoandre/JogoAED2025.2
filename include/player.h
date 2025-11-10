@@ -3,6 +3,8 @@
 
 #include "raylib.h"
 
+#define RUA_LIMITE_SUPERIOR 450.0f
+
 #define PLAYER_IDLE_FRAMES 2
 #define PLAYER_WALK_FRAMES 3
 #define PLAYER_ATTACK_FRAMES 1

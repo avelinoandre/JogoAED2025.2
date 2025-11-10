@@ -21,8 +21,14 @@ typedef struct Enemy {
 
 void InitEnemyPool(void);
 void UnloadEnemyAssets(void);
-void UpdateEnemyPool(Player *player);
+
+void UpdateEnemyPool(Player *player, int screenHeight);
+
 void DrawEnemyPool(void);
 void SpawnEnemy(Vector2 position);
+
+void DespawnAllEnemies(void); 
+
+bool CheckBulletCollision(Rectangle enemyRect, int *damageTaken);
 
 #endif

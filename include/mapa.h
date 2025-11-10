@@ -8,8 +8,10 @@ typedef struct SceneNode {
     struct SceneNode* next;
     struct SceneNode* previous;
 
-} SceneNode;
+    int enemyCount;  
+    bool enemiesSpawned; 
 
+} SceneNode;
 
 void InitMap(void);
 void UnloadMap(void);

@@ -31,7 +31,13 @@ void SpawnEnemy(Vector2 position) {
     }
 }
 
-void UpdateEnemyPool(Player *player) {
+void DespawnAllEnemies(void) {
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        enemyPool[i].active = false;
+    }
+}
+
+void UpdateEnemyPool(Player *player, int screenHeight) {
     
     Rectangle playerRect = GetPlayerRect(player);
 
@@ -40,12 +46,20 @@ void UpdateEnemyPool(Player *player) {
         
         Enemy *enemy = &enemyPool[i];
 
-if (Vector2Distance(enemy->position, player->position) > 50.0f){
+        if (Vector2Distance(enemy->position, player->position) > 50.0f){
             Vector2 direction = Vector2Subtract(player->position, enemy->position);
             direction = Vector2Normalize(direction); 
             enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, ENEMY_SPEED));
         }
         
+        float enemyHeight = (float)enemyTexture.height * ENEMY_SCALE;
+        if (enemy->position.y < RUA_LIMITE_SUPERIOR) {
+            enemy->position.y = RUA_LIMITE_SUPERIOR;
+        }
+        if (enemy->position.y + enemyHeight > screenHeight) {
+            enemy->position.y = screenHeight - enemyHeight;
+        }
+
         Rectangle enemyRect = {
             enemy->position.x,
             enemy->position.y,
@@ -76,9 +90,7 @@ if (Vector2Distance(enemy->position, player->position) > 50.0f){
 void DrawEnemyPool(void) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (enemyPool[i].active) {
-
             Color tint = (enemyPool[i].attackTimer > ENEMY_ATTACK_COOLDOWN - 0.1f) ? RED : WHITE;
-            
             DrawTextureEx( 
                 enemyTexture,
                 enemyPool[i].position,
@@ -86,7 +98,6 @@ void DrawEnemyPool(void) {
                 ENEMY_SCALE,
                 tint
             );
-            
             DrawRectangle( 
                 (int)enemyPool[i].position.x, 
                 (int)enemyPool[i].position.y - 10,

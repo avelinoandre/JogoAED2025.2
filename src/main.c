@@ -3,7 +3,7 @@
 #include "sobre.h"
 #include "comoJogar.h"
 #include "jogo.h" 
-#include "bullet.h" // <-- 1. INCLUÍDO
+#include "bullet.h" 
 
 typedef enum {
     STATE_MENU,

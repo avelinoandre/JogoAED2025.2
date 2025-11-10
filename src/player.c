@@ -1,12 +1,12 @@
 #include "player.h"
 #include "bullet.h"
 #include "mapa.h"
+#include "enemy.h"
 #include <stdio.h>
 
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
 #define PLAYER_ANIM_SPEED_ATAQUE 30
-#define RUA_LIMITE_SUPERIOR 450.0f
 
 void InitPlayer(Player *player, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
@@ -17,23 +17,18 @@ void InitPlayer(Player *player, int startX, int startY) {
     player->direction = 1;
     player->isMoving = false;
     player->isAttacking = false;
-
     player->currentFrame = 0;
     player->framesCounter = 0;
     player->framesSpeed = PLAYER_ANIM_SPEED_PARADO;
-
     char path[256];
-
     for (int i = 0; i < PLAYER_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/JohnyBravo/parado/JohnyBravo_parado%d.png", i + 1); 
         player->idleTextures[i] = LoadTexture(path);
     }
-
     for (int i = 0; i < PLAYER_WALK_FRAMES; i++) {
         sprintf(path, "assets/Sprites/JohnyBravo/movimentacao/JohnyBravo_walking%d.png", i + 1); 
         player->walkTextures[i] = LoadTexture(path);
     }
-
     for (int i = 0; i < PLAYER_ATTACK_FRAMES; i++) {
         sprintf(path, "assets/Sprites/JohnyBravo/ataque/JohnyBravo_ataque%d.png", i + 1); 
         player->attackTextures[i] = LoadTexture(path);
@@ -47,90 +42,64 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         player->currentFrame = 0;
         player->framesCounter = 0;
         player->framesSpeed = PLAYER_ANIM_SPEED_ATAQUE;
-
         Texture2D attackTexture = player->attackTextures[0];
         float playerHeight = (float)attackTexture.height * player->scale;
         float playerWidth = (float)attackTexture.width * player->scale;
-
         Vector2 startPos;
-
         float offsetY = playerHeight * 0.38f; 
         float offsetX_Right = playerWidth * 1.0f;
         float offsetX_Left = playerWidth * 0.2f; 
-        
         startPos.y = player->position.y + offsetY;
-        
         if (player->direction == 1) { 
             startPos.x = player->position.x + offsetX_Right;
         } else { 
             startPos.x = player->position.x + offsetX_Left;
         }
-        
         SpawnBullet(startPos, player->direction);
     }
-
     bool wasMoving = player->isMoving;
     player->isMoving = false;
-    
     if (!player->isAttacking) {
         if (IsKeyDown(KEY_W)) { player->position.y -= player->speed; player->isMoving = true; }
         if (IsKeyDown(KEY_S)) { player->position.y += player->speed; player->isMoving = true; }
         if (IsKeyDown(KEY_A)) { player->position.x -= player->speed; player->isMoving = true; player->direction = -1; }
         if (IsKeyDown(KEY_D)) { player->position.x += player->speed; player->isMoving = true; player->direction = 1; }
     }
-
     int currentAnimFrameCount = 0;
-    
     if (player->isAttacking) {
-
         currentAnimFrameCount = PLAYER_ATTACK_FRAMES;
-        
         player->framesCounter++;
         if (player->framesCounter >= player->framesSpeed) {
             player->framesCounter = 0;
             player->currentFrame++;
-            
             if (player->currentFrame >= currentAnimFrameCount) {
                 player->isAttacking = false;
                 player->currentFrame = 0;
             }
         }
     } 
-
     else {
-
         if (player->isMoving) {
             currentAnimFrameCount = PLAYER_WALK_FRAMES;
         } else {
             currentAnimFrameCount = PLAYER_IDLE_FRAMES;
         }
-
         if (player->isMoving != wasMoving) {
             player->currentFrame = 0;
             player->framesCounter = 0;
             player->framesSpeed = player->isMoving ? PLAYER_ANIM_SPEED_ANDANDO : PLAYER_ANIM_SPEED_PARADO;
         }
-        
         player->framesCounter++;
         if (player->framesCounter >= player->framesSpeed) {
             player->framesCounter = 0;
             player->currentFrame++;
-            
             if (player->currentFrame >= currentAnimFrameCount) {
                 player->currentFrame = 0;
             }
         }
     }
 
-    Texture2D currentTexture;
-    if (player->isAttacking) {
-        currentTexture = player->attackTextures[player->currentFrame];
-    } else if (player->isMoving) {
-        currentTexture = player->walkTextures[player->currentFrame];
-    } else {
-        currentTexture = player->idleTextures[player->currentFrame];
-    }
-
+    Texture2D currentTexture = GetPlayerCurrentTexture(player);
     float playerWidth = (float)currentTexture.width * player->scale;
     float playerHeight = (float)currentTexture.height * player->scale;
 
@@ -138,6 +107,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         SceneNode* current = GetCurrentScene();
         
         if (current->next != NULL) {
+            DespawnAllEnemies();
             SetCurrentScene(current->next);
             player->position.x = 10.0f;
         } else {
@@ -148,6 +118,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         SceneNode* current = GetCurrentScene();
         
         if (current->previous != NULL) {
+            DespawnAllEnemies();
             SetCurrentScene(current->previous);
             player->position.x = screenWidth - playerWidth - 10.0f;
         } else {
@@ -158,7 +129,6 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     if (player->position.y < RUA_LIMITE_SUPERIOR) {
         player->position.y = RUA_LIMITE_SUPERIOR;
     }
-    
     else if (player->position.y + playerHeight > screenHeight) {
         player->position.y = screenHeight - playerHeight;
     }
@@ -170,9 +140,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
 }
 
 void DrawPlayer(const Player *player) {
-    
     Texture2D textureToDraw;
-
     if (player->isAttacking) {
         textureToDraw = player->attackTextures[player->currentFrame];
     } else if (player->isMoving) {
@@ -180,20 +148,15 @@ void DrawPlayer(const Player *player) {
     } else {
         textureToDraw = player->idleTextures[player->currentFrame];
     }
-    
     Rectangle sourceRec = { 0.0f, 0.0f, (float)textureToDraw.width, (float)textureToDraw.height };
-    
     if (player->direction == -1) {
         sourceRec.width = -sourceRec.width;
     }
-    
     Rectangle destRec = {
-        player->position.x,
-        player->position.y,
+        player->position.x, player->position.y,
         (float)textureToDraw.width * player->scale,
         (float)textureToDraw.height * player->scale
     };
-    
     Vector2 origin = { 0.0f, 0.0f };
     DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, WHITE);
 }
@@ -203,10 +166,8 @@ void DrawPlayerHealthBar(const Player *player) {
     int barHeight = 20;
     int barX = 20;
     int barY = 20;
-    
     float healthPercentage = (float)player->health / (float)player->maxHealth;
     int currentHealthWidth = (int)(barWidth * healthPercentage);
-    
     DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
     DrawRectangle(barX, barY, currentHealthWidth, barHeight, GREEN);
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
@@ -225,7 +186,6 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
 Rectangle GetPlayerRect(const Player *player) {
     Texture2D currentTexture;
     int frame = player->currentFrame;
-
     if (player->isAttacking) {
         if (frame >= PLAYER_ATTACK_FRAMES) frame = PLAYER_ATTACK_FRAMES - 1; 
         currentTexture = player->attackTextures[frame];
@@ -236,19 +196,15 @@ Rectangle GetPlayerRect(const Player *player) {
         if (frame >= PLAYER_IDLE_FRAMES) frame = PLAYER_IDLE_FRAMES - 1;
         currentTexture = player->idleTextures[frame];
     }
-
     Rectangle rect = {
-        player->position.x,
-        player->position.y,
+        player->position.x, player->position.y,
         (float)currentTexture.width * player->scale,
         (float)currentTexture.height * player->scale
     };
-    
     return rect;
 }
 
 void UnloadPlayer(Player *player) {
-
     for (int i = 0; i < PLAYER_IDLE_FRAMES; i++) {
         UnloadTexture(player->idleTextures[i]);
     }
@@ -258,5 +214,4 @@ void UnloadPlayer(Player *player) {
     for (int i = 0; i < PLAYER_ATTACK_FRAMES; i++) {
         UnloadTexture(player->attackTextures[i]);
     }
-
 }
