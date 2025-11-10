@@ -2,6 +2,7 @@
 #include "raymath.h" 
 #include <math.h>    
 #include "bullet.h"
+#include <stdlib.h>
 
 static Enemy enemyPool[MAX_ENEMIES];
 static Texture2D enemyTexture;
@@ -83,6 +84,10 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
 
         if (enemy->health <= 0) {
             enemy->active = false; 
+            
+            if ((rand() % 3) == 0) { // uma chance em 3 da para diminuir
+                SpawnAmmoPack(enemy->position);
+            }
         }
     }
 }

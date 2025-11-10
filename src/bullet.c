@@ -3,7 +3,7 @@
 
 #define BULLET_SCALE 4.0f
 #define AMMO_PACK_SCALE 4.0f
-#define MAX_AMMO 10 
+#define MAX_AMMO 100
 #define AMMO_PACK_FRAMES 7     
 #define AMMO_PACK_FRAME_SPEED 0.25f
 #define BULLET_DAMAGE 25
