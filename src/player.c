@@ -6,6 +6,7 @@
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
 #define PLAYER_ANIM_SPEED_ATAQUE 30
+#define RUA_LIMITE_SUPERIOR 450.0f
 
 void InitPlayer(Player *player, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
@@ -154,8 +155,13 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         }
     }
 
-    if (player->position.y < 0) player->position.y = 0;
-    if (player->position.y + playerHeight > screenHeight) player->position.y = screenHeight - playerHeight;
+    if (player->position.y < RUA_LIMITE_SUPERIOR) {
+        player->position.y = RUA_LIMITE_SUPERIOR;
+    }
+    
+    else if (player->position.y + playerHeight > screenHeight) {
+        player->position.y = screenHeight - playerHeight;
+    }
 
     if (IsKeyPressed(KEY_SPACE)) {
         player->health -= 20;

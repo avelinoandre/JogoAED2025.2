@@ -57,8 +57,8 @@ int UpdateGame(void) {
         Rectangle ammoBounds = {
             pack->position.x,
             pack->position.y,
-            (float)ammoTexture.width * 4.0f,  // <-- MUDE AQUI
-            (float)ammoTexture.height * 4.0f // <-- E AQUI
+            (float)ammoTexture.width * 4.0f,
+            (float)ammoTexture.height * 4.0f
         };
 
         if (CheckCollisionRecs(playerBounds, ammoBounds)) {

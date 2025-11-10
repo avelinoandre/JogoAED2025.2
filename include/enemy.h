@@ -9,7 +9,7 @@
 #define ENEMY_HEALTH 100
 #define ENEMY_SCALE 4.0f
 
-#define ENEMY_DAMAGE 10
+#define ENEMY_DAMAGE 1
 #define ENEMY_ATTACK_COOLDOWN 1.0f 
 
 typedef struct Enemy {
