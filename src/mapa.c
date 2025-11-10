@@ -33,13 +33,35 @@ SceneNode* CreateScene(const char* backgroundPath, SceneNode* previousNode) {
 }
 
 void InitMap(void) {
-    SceneNode* scene1 = CreateScene("assets/Sprites/map/scene1.png", NULL);
+    SceneNode* scene1 = CreateScene("assets/Sprites/map/cidade/cidade00.png", NULL);
     firstScene = scene1;
     
-    SceneNode* scene2 = CreateScene("assets/Sprites/map/scene2.png", scene1);
+    SceneNode* scene2 = CreateScene("assets/Sprites/map/cidade/cidade01.png", scene1);
+    
+    SceneNode* scene3 = CreateScene("assets/Sprites/map/cidade/cidade02.png", scene2);
+    
+    SceneNode* scene4 = CreateScene("assets/Sprites/map/cidade/cidade03.png", scene3);
+    SceneNode* scene5 = CreateScene("assets/Sprites/map/cidade/cidade04.png", scene4);
+    SceneNode* scene6 = CreateScene("assets/Sprites/map/cidade/cidade05.png", scene5);
+    SceneNode* scene7 = CreateScene("assets/Sprites/map/cidade/cidade06.png", scene6);
+    SceneNode* scene8 = CreateScene("assets/Sprites/map/cidade/cidade07.png", scene7);
+    SceneNode* scene9 = CreateScene("assets/Sprites/map/cidade/cidade08.png", scene8);
+    SceneNode* scene10 = CreateScene("assets/Sprites/map/cidade/cidade09.png", scene9);
+    SceneNode* scene11 = CreateScene("assets/Sprites/map/cidade/cidade10.png", scene10);
+    SceneNode* scene12 = CreateScene("assets/Sprites/map/cidade/cidade11.png", scene11); 
 
     scene1->enemyCount = 3; 
-    scene2->enemyCount = 5; 
+    scene2->enemyCount = 2;
+    scene3->enemyCount = 5; 
+    scene4->enemyCount = 3; 
+    scene5->enemyCount = 4; 
+    scene6->enemyCount = 6; 
+    scene7->enemyCount = 3; 
+    scene8->enemyCount = 4; 
+    scene9->enemyCount = 2; 
+    scene10->enemyCount = 6; 
+    scene11->enemyCount = 5; 
+    scene12->enemyCount = 10; 
 
     currentScene = firstScene;
 }
