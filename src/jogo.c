@@ -51,7 +51,9 @@ int UpdateGame(void) {
     if (IsReloading() && !pack->active) {
         
         int randX = rand() % (screenWidth - 50); 
-        int randY = rand() % (screenHeight - 50);
+        int alturaJogavel = (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150);
+        if (alturaJogavel <= 0) alturaJogavel = 1; 
+        int randY = RUA_LIMITE_SUPERIOR + (rand() % alturaJogavel);
 
         SpawnAmmoPack((Vector2){ (float)randX, (float)randY });
     }

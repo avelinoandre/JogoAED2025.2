@@ -19,6 +19,10 @@ static bool isReloading;
 static int ammoPackCurrentFrame = 0;
 static float ammoPackFrameTimer = 0.0f;
 
+#define PASSIVE_RELOAD_TIME 5.0f 
+static float passiveReloadTimer = 0.0f;
+
+
 void InitBulletPool(void) {
 
     for (int i = 0; i < MAX_BULLETS; i++) {
@@ -112,6 +116,16 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
         }
     }
 
+    if (isReloading && !ammoPack.active) {
+        passiveReloadTimer += GetFrameTime(); 
+
+        if (passiveReloadTimer >= PASSIVE_RELOAD_TIME) {
+            AddPassiveAmmo(); 
+            passiveReloadTimer = 0.0f; 
+        }
+    } else {
+        passiveReloadTimer = 0.0f;
+    }
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bulletPool[i].active) {
 
@@ -202,3 +216,4 @@ void ReloadAmmo(void) {
     ammoPackCurrentFrame = 0;
     ammoPackFrameTimer = 0.0f;
 }
+
