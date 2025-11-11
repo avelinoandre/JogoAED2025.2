@@ -59,4 +59,6 @@ void DespawnAllEnemies(void);
 
 bool CheckBulletCollision(Rectangle enemyRect, int *damageTaken);
 
+bool AreAllEnemiesDefeated(void);
+
 #endif

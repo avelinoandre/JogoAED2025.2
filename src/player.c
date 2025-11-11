@@ -211,14 +211,18 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         SceneNode* current = GetCurrentScene();
         
         if (current->next != NULL) {
-            DespawnAllEnemies();
-            DespawnAllPlayerBullets(); 
-            DespawnAllEnemyBullets(); 
             
-            current->enemiesSpawned = false;
-            
-            SetCurrentScene(current->next);
-            player->position.x = 10.0f;
+            if (AreAllEnemiesDefeated()) {
+                DespawnAllEnemies();
+                DespawnAllPlayerBullets(); 
+                DespawnAllEnemyBullets(); 
+                current->enemiesSpawned = false; 
+                SetCurrentScene(current->next);
+                player->position.x = 10.0f;
+            } else {
+                player->position.x = screenWidth - playerWidth;
+            }
+
         } else {
             player->position.x = screenWidth - playerWidth;
         }
@@ -227,14 +231,18 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         SceneNode* current = GetCurrentScene();
         
         if (current->previous != NULL) {
-            DespawnAllEnemies();
-            DespawnAllPlayerBullets();
-            DespawnAllEnemyBullets();
-            
-            current->enemiesSpawned = false;
-            
-            SetCurrentScene(current->previous);
-            player->position.x = screenWidth - playerWidth - 10.0f;
+
+            if (AreAllEnemiesDefeated()) {
+                DespawnAllEnemies();
+                DespawnAllPlayerBullets();
+                DespawnAllEnemyBullets();
+                current->enemiesSpawned = false; 
+                SetCurrentScene(current->previous);
+                player->position.x = screenWidth - playerWidth - 10.0f;
+            } else {
+                player->position.x = 0;
+            }
+
         } else {
             player->position.x = 0;
         }

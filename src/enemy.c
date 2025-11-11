@@ -608,3 +608,15 @@ void DrawEnemyPool(void) {
         }
     }
 }
+
+bool AreAllEnemiesDefeated(void) {
+    
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        
+        if (enemyPool[i].active) {
+            return false;
+        }
+    }
+    
+    return true;
+}
