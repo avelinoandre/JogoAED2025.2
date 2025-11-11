@@ -246,7 +246,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     }
 
     if (IsKeyPressed(KEY_SPACE)) {
-        player->health -= 20;
+        player->health += 20;
         if (player->health < 0) player->health = 0;
     }
 }

@@ -8,15 +8,15 @@
 #include <time.h>
 #include "globals.h"
 #include "gemini_ai.h" 
-#include <stdio.h>   
-
-CharacterType selectedCharacter = CHAR_JOHNNY;
+#include <stdio.h> 
 
 static Player player;
 static const int screenWidth = 1600;
 static const int screenHeight = 900;
 static int totalEnemiesInScene = 0;
+static SceneNode* lastScene = NULL; 
 
+CharacterType selectedCharacter = CHAR_JOHNNY;
 
 void InitGame(void) {
     InitMap();
@@ -28,15 +28,14 @@ void InitGame(void) {
     InitBulletPool();
     InitEnemyBulletPool();
 
+    lastScene = NULL;
 }
-
-static SceneNode* lastScene = NULL;
 
 int UpdateGame(void) {
     if (player.health <= 0) {
         return 2; 
     }
-
+    
     SceneNode* currentScene = GetCurrentScene();
     
     if (currentScene != lastScene) 
@@ -48,7 +47,7 @@ int UpdateGame(void) {
         lastScene = currentScene; 
     }
     
-    IA_Update(GetFrameTime());
+    IA_Update(GetFrameTime(), &player);
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         return 1; 
@@ -73,7 +72,6 @@ int UpdateGame(void) {
         }
 
         if (pack->active) { 
-            Texture2D currentTexture = GetPlayerCurrentTexture(&player);
             Rectangle playerBounds = GetPlayerRect(&player); 
             Texture2D ammoTexture = GetAmmoPackTexture();
             Rectangle ammoBounds = {
@@ -95,7 +93,7 @@ int UpdateGame(void) {
 }
 
 void DrawEnemyCounter(void) {
-    if (totalEnemiesInScene == 0) {
+    if (totalEnemiesInScene == 0 && !IA_EstaAtiva()) {
         return;
     }
 

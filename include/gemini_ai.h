@@ -7,10 +7,9 @@
 
 void IA_IniciaCena(SceneNode* cena, Player* jogador);
 
-void IA_Update(float deltaTime);
+void IA_Update(float deltaTime, Player* jogador);
 
 int IA_GetTotalInimigos();
-
 bool IA_EstaAtiva();
 
 #endif 

@@ -8,6 +8,8 @@ typedef struct SceneNode {
     struct SceneNode* next;
     struct SceneNode* previous;
 
+    int id; 
+
     int enemyCount;  
     bool enemiesSpawned; 
     bool isCleared;
@@ -19,4 +21,4 @@ void DrawCurrentMap(void);
 SceneNode* GetCurrentScene(void);
 void SetCurrentScene(SceneNode* newScene);
 
-#endif // MAPA_H_
+#endif

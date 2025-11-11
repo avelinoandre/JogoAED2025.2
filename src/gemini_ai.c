@@ -1,34 +1,55 @@
 #include "gemini_ai.h"
-#include "enemy.h"
+#include "enemy.h"    
 #include "globals.h"
+#include "player.h"   
+#include "mapa.h"     
 #include <stdlib.h> 
 #include <stdio.h>
 
-// --- Variáveis de Controle da IA ---
+#define IA_DELAY_INICIAL 2.0f
+#define IA_DELAY_SPAWN_BASE 1.8f      
+#define IA_MIN_INIMIGOS_CENA 3       
+#define IA_MAX_INIMIGOS_CENA 10      
+#define IA_MAX_INIMIGOS_CONCORRENTES 4 
+#define IA_CHANCE_SPAWN_DUPLO 30       
+#define IA_DELAY_SPAWN_DUPLO 0.5f      
+
 static int totalInimigosParaSpawnar;
 static int inimigosJaSpawnados;
 static float delayInicialTimer; 
 static float delayEntreSpawnsTimer;
 static bool iaAtiva;
+static bool spawnDuploPendente; 
 
-// --- Variáveis de SKILL (Nível 2) ---
-
-// Modificador da velocidade de spawn (1.0 = normal)
 static float spawnRateModificador; 
-
-// Guarda o estado de saúde do jogador no início da cena
 static int saudeJogadorCache; 
 
-// --- Constantes da IA ---
-#define IA_DELAY_INICIAL 2.0f
-#define IA_DELAY_SPAWN_BASE 1.5f
+static int Clamp(int valor, int minimo, int maximo) {
+    if (valor < minimo) return minimo;
+    if (valor > maximo) return maximo;
+    return valor;
+}
 
-static Vector2 GerarPosicaoSpawn() {
+static Vector2 GerarPosicaoSpawn(Player* jogador) {
     const int screenWidth = 1600;
     const int screenHeight = 900;
     float spawnX;
-    
-    if (rand() % 2 == 0) {
+
+    float centroTela = screenWidth / 2.0f;
+    int chanceSpawnDireita;
+
+    if (jogador->position.x < centroTela - 200) {
+       
+        chanceSpawnDireita = 70; 
+    } else if (jogador->position.x > centroTela + 200) {
+        
+        chanceSpawnDireita = 30; 
+    } else {
+        chanceSpawnDireita = 50; 
+    }
+
+    if (rand() % 100 < chanceSpawnDireita) {
+        
         spawnX = (float)(screenWidth + 50 + (rand() % 150));
     } else {
         spawnX = (float)(-50 - (rand() % 150));
@@ -38,21 +59,20 @@ static Vector2 GerarPosicaoSpawn() {
     return (Vector2){spawnX, spawnY};
 }
 
-static void SpawnarUmInimigo() {
-    Vector2 pos = GerarPosicaoSpawn();
+static void SpawnarUmInimigo(Player* jogador) {
+    Vector2 pos = GerarPosicaoSpawn(jogador);
     int randomType;
 
-    // --- REGRA DE SELEÇÃO (Nível 2) ---
-    // A IA decide O QUE spawnar com base na saúde do jogador
-    
     if (saudeJogadorCache < 50) {
-        // Vida Baixa: Só spawna inimigos melee (tipo 0 e 1)
-        printf("IA (Seleção): Vida baixa. Spawning inimigo melee.\n");
-        randomType = rand() % 2; // Apenas GARNET ou LIMAO
-    } else {
-        // Vida Normal/Alta: Spawna qualquer tipo
-        printf("IA (Seleção): Vida OK. Spawning tipo aleatório.\n");
-        randomType = rand() % 4; // Qualquer um dos 4
+        randomType = rand() % 2; 
+    } 
+    else if (jogador->health >= jogador->maxHealth && inimigosJaSpawnados == 0) {
+        
+        printf("IA (Tático): Vida cheia. Enviando especialista (Mojo/Marvin).\n");
+        randomType = 2 + (rand() % 2); 
+    }
+    else {
+        randomType = rand() % 4; 
     }
     
     SpawnEnemy((EnemyType)randomType, pos);
@@ -64,74 +84,51 @@ static void SpawnarUmInimigo() {
 }
 
 
-// --- Funções Públicas (do .h) ---
 
-// ATUALIZADO: Agora recebe o Player
 void IA_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
 
-    // IA pega o total de inimigos base do mapa
-    int totalInimigosBase = cena->enemyCount;
-    
+    int totalInimigosBase = 3 + (int)(cena->id * 0.75f);
+    printf("IA (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
+
     if (cena->isCleared) {
         totalInimigosBase = 0;
     }
 
-    // --- LÓGICA DE SKILL (Nível 2) ---
     float saudePercent = (float)jogador->health / (float)jogador->maxHealth;
-    saudeJogadorCache = jogador->health; // Salva para a Regra de Seleção
+    saudeJogadorCache = jogador->health; 
+    int totalCalculado = totalInimigosBase;
 
-    // --- REGRA DE QUANTIDADE (Nível 2) ---
-    if (saudePercent < 0.5f) { // Menos de 50% de vida
-        printf("IA (Skill): Jogador com vida baixa (%.0f%%). Reduzindo dificuldade.\n", saudePercent*100);
-        totalInimigosParaSpawnar = totalInimigosBase / 2;
-        if (totalInimigosParaSpawnar == 0 && totalInimigosBase > 0) {
-            totalInimigosParaSpawnar = 1; // Pelo menos 1
-        }
-    } else {
-        printf("IA (Skill): Jogador com vida OK (%.0f%%). Dificuldade normal.\n", saudePercent*100);
-        totalInimigosParaSpawnar = totalInimigosBase;
-    }
-    
-    // --- REGRA DE VELOCIDADE (Nível 2) ---
     if (saudePercent < 0.5f) {
-        // 50% mais devagar
-        spawnRateModificador = 1.5f; 
-        printf("IA (Velocidade): Spawns 50%% mais LENTOS.\n");
-    } else if (jogador->health >= jogador->maxHealth) { // 100% de vida
-        // 30% mais rápido
-        spawnRateModificador = 0.7f; 
-        printf("IA (Velocidade): Vida cheia. Spawns 30%% mais RÁPIDOS.\n");
-    } else {
-        // Velocidade normal
-        spawnRateModificador = 1.0f; 
-        printf("IA (Velocidade): Spawns em velocidade normal.\n");
+        totalCalculado = totalInimigosBase / 2;
+    } 
+    
+    totalInimigosParaSpawnar = Clamp(totalCalculado, IA_MIN_INIMIGOS_CENA, IA_MAX_INIMIGOS_CENA);
+    if (cena->isCleared) {
+        totalInimigosParaSpawnar = 0;
     }
-    // --- Fim da Lógica de Skill ---
+    printf("IA (Clamp): Total final: %d\n", totalInimigosParaSpawnar);
 
+    
+    if (saudePercent < 0.5f) spawnRateModificador = 1.5f; 
+    else if (jogador->health >= jogador->maxHealth) spawnRateModificador = 0.7f; 
+    else spawnRateModificador = 1.0f; 
 
-    // Reseta as variáveis da IA
     inimigosJaSpawnados = 0;
     iaAtiva = true;
-
-    if (totalInimigosParaSpawnar == 0) {
-        iaAtiva = false;
-        return;
-    }
-    
+    spawnDuploPendente = false; 
     delayInicialTimer = IA_DELAY_INICIAL;
     delayEntreSpawnsTimer = 0.0f;
-
-    printf("IA: Cena iniciada. Preparando para spawnar %d inimigos (Base era %d).\n", 
-           totalInimigosParaSpawnar, totalInimigosBase);
 }
 
-void IA_Update(float deltaTime) {
+void IA_Update(float deltaTime, Player* jogador) {
     if (!iaAtiva) return;
 
     if (inimigosJaSpawnados >= totalInimigosParaSpawnar) {
-        iaAtiva = false;
-        printf("IA: Spawn de %d inimigos concluído.\n", totalInimigosParaSpawnar);
+        if (iaAtiva) {
+            iaAtiva = false;
+            printf("IA: Spawn de %d inimigos concluído.\n", totalInimigosParaSpawnar);
+        }
         return;
     }
 
@@ -142,12 +139,32 @@ void IA_Update(float deltaTime) {
 
     delayEntreSpawnsTimer -= deltaTime;
 
-    if (delayEntreSpawnsTimer <= 0.0f) {
-        SpawnarUmInimigo();
-        inimigosJaSpawnados++;
+    if (spawnDuploPendente && delayEntreSpawnsTimer <= 0.0f) {
+        spawnDuploPendente = false; 
+        delayEntreSpawnsTimer = 0; 
+        printf("IA (Tático): Spawnando parceiro (Spawn Duplo)!\n");
+    }
 
-        // ATUALIZADO: Usa o modificador de velocidade
-        delayEntreSpawnsTimer = (IA_DELAY_SPAWN_BASE + (float)(rand() % 10) / 10.0f) * spawnRateModificador;
+    if (delayEntreSpawnsTimer <= 0.0f) {
+        int inimigosVivos = GetActiveEnemyCount();
+        
+        if (inimigosVivos < IA_MAX_INIMIGOS_CONCORRENTES) {
+            SpawnarUmInimigo(jogador);
+            inimigosJaSpawnados++;
+
+            float variacao = (float)(rand() % 10) / 10.0f;
+            delayEntreSpawnsTimer = (IA_DELAY_SPAWN_BASE + variacao) * spawnRateModificador;
+
+            if (!spawnDuploPendente && inimigosJaSpawnados < totalInimigosParaSpawnar) {
+                if (rand() % 100 < IA_CHANCE_SPAWN_DUPLO) {
+                    spawnDuploPendente = true;
+                    delayEntreSpawnsTimer = IA_DELAY_SPAWN_DUPLO; 
+                }
+            }
+        
+        } else {
+            delayEntreSpawnsTimer = 0.5f;
+        }
     }
 }
 
