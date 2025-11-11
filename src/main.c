@@ -4,7 +4,7 @@
 #include "comoJogar.h"
 #include "jogo.h" 
 #include "bullet.h" 
-#include "globals.h"     
+#include "globals.h"      
 #include "char_select.h"  
 
 typedef enum {
@@ -12,7 +12,7 @@ typedef enum {
     STATE_GAME,
     STATE_SOBRE,
     STATE_COMO_JOGAR,
-    STATE_CHAR_SELECT,
+    STATE_CHAR_SELECT, 
     STATE_EXIT
 } GameState;
 
@@ -24,6 +24,7 @@ int main(void) {
 
     Menu menu;
     InitMenu(&menu);
+
     InitCharSelectMenu(); 
     
     GameState state = STATE_MENU;
@@ -42,11 +43,13 @@ int main(void) {
 
             case STATE_GAME:
                 {
-                    int gameResult = UpdateGame();
-                    if (gameResult == 1) state = STATE_MENU; 
-                    else if (gameResult == 2) state = STATE_MENU; 
+                    int gameResult = UpdateGame(); 
+                    
+                    if (gameResult == 1 || gameResult == 2) { 
+                        UnloadGame();       
+                        state = STATE_MENU; 
+                    }
                 }
-                UpdateBulletPool(screenWidth, screenHeight);
                 break;
 
             case STATE_SOBRE:
@@ -56,16 +59,15 @@ int main(void) {
             case STATE_COMO_JOGAR:
                 if (UpdateComoJogarScreen()) state = STATE_MENU;
                 break;
-        
+            
             case STATE_CHAR_SELECT:
                 { 
                     GameState oldState = state; 
                     
-                    UpdateCharSelectMenu((int*)&state);
+                    UpdateCharSelectMenu((int*)&state); 
 
                     if (oldState == STATE_CHAR_SELECT && state == STATE_GAME) {
-                        InitGame();     
-                        InitBulletPool();
+                        InitGame();    
                     }
                 }
                 break;
@@ -84,7 +86,6 @@ int main(void) {
 
             case STATE_GAME:
                 DrawGame();
-                DrawBulletPool();
                 break;
 
             case STATE_SOBRE:
@@ -106,9 +107,7 @@ int main(void) {
         EndDrawing();
     }
 
-    UnloadGame();
     UnloadMenu(&menu);
-    UnloadBulletAssets();
     UnloadCharSelectMenu(); 
     CloseWindow();
     return 0;

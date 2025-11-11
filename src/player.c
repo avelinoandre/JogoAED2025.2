@@ -8,7 +8,7 @@
 
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
-#define PLAYER_ANIM_SPEED_ATAQUE 30
+
 
 void InitPlayer(Player *player, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
@@ -30,6 +30,7 @@ void InitPlayer(Player *player, int startX, int startY) {
             player->idleFrameCount = 2;
             player->walkFrameCount = 3;
             player->attackFrameCount = 1;
+            player->attackAnimSpeed = 20;
             
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
@@ -52,7 +53,8 @@ void InitPlayer(Player *player, int startX, int startY) {
         case CHAR_FINN:
             player->idleFrameCount = 2; 
             player->walkFrameCount = 4;
-            player->attackFrameCount = 3; 
+            player->attackFrameCount = 2; 
+            player->attackAnimSpeed = 10;
             
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
@@ -68,13 +70,13 @@ void InitPlayer(Player *player, int startX, int startY) {
 
             player->attackTextures[0] = LoadTexture("assets/Sprites/Finn/Finnataque/finnataque1.png");
             player->attackTextures[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finnataque2.png");
-            player->attackTextures[2] = LoadTexture("assets/Sprites/Finn/Finnataque/finn26.png");
             break;
 
         case CHAR_SAMURAI:
-            player->idleFrameCount = 2; 
-            player->walkFrameCount = 4;
-            player->attackFrameCount = 3; 
+            player->idleFrameCount = 2;
+            player->walkFrameCount = 4; 
+            player->attackFrameCount = 2;
+            player->attackAnimSpeed = 20; 
             
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
@@ -90,27 +92,30 @@ void InitPlayer(Player *player, int startX, int startY) {
 
             player->attackTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samuraiataque1.png");
             player->attackTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samuraiataque2.png");
-            player->attackTextures[2] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samurai26.png");
             break;
             
         case CHAR_MORDECAI:
             player->idleFrameCount = 2; 
-            player->walkFrameCount = 3; 
+            player->walkFrameCount = 6; 
             player->attackFrameCount = 2; 
+            player->attackAnimSpeed = 10;
             
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
             player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
             
-            player->idleTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaiparado/mordecaiparado1.png");
-            player->idleTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaiparado/mordecai8.png");
+            player->idleTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoparado/mordecaidescoladoparado.png");
+            player->idleTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoparado/mordecai51.png");
 
-            player->walkTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaimovimentacao/mordecaiandando1.png");
-            player->walkTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaimovimentacao/mordecaiandando2.png");
-            player->walkTextures[2] = LoadTexture("assets/Sprites/Mordecai/Mordecaimovimentacao/mordecaiandando3.png");
+            player->walkTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladomovimentacao/mordecaidescoladocorrendo1.png");
+            player->walkTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladomovimentacao/mordecaidescoladocorrendo2.png");
+            player->walkTextures[2] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladomovimentacao/mordecaidescoladocorrendo3.png");
+            player->walkTextures[3] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladomovimentacao/mordecaidescoladocorrendo4.png");
+            player->walkTextures[4] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladomovimentacao/mordecaidescoladocorrendo5.png");
+            player->walkTextures[5] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladomovimentacao/mordecaidescoladocorrendo6.png");
 
-            player->attackTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaiataque/mordecaiataque1.png");
-            player->attackTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaiataque/mordecaiataque2.png");
+            player->attackTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoataque/mordecaidescoladoataque1.png");
+            player->attackTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoataque/mordecaidescoladoataque2.png");
             break;
     }
 }
@@ -121,7 +126,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         player->isAttacking = true;
         player->currentFrame = 0;
         player->framesCounter = 0;
-        player->framesSpeed = PLAYER_ANIM_SPEED_ATAQUE;
+        player->framesSpeed = player->attackAnimSpeed;
         Texture2D attackTexture = player->attackTextures[0];
         float playerHeight = (float)attackTexture.height * player->scale;
         float playerWidth = (float)attackTexture.width * player->scale;
@@ -135,7 +140,10 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         } else { 
             startPos.x = player->position.x + offsetX_Left;
         }
-        SpawnBullet(startPos, player->direction);
+
+        if (selectedCharacter == CHAR_JOHNNY) {
+            SpawnBullet(startPos, player->direction);
+        }
     }
 
     bool wasMoving = player->isMoving;
@@ -269,7 +277,7 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
 Rectangle GetPlayerRect(const Player *player) {
     Texture2D currentTexture;
     int frame = player->currentFrame;
-
+    
     if (player->isAttacking) {
         if (frame >= player->attackFrameCount) frame = player->attackFrameCount - 1; 
         currentTexture = player->attackTextures[frame];
@@ -289,8 +297,33 @@ Rectangle GetPlayerRect(const Player *player) {
     return rect;
 }
 
-void UnloadPlayer(Player *player) {
 
+Rectangle GetPlayerMeleeRect(Player *player) {
+    if (!player->isAttacking || selectedCharacter == CHAR_JOHNNY) {
+        return (Rectangle){ 0, 0, 0, 0 };
+    }
+
+    #define MELEE_RANGE 80.0f
+    #define MELEE_HEIGHT 100.0f
+
+    Rectangle playerRect = GetPlayerRect(player);
+    Rectangle meleeRect;
+
+    meleeRect.y = playerRect.y + (playerRect.height / 2) - (MELEE_HEIGHT / 2);
+    meleeRect.width = MELEE_RANGE;
+    meleeRect.height = MELEE_HEIGHT;
+
+    if (player->direction == 1) {
+        meleeRect.x = playerRect.x + playerRect.width;
+    } else { 
+        meleeRect.x = playerRect.x - MELEE_RANGE;
+    }
+
+    return meleeRect;
+}
+
+
+void UnloadPlayer(Player *player) {
     for (int i = 0; i < player->idleFrameCount; i++) {
         UnloadTexture(player->idleTextures[i]);
     }
@@ -304,5 +337,4 @@ void UnloadPlayer(Player *player) {
     free(player->idleTextures);
     free(player->walkTextures);
     free(player->attackTextures);
-
 }

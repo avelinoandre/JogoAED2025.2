@@ -3,6 +3,7 @@
 #include <math.h>    
 #include "bullet.h"
 #include <stdlib.h>
+#include "globals.h" 
 
 static Enemy enemyPool[MAX_ENEMIES];
 static Texture2D enemyTexture;
@@ -42,6 +43,8 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
     
     Rectangle playerRect = GetPlayerRect(player);
 
+    Rectangle meleeRect = GetPlayerMeleeRect(player);
+
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemyPool[i].active) continue;
         
@@ -69,8 +72,18 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         };
 
         int damageTaken = 0;
-        if (CheckBulletCollision(enemyRect, &damageTaken)) {
-            enemy->health -= damageTaken;
+        if (selectedCharacter == CHAR_JOHNNY) {
+            if (CheckBulletCollision(enemyRect, &damageTaken)) {
+                enemy->health -= damageTaken;
+            }
+        } else {
+            if (meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
+                
+                if (enemy->attackTimer <= 0) { 
+                    enemy->health -= ENEMY_MELEE_DAMAGE; 
+                    enemy->attackTimer = 0.5f; 
+                }
+            }
         }
 
         if (enemy->attackTimer > 0) {
@@ -85,7 +98,7 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         if (enemy->health <= 0) {
             enemy->active = false; 
             
-            if ((rand() % 3) == 0) { // uma chance em 3 da para diminuir
+            if ((rand() % 3) == 0 && selectedCharacter == CHAR_JOHNNY) { 
                 SpawnAmmoPack(enemy->position);
             }
         }

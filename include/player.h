@@ -24,6 +24,8 @@ typedef struct Player {
     int idleFrameCount;
     int walkFrameCount;
     int attackFrameCount;
+    
+    int attackAnimSpeed;
 
     int currentFrame;
     int framesCounter;
@@ -38,5 +40,6 @@ void UnloadPlayer(Player *player);
 Texture2D GetPlayerCurrentTexture(const Player *player);
 void SpawnBullet(Vector2 startPos, int direction);
 Rectangle GetPlayerRect(const Player *player);
+Rectangle GetPlayerMeleeRect(Player *player);
 
 #endif
