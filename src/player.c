@@ -128,7 +128,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     if (player->collisionDamageTimer > 0) {
         player->collisionDamageTimer -= GetFrameTime();
     }
- 
+
     if (IsKeyPressed(KEY_X) && !player->isAttacking) {
         player->isAttacking = true;
         player->currentFrame = 0;
@@ -203,11 +203,9 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         player->health -= damageTaken;
     }
 
-
     Texture2D currentTexture = GetPlayerCurrentTexture(player);
     float playerWidth = (float)currentTexture.width * player->scale;
     float playerHeight = (float)currentTexture.height * player->scale;
-
 
     if (player->position.x + playerWidth > screenWidth) {
         SceneNode* current = GetCurrentScene();
@@ -216,6 +214,9 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
             DespawnAllEnemies();
             DespawnAllPlayerBullets(); 
             DespawnAllEnemyBullets(); 
+            
+            current->enemiesSpawned = false;
+            
             SetCurrentScene(current->next);
             player->position.x = 10.0f;
         } else {
@@ -227,15 +228,17 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         
         if (current->previous != NULL) {
             DespawnAllEnemies();
-            DespawnAllPlayerBullets(); 
-            DespawnAllEnemyBullets(); 
+            DespawnAllPlayerBullets();
+            DespawnAllEnemyBullets();
+            
+            current->enemiesSpawned = false;
+            
             SetCurrentScene(current->previous);
             player->position.x = screenWidth - playerWidth - 10.0f;
         } else {
             player->position.x = 0;
         }
     }
-
 
     if (player->position.y < RUA_LIMITE_SUPERIOR) {
         player->position.y = RUA_LIMITE_SUPERIOR;
