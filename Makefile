@@ -22,7 +22,7 @@ OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRCS)))
 TARGET = $(BIN_DIR)/SMASH_TOONS
 
 # Bibliotecas
-LIBS = -lraylib -lm -ldl -lGL -lpthread -lrt -lX11
+LIBS = -lraylib -lm -ldl -lGL -lpthread -lrt -lX11 -lcurl
 
 # Regras
 .PHONY: all clean run

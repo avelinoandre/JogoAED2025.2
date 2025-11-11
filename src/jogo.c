@@ -7,6 +7,8 @@
 #include <stdlib.h> 
 #include <time.h>
 #include "globals.h"
+#include "gemini_ai.h" 
+#include <stdio.h>   
 
 CharacterType selectedCharacter = CHAR_JOHNNY;
 
@@ -15,29 +17,6 @@ static const int screenWidth = 1600;
 static const int screenHeight = 900;
 static int totalEnemiesInScene = 0;
 
-void SpawnSceneEnemies(SceneNode* scene) {
-
-    if (scene == NULL || scene->enemiesSpawned) {
-        return;
-    }
-
-    printf("Spawning %d inimigos para a nova cena!\n", scene->enemyCount);
-    
-    totalEnemiesInScene = scene->enemyCount;
-
-    for (int i = 0; i < scene->enemyCount; i++) {
-        float spawnX = (float)(screenWidth + 50 + (rand() % 150));
-        float spawnY = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150)); 
-        
-        
-        int randomType = rand() % 4;
-
-        SpawnEnemy((EnemyType)randomType, (Vector2){spawnX, spawnY});
-        
-    }
-
-    scene->enemiesSpawned = true;
-}
 
 void InitGame(void) {
     InitMap();
@@ -49,13 +28,27 @@ void InitGame(void) {
     InitBulletPool();
     InitEnemyBulletPool();
 
-    SpawnSceneEnemies(GetCurrentScene());
 }
+
+static SceneNode* lastScene = NULL;
 
 int UpdateGame(void) {
     if (player.health <= 0) {
         return 2; 
     }
+
+    SceneNode* currentScene = GetCurrentScene();
+    
+    if (currentScene != lastScene) 
+    {
+        IA_IniciaCena(currentScene, &player);
+        
+        totalEnemiesInScene = IA_GetTotalInimigos(); 
+        
+        lastScene = currentScene; 
+    }
+    
+    IA_Update(GetFrameTime());
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         return 1; 
@@ -98,7 +91,6 @@ int UpdateGame(void) {
     UpdateEnemyPool(&player, screenHeight);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
     
-    SpawnSceneEnemies(GetCurrentScene());
     return 0; 
 }
 
@@ -109,7 +101,7 @@ void DrawEnemyCounter(void) {
 
     int remaining = GetActiveEnemyCount();
     
-    if (remaining == 0) {
+    if (remaining == 0 && !IA_EstaAtiva()) {
         const char *text = "LIMPO!";
         int fontSize = 30;
         int textWidth = MeasureText(text, fontSize);
@@ -117,7 +109,7 @@ void DrawEnemyCounter(void) {
         int posY = 20;
         DrawText(text, posX, posY, fontSize, GREEN);
     } else {
-        const char *text = TextFormat("INIMIGOS: %d", remaining);
+        const char *text = TextFormat("INIMIGOS: %d / %d", remaining, totalEnemiesInScene);
         int fontSize = 30;
         int textWidth = MeasureText(text, fontSize);
         int posX = screenWidth - textWidth - 20;

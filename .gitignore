@@ -1,0 +1,8 @@
+config.txt
+*.env
+
+object/
+
+main
+*~
+*.bak

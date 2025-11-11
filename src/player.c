@@ -234,18 +234,6 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         
         if (current->previous != NULL) {
 
-            DespawnAllEnemies();
-            DespawnAllPlayerBullets();
-            DespawnAllEnemyBullets();
-            
-            if (!current->isCleared) {
-                current->enemiesSpawned = false;
-            }
-            
-            SetCurrentScene(current->previous);
-            player->position.x = screenWidth - playerWidth - 10.0f;
-
-        } else {
             player->position.x = 0;
         }
     }
