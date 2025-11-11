@@ -1,5 +1,6 @@
 #include "bullet.h"
 #include "raylib.h" 
+#include "raymath.h"
 
 #define BULLET_SCALE 4.0f
 #define AMMO_PACK_SCALE 4.0f
@@ -207,3 +208,119 @@ void ReloadAmmo(void) {
     ammoPackFrameTimer = 0.0f;
 }
 
+
+
+static Bullet enemyBulletPool[MAX_ENEMY_BULLETS];
+
+void InitEnemyBulletPool(void) {
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        enemyBulletPool[i].active = false;
+    }
+}
+
+void UnloadEnemyBulletAssets(void) {
+    
+}
+
+void DespawnAllPlayerBullets(void) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        bulletPool[i].active = false;
+    }
+}
+
+void DespawnAllEnemyBullets(void) {
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        enemyBulletPool[i].active = false;
+    }
+}
+
+void SpawnEnemyBullet(Vector2 startPos, int direction, float speed, int damage) {
+    
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        if (!enemyBulletPool[i].active) {
+            Bullet *bullet = &enemyBulletPool[i];
+            
+            bullet->active = true;
+            bullet->position = startPos;
+            bullet->damage = damage; 
+
+            bullet->speed.x = speed * direction;
+            bullet->speed.y = 0;
+            
+            return; 
+        }
+    }
+}
+
+void UpdateEnemyBulletPool(int screenWidth, int screenHeight) {
+    
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        
+        if (!enemyBulletPool[i].active) {
+            continue;
+        }
+
+        Bullet *bullet = &enemyBulletPool[i];
+
+        bullet->position.x += bullet->speed.x;
+        bullet->position.y += bullet->speed.y;
+
+        if (bullet->position.x < 0 || 
+            bullet->position.x > screenWidth ||
+            bullet->position.y < 0 || 
+            bullet->position.y > screenHeight) 
+        {
+            bullet->active = false;
+        }
+    }
+}
+
+void DrawEnemyBulletPool(void) {
+    extern Texture2D bulletTexture; 
+
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        if (enemyBulletPool[i].active) {          
+            float scaledWidth = bulletTexture.width * BULLET_SCALE;
+            float scaledHeight = bulletTexture.height * BULLET_SCALE;
+
+            Vector2 pos = { 
+                enemyBulletPool[i].position.x - (scaledWidth / 2.0f), 
+                enemyBulletPool[i].position.y - (scaledHeight / 2.0f) 
+            };
+
+            DrawTextureEx(bulletTexture, pos, 0.0f, BULLET_SCALE, WHITE);
+        }
+    }
+}
+
+
+bool CheckEnemyBulletCollision(Rectangle targetRect, int *damageTaken) {
+    
+    extern Texture2D bulletTexture; 
+
+    for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
+        if (!enemyBulletPool[i].active) {
+            continue;
+        }
+
+        Bullet *bullet = &enemyBulletPool[i]; 
+
+        float scaledWidth = bulletTexture.width * BULLET_SCALE;
+        float scaledHeight = bulletTexture.height * BULLET_SCALE;
+        Rectangle bulletRect = {
+            bullet->position.x - (scaledWidth / 2.0f),
+            bullet->position.y - (scaledHeight / 2.0f),
+            scaledWidth,
+            scaledHeight
+        };
+
+        if (CheckCollisionRecs(targetRect, bulletRect)) {
+            bullet->active = false;          
+            *damageTaken = bullet->damage;   
+            return true;
+        }
+    }
+    
+    *damageTaken = 0;
+    return false; 
+}

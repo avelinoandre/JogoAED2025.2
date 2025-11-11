@@ -4,9 +4,9 @@
 #include "raylib.h"
 
 
-#define MAX_BULLETS 50   //Limite de balas na tela
-#define BULLET_SPEED 12.0f // Velocidade da bala
-#define BULLET_RADIUS 5.0f // Tamanho da bala 
+#define MAX_BULLETS 50   
+#define BULLET_SPEED 12.0f 
+#define BULLET_RADIUS 5.0f 
 
 typedef struct Bullet {
     Vector2 position;
@@ -14,6 +14,7 @@ typedef struct Bullet {
     bool active; 
     float radius;
     Color color;
+    int damage; 
 } Bullet;
 
 typedef struct AmmoPack {
@@ -26,7 +27,7 @@ void UpdateBulletPool(int screenWidth, int screenHeight);
 void DrawBulletPool(void);
 void SpawnBullet(Vector2 startPos, int direction);
 void SpawnAmmoPack(Vector2 position);;
-int GetCurrentAmmo();
+int GetCurrentAmmo(void);
 bool IsReloading(void);
 void DrawAmmoCount(void);
 void DrawAmmoPack(void);
@@ -35,4 +36,21 @@ AmmoPack* GetAmmoPack(void);
 Texture2D GetAmmoPackTexture(void); 
 void ReloadAmmo(void);
 void UnloadBulletAssets(void);
+void DespawnAllPlayerBullets(void);
+
+#define MAX_ENEMY_BULLETS 100 
+#define ENEMY_BULLET_SPEED_MOJO 8.0f
+#define ENEMY_BULLET_SPEED_MARVIN 13.0f
+
+void InitEnemyBulletPool(void);
+void UpdateEnemyBulletPool(int screenWidth, int screenHeight);
+void DrawEnemyBulletPool(void);
+void DespawnAllEnemyBullets(void);
+
+void SpawnEnemyBullet(Vector2 startPos, int direction, float speed, int damage);
+
+bool CheckEnemyBulletCollision(Rectangle targetRect, int *damageTaken);
+
+void UnloadEnemyBulletAssets(void);
+
 #endif

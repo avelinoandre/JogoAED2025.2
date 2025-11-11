@@ -30,6 +30,8 @@ typedef struct Player {
     int currentFrame;
     int framesCounter;
     int framesSpeed; 
+
+    float collisionDamageTimer;
 } Player;
 
 void InitPlayer(Player *player, int startX, int startY);

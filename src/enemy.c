@@ -250,8 +250,8 @@ void SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->maxHealth = 200;
                     enemy->speed = 1.0f; 
                     enemy->scale = 4.5f; 
-                    enemy->damage = 25;  
-                    enemy->attackCooldown = 2.5f; 
+                    enemy->damage = 20;  
+                    enemy->attackCooldown = 2.1f; 
                     enemy->framesSpeed = Mojo_ATTACK_SPEED;
 
                     enemy->idleFrameCount = Mojo_IDLE_FRAMES;
@@ -270,7 +270,7 @@ void SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->speed = 1.5f; 
                     enemy->scale = 4.0f;
                     enemy->damage = 15;  
-                    enemy->attackCooldown = 2.0f; 
+                    enemy->attackCooldown = 1.8f; 
                     enemy->framesSpeed = Marvin_ATTACK_SPEED;
 
                     enemy->idleFrameCount = Marvin_IDLE_FRAMES;
@@ -302,7 +302,7 @@ void DespawnAllEnemies(void) {
 void UpdateEnemyPool(Player *player, int screenHeight) {
     
     Rectangle playerRect = GetPlayerRect(player);
-    Rectangle meleeRect = GetPlayerMeleeRect(player);
+    Rectangle meleeRect = GetPlayerMeleeRect(player); 
 
     for (int i = 0; i < MAX_ENEMIES; i++) {
         
@@ -314,26 +314,28 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         bool wasMoving = enemy->isMoving;
         enemy->isMoving = false; 
 
-        
         if (enemy->attackTimer > 0) {
             enemy->attackTimer -= GetFrameTime();
         }
 
-        
         if (!enemy->isAttacking) {
             
-            Vector2 direction = Vector2Subtract(player->position, enemy->position);
-            float distance = Vector2Length(direction);
+            Vector2 playerPos = player->position;
             
+            float distanceX = fabsf(playerPos.x - enemy->position.x);
+            float distanceY = fabsf(playerPos.y - enemy->position.y);
+            float alignThreshold = 20.0f; 
+
             
             switch(enemy->type) {
-                
                 
                 case ENEMY_GARNET:
                 case ENEMY_LIMAO:
                 {
-                    if (distance > 60.0f) { // 
-                        direction = Vector2Normalize(direction); 
+                    float distance = Vector2Distance(playerPos, enemy->position);
+
+                    if (distance > 100.0f) { 
+                        Vector2 direction = Vector2Normalize(Vector2Subtract(playerPos, enemy->position)); 
                         enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
                         enemy->isMoving = true;
                     } else if (enemy->attackTimer <= 0) { 
@@ -342,42 +344,65 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
                         enemy->framesCounter = 0;
                         enemy->attackTimer = enemy->attackCooldown;
                     }
-                    break; 
+                    break;
                 }
                 
                 case ENEMY_MOJO:
                 {
-                    float minRange = 300.0f;
-                    float maxRange = 350.0f;
+                    float minRange = 300.0f; 
+                    float maxRange = 350.0f; 
 
-                    if (enemy->attackTimer <= 0) {
+                    bool isAlignedY = (distanceY <= alignThreshold);
+                    bool canAttack = (enemy->attackTimer <= 0);
+                    bool inShootRange = (distanceX <= maxRange);
+
+                    
+                    if (canAttack && isAlignedY && inShootRange) 
+                    {
+                        enemy->isAttacking = true;
+                        enemy->currentFrame = 0;
+                        enemy->framesCounter = 0;
+                        enemy->attackTimer = enemy->attackCooldown;
                         
-                        if (distance <= maxRange) {
-                            enemy->isAttacking = true;
-                            enemy->currentFrame = 0;
-                            enemy->framesCounter = 0;
-                            enemy->attackTimer = enemy->attackCooldown;
-                            
-                        } else {
-                            
-                            direction = Vector2Normalize(direction);
-                            enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
-                            enemy->isMoving = true;
-                        }
-                    } else {
-                        
-                        if (distance < minRange) {
-                            
-                            direction = Vector2Normalize(direction);
-                            enemy->position = Vector2Subtract(enemy->position, Vector2Scale(direction, enemy->speed * 0.8f)); // Recua um pouco mais devagar
-                            enemy->isMoving = true;
-                        } else if (distance > maxRange) {
-                            
-                            direction = Vector2Normalize(direction);
-                            enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
-                            enemy->isMoving = true;
+                        Rectangle enemyRect = GetEnemyRect(enemy);
+                        Vector2 spawnPos;
+                        spawnPos.y = enemy->position.y + (enemyRect.height * 0.6f); 
+
+                        if (enemy->direction == -1) { 
+                            spawnPos.x = enemy->position.x + (enemyRect.width * 0.2f); 
+                        } else { 
+                            spawnPos.x = enemy->position.x + (enemyRect.width * 0.8f);
                         }
                         
+                        SpawnEnemyBullet(spawnPos, enemy->direction, ENEMY_BULLET_SPEED_MOJO, enemy->damage);
+                    } 
+                    else 
+                    {
+                        if (!isAlignedY) {
+                            if (playerPos.y < enemy->position.y) {
+                                enemy->position.y -= enemy->speed * 0.7f;
+                            } else {
+                                enemy->position.y += enemy->speed * 0.7f;
+                            }
+                            enemy->isMoving = true;
+                        }
+
+                        if (distanceX < minRange) { 
+                            if (playerPos.x < enemy->position.x) {
+                                enemy->position.x += enemy->speed * 0.8f; 
+                            } else {
+                                enemy->position.x -= enemy->speed * 0.8f;
+                            }
+                            enemy->isMoving = true;
+                        } 
+                        else if (distanceX > maxRange) { 
+                            if (playerPos.x < enemy->position.x) {
+                                enemy->position.x -= enemy->speed;
+                            } else {
+                                enemy->position.x += enemy->speed;
+                            }
+                            enemy->isMoving = true;
+                        }
                     }
                     break;
                 }
@@ -387,25 +412,54 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
                     float minRange = 450.0f;
                     float maxRange = 500.0f;
                     
-                    if (enemy->attackTimer <= 0) {
-                        if (distance <= maxRange) {
-                            enemy->isAttacking = true;
-                            enemy->currentFrame = 0;
-                            enemy->framesCounter = 0;
-                            enemy->attackTimer = enemy->attackCooldown;
-                        } else {
-                            direction = Vector2Normalize(direction);
-                            enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
+                    bool isAlignedY = (distanceY <= alignThreshold);
+                    bool canAttack = (enemy->attackTimer <= 0);
+                    bool inShootRange = (distanceX <= maxRange); 
+
+                    if (canAttack && isAlignedY && inShootRange)
+                    {
+                        enemy->isAttacking = true;
+                        enemy->currentFrame = 0;
+                        enemy->framesCounter = 0;
+                        enemy->attackTimer = enemy->attackCooldown;
+
+                        Rectangle enemyRect = GetEnemyRect(enemy);
+                        Vector2 spawnPos;
+                        spawnPos.y = enemy->position.y + (enemyRect.height * 0.55f); 
+
+                        if (enemy->direction == -1) { 
+                            spawnPos.x = enemy->position.x + (enemyRect.width * 0.1f);
+                        } else { 
+                            spawnPos.x = enemy->position.x + (enemyRect.width * 0.9f);
+                        }
+
+                        SpawnEnemyBullet(spawnPos, enemy->direction, ENEMY_BULLET_SPEED_MARVIN, enemy->damage);
+                    } 
+                    else 
+                    {
+                        if (!isAlignedY) {
+                            if (playerPos.y < enemy->position.y) {
+                                enemy->position.y -= enemy->speed * 0.7f;
+                            } else {
+                                enemy->position.y += enemy->speed * 0.7f;
+                            }
                             enemy->isMoving = true;
                         }
-                    } else {
-                        if (distance < minRange) {
-                            direction = Vector2Normalize(direction);
-                            enemy->position = Vector2Subtract(enemy->position, Vector2Scale(direction, enemy->speed * 0.8f));
+
+                        if (distanceX < minRange) { 
+                            if (playerPos.x < enemy->position.x) {
+                                enemy->position.x += enemy->speed * 0.8f;
+                            } else {
+                                enemy->position.x -= enemy->speed * 0.8f;
+                            }
                             enemy->isMoving = true;
-                        } else if (distance > maxRange) {
-                            direction = Vector2Normalize(direction);
-                            enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
+                        } 
+                        else if (distanceX > maxRange) { 
+                            if (playerPos.x < enemy->position.x) {
+                                enemy->position.x -= enemy->speed;
+                            } else {
+                                enemy->position.x += enemy->speed;
+                            }
                             enemy->isMoving = true;
                         }
                     }
@@ -413,31 +467,26 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
                 }
             }
             
-            if (direction.x < 0) {
+            if (playerPos.x < enemy->position.x) {
                 enemy->direction = -1;
             }
-            if (direction.x > 0) {
+            if (playerPos.x > enemy->position.x) {
                 enemy->direction = 1;
             }
         }
-
+        
         int currentAnimFrameCount = 0;
         
         if (enemy->isAttacking) {
-            
             currentAnimFrameCount = enemy->attackFrameCount; 
             enemy->framesCounter++;
             
             if (enemy->framesCounter >= enemy->framesSpeed) {
-                
                 enemy->framesCounter = 0;
                 enemy->currentFrame++;
                 
                 if (enemy->currentFrame >= (enemy->attackFrameCount - 1)) {
-                    
-                    if (enemy->type == ENEMY_GARNET || 
-                        enemy->type == ENEMY_LIMAO)
-                    {
+                    if (enemy->type == ENEMY_GARNET || enemy->type == ENEMY_LIMAO) {
                         if (CheckCollisionRecs(GetEnemyRect(enemy), playerRect)) {
                             player->health -= enemy->damage; 
                         }
@@ -451,7 +500,6 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
             }
         } 
         else { 
-            
             if (enemy->isMoving) {
                 currentAnimFrameCount = enemy->walkFrameCount;
             } else {
@@ -476,24 +524,34 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         }
         
         Rectangle enemyRect = GetEnemyRect(enemy);
-        
+        int screenWidth = GetScreenWidth(); 
+
         if (enemy->position.y < RUA_LIMITE_SUPERIOR) {
             enemy->position.y = RUA_LIMITE_SUPERIOR;
         }
         if (enemy->position.y + enemyRect.height > screenHeight) {
             enemy->position.y = screenHeight - enemyRect.height;
         }
+
+        if (enemy->position.x < 0) {
+            enemy->position.x = 0;
+        }
+        if (enemy->position.x + enemyRect.width > screenWidth) {
+            enemy->position.x = screenWidth - enemyRect.width;
+        }
         
+        if (player->collisionDamageTimer <= 0 && CheckCollisionRecs(playerRect, enemyRect)) {
+            player->health -= 3; 
+            player->collisionDamageTimer = 0.5f; 
+        }
+
         int damageTaken = 0;
-        
         if (selectedCharacter == CHAR_JOHNNY) {
-            
             if (CheckBulletCollision(enemyRect, &damageTaken)) {
                 enemy->health -= damageTaken;
             }
         } else {
             if (player->isAttacking && meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
-                
                 if(enemy->attackTimer <= 0.1f) { 
                     enemy->health -= ENEMY_MELEE_DAMAGE; 
                     enemy->attackTimer = 0.5f; 
@@ -507,7 +565,6 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         }
     }
 }
-
 
 void DrawEnemyPool(void) {
     

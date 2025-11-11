@@ -120,8 +120,15 @@ void InitPlayer(Player *player, int startX, int startY) {
     }
 }
 
+
+
+
 void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     
+    if (player->collisionDamageTimer > 0) {
+        player->collisionDamageTimer -= GetFrameTime();
+    }
+ 
     if (IsKeyPressed(KEY_X) && !player->isAttacking) {
         player->isAttacking = true;
         player->currentFrame = 0;
@@ -189,15 +196,26 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         }
     }
 
+    int damageTaken = 0;
+    Rectangle playerRect = GetPlayerRect(player);
+    
+    if (CheckEnemyBulletCollision(playerRect, &damageTaken)) { 
+        player->health -= damageTaken;
+    }
+
+
     Texture2D currentTexture = GetPlayerCurrentTexture(player);
     float playerWidth = (float)currentTexture.width * player->scale;
     float playerHeight = (float)currentTexture.height * player->scale;
+
 
     if (player->position.x + playerWidth > screenWidth) {
         SceneNode* current = GetCurrentScene();
         
         if (current->next != NULL) {
             DespawnAllEnemies();
+            DespawnAllPlayerBullets(); 
+            DespawnAllEnemyBullets(); 
             SetCurrentScene(current->next);
             player->position.x = 10.0f;
         } else {
@@ -209,12 +227,15 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         
         if (current->previous != NULL) {
             DespawnAllEnemies();
+            DespawnAllPlayerBullets(); 
+            DespawnAllEnemyBullets(); 
             SetCurrentScene(current->previous);
             player->position.x = screenWidth - playerWidth - 10.0f;
         } else {
             player->position.x = 0;
         }
     }
+
 
     if (player->position.y < RUA_LIMITE_SUPERIOR) {
         player->position.y = RUA_LIMITE_SUPERIOR;

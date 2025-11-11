@@ -44,6 +44,8 @@ void InitGame(void) {
     
     InitEnemyPool();
     InitBulletPool();
+    InitEnemyBulletPool();
+
     SpawnSceneEnemies(GetCurrentScene());
 }
 
@@ -91,6 +93,7 @@ int UpdateGame(void) {
     }
 
     UpdateEnemyPool(&player, screenHeight);
+    UpdateEnemyBulletPool(screenWidth, screenHeight);
     
     SpawnSceneEnemies(GetCurrentScene());
     return 0; 
@@ -103,6 +106,7 @@ void DrawGame(void) {
     DrawPlayer(&player);
     
     DrawEnemyPool();
+    DrawEnemyBulletPool();
 
     if (selectedCharacter == CHAR_JOHNNY)
     {
@@ -119,4 +123,5 @@ void UnloadGame(void) {
     UnloadPlayer(&player);
     UnloadEnemyAssets();
     UnloadBulletAssets();
+    UnloadEnemyBulletAssets();
 }
