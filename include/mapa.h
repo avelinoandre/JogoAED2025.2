@@ -10,7 +10,7 @@ typedef struct SceneNode {
 
     int enemyCount;  
     bool enemiesSpawned; 
-
+    bool isCleared;
 } SceneNode;
 
 void InitMap(void);

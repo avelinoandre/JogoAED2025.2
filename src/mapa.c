@@ -25,6 +25,8 @@ SceneNode* CreateScene(const char* backgroundPath, SceneNode* previousNode) {
     newScene->enemyCount = 0;
     newScene->enemiesSpawned = false;
 
+    newScene->isCleared = false;
+    
     if (previousNode != NULL) {
         previousNode->next = newScene;
     }

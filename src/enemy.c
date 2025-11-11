@@ -620,3 +620,13 @@ bool AreAllEnemiesDefeated(void) {
     
     return true;
 }
+
+int GetActiveEnemyCount(void) {
+    int count = 0;
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemyPool[i].active) {
+            count++;
+        }
+    }
+    return count;
+}

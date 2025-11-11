@@ -13,6 +13,7 @@ CharacterType selectedCharacter = CHAR_JOHNNY;
 static Player player;
 static const int screenWidth = 1600;
 static const int screenHeight = 900;
+static int totalEnemiesInScene = 0;
 
 void SpawnSceneEnemies(SceneNode* scene) {
 
@@ -22,6 +23,8 @@ void SpawnSceneEnemies(SceneNode* scene) {
 
     printf("Spawning %d inimigos para a nova cena!\n", scene->enemyCount);
     
+    totalEnemiesInScene = scene->enemyCount;
+
     for (int i = 0; i < scene->enemyCount; i++) {
         float spawnX = (float)(screenWidth + 50 + (rand() % 150));
         float spawnY = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150)); 
@@ -99,6 +102,30 @@ int UpdateGame(void) {
     return 0; 
 }
 
+void DrawEnemyCounter(void) {
+    if (totalEnemiesInScene == 0) {
+        return;
+    }
+
+    int remaining = GetActiveEnemyCount();
+    
+    if (remaining == 0) {
+        const char *text = "LIMPO!";
+        int fontSize = 30;
+        int textWidth = MeasureText(text, fontSize);
+        int posX = screenWidth - textWidth - 20;
+        int posY = 20;
+        DrawText(text, posX, posY, fontSize, GREEN);
+    } else {
+        const char *text = TextFormat("INIMIGOS: %d", remaining);
+        int fontSize = 30;
+        int textWidth = MeasureText(text, fontSize);
+        int posX = screenWidth - textWidth - 20;
+        int posY = 20;
+        DrawText(text, posX, posY, fontSize, WHITE);
+    }
+}
+
 void DrawGame(void) {
     ClearBackground(DARKGRAY);
 
@@ -116,6 +143,7 @@ void DrawGame(void) {
     }
 
     DrawPlayerHealthBar(&player);
+    DrawEnemyCounter();
 }
 
 void UnloadGame(void) {
