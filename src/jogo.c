@@ -6,6 +6,9 @@
 #include "mapa.h"
 #include <stdlib.h> 
 #include <time.h>
+#include "globals.h"
+
+CharacterType selectedCharacter = CHAR_JOHNNY;
 
 static Player player;
 static const int screenWidth = 1600;

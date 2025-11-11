@@ -3,6 +3,8 @@
 #include "mapa.h"
 #include "enemy.h"
 #include <stdio.h>
+#include <stdlib.h> 
+#include "globals.h"  
 
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
@@ -20,18 +22,96 @@ void InitPlayer(Player *player, int startX, int startY) {
     player->currentFrame = 0;
     player->framesCounter = 0;
     player->framesSpeed = PLAYER_ANIM_SPEED_PARADO;
+    
     char path[256];
-    for (int i = 0; i < PLAYER_IDLE_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/JohnyBravo/parado/JohnyBravo_parado%d.png", i + 1); 
-        player->idleTextures[i] = LoadTexture(path);
-    }
-    for (int i = 0; i < PLAYER_WALK_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/JohnyBravo/movimentacao/JohnyBravo_walking%d.png", i + 1); 
-        player->walkTextures[i] = LoadTexture(path);
-    }
-    for (int i = 0; i < PLAYER_ATTACK_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/JohnyBravo/ataque/JohnyBravo_ataque%d.png", i + 1); 
-        player->attackTextures[i] = LoadTexture(path);
+
+    switch (selectedCharacter) {
+        case CHAR_JOHNNY:
+            player->idleFrameCount = 2;
+            player->walkFrameCount = 3;
+            player->attackFrameCount = 1;
+            
+            player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
+            player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
+            player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
+            
+            for (int i = 0; i < player->idleFrameCount; i++) {
+                sprintf(path, "assets/Sprites/JohnyBravo/parado/JohnyBravo_parado%d.png", i + 1); 
+                player->idleTextures[i] = LoadTexture(path);
+            }
+            for (int i = 0; i < player->walkFrameCount; i++) {
+                sprintf(path, "assets/Sprites/JohnyBravo/movimentacao/JohnyBravo_walking%d.png", i + 1); 
+                player->walkTextures[i] = LoadTexture(path);
+            }
+            for (int i = 0; i < player->attackFrameCount; i++) {
+                sprintf(path, "assets/Sprites/JohnyBravo/ataque/JohnyBravo_ataque%d.png", i + 1); 
+                player->attackTextures[i] = LoadTexture(path);
+            }
+            break;
+
+        case CHAR_FINN:
+            player->idleFrameCount = 2; 
+            player->walkFrameCount = 4;
+            player->attackFrameCount = 3; 
+            
+            player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
+            player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
+            player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
+
+            player->idleTextures[0] = LoadTexture("assets/Sprites/Finn/Finnparado/finnparado1.png");
+            player->idleTextures[1] = LoadTexture("assets/Sprites/Finn/Finnparado/finn3.png");
+            
+            player->walkTextures[0] = LoadTexture("assets/Sprites/Finn/Finnmovimentacao/finnandando1.png");
+            player->walkTextures[1] = LoadTexture("assets/Sprites/Finn/Finnmovimentacao/finnandando2.png");
+            player->walkTextures[2] = LoadTexture("assets/Sprites/Finn/Finnmovimentacao/finnandando3.png");
+            player->walkTextures[3] = LoadTexture("assets/Sprites/Finn/Finnmovimentacao/finnandando4.png");
+
+            player->attackTextures[0] = LoadTexture("assets/Sprites/Finn/Finnataque/finnataque1.png");
+            player->attackTextures[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finnataque2.png");
+            player->attackTextures[2] = LoadTexture("assets/Sprites/Finn/Finnataque/finn26.png");
+            break;
+
+        case CHAR_SAMURAI:
+            player->idleFrameCount = 2; 
+            player->walkFrameCount = 4;
+            player->attackFrameCount = 3; 
+            
+            player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
+            player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
+            player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
+            
+            player->idleTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraiparado/Samuraiparado1.png");
+            player->idleTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraiparado/Samurai3.png");
+
+            player->walkTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando1.png");
+            player->walkTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando2.png");
+            player->walkTextures[2] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando3.png");
+            player->walkTextures[3] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando4.png");
+
+            player->attackTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samuraiataque1.png");
+            player->attackTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samuraiataque2.png");
+            player->attackTextures[2] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samurai26.png");
+            break;
+            
+        case CHAR_MORDECAI:
+            player->idleFrameCount = 2; 
+            player->walkFrameCount = 3; 
+            player->attackFrameCount = 2; 
+            
+            player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
+            player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
+            player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
+            
+            player->idleTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaiparado/mordecaiparado1.png");
+            player->idleTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaiparado/mordecai8.png");
+
+            player->walkTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaimovimentacao/mordecaiandando1.png");
+            player->walkTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaimovimentacao/mordecaiandando2.png");
+            player->walkTextures[2] = LoadTexture("assets/Sprites/Mordecai/Mordecaimovimentacao/mordecaiandando3.png");
+
+            player->attackTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaiataque/mordecaiataque1.png");
+            player->attackTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaiataque/mordecaiataque2.png");
+            break;
     }
 }
 
@@ -57,6 +137,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         }
         SpawnBullet(startPos, player->direction);
     }
+
     bool wasMoving = player->isMoving;
     player->isMoving = false;
     if (!player->isAttacking) {
@@ -65,9 +146,10 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         if (IsKeyDown(KEY_A)) { player->position.x -= player->speed; player->isMoving = true; player->direction = -1; }
         if (IsKeyDown(KEY_D)) { player->position.x += player->speed; player->isMoving = true; player->direction = 1; }
     }
+    
     int currentAnimFrameCount = 0;
     if (player->isAttacking) {
-        currentAnimFrameCount = PLAYER_ATTACK_FRAMES;
+        currentAnimFrameCount = player->attackFrameCount; 
         player->framesCounter++;
         if (player->framesCounter >= player->framesSpeed) {
             player->framesCounter = 0;
@@ -80,9 +162,9 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     } 
     else {
         if (player->isMoving) {
-            currentAnimFrameCount = PLAYER_WALK_FRAMES;
+            currentAnimFrameCount = player->walkFrameCount;
         } else {
-            currentAnimFrameCount = PLAYER_IDLE_FRAMES;
+            currentAnimFrameCount = player->idleFrameCount;
         }
         if (player->isMoving != wasMoving) {
             player->currentFrame = 0;
@@ -173,6 +255,7 @@ void DrawPlayerHealthBar(const Player *player) {
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
 }
 
+
 Texture2D GetPlayerCurrentTexture(const Player *player) {
     if (player->isAttacking) {
         return player->attackTextures[player->currentFrame];
@@ -186,16 +269,18 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
 Rectangle GetPlayerRect(const Player *player) {
     Texture2D currentTexture;
     int frame = player->currentFrame;
+
     if (player->isAttacking) {
-        if (frame >= PLAYER_ATTACK_FRAMES) frame = PLAYER_ATTACK_FRAMES - 1; 
+        if (frame >= player->attackFrameCount) frame = player->attackFrameCount - 1; 
         currentTexture = player->attackTextures[frame];
     } else if (player->isMoving) {
-        if (frame >= PLAYER_WALK_FRAMES) frame = PLAYER_WALK_FRAMES - 1;
+        if (frame >= player->walkFrameCount) frame = player->walkFrameCount - 1;
         currentTexture = player->walkTextures[frame];
     } else {
-        if (frame >= PLAYER_IDLE_FRAMES) frame = PLAYER_IDLE_FRAMES - 1;
+        if (frame >= player->idleFrameCount) frame = player->idleFrameCount - 1;
         currentTexture = player->idleTextures[frame];
     }
+
     Rectangle rect = {
         player->position.x, player->position.y,
         (float)currentTexture.width * player->scale,
@@ -205,13 +290,19 @@ Rectangle GetPlayerRect(const Player *player) {
 }
 
 void UnloadPlayer(Player *player) {
-    for (int i = 0; i < PLAYER_IDLE_FRAMES; i++) {
+
+    for (int i = 0; i < player->idleFrameCount; i++) {
         UnloadTexture(player->idleTextures[i]);
     }
-    for (int i = 0; i < PLAYER_WALK_FRAMES; i++) {
+    for (int i = 0; i < player->walkFrameCount; i++) {
         UnloadTexture(player->walkTextures[i]);
     }
-    for (int i = 0; i < PLAYER_ATTACK_FRAMES; i++) {
+    for (int i = 0; i < player->attackFrameCount; i++) {
         UnloadTexture(player->attackTextures[i]);
     }
+
+    free(player->idleTextures);
+    free(player->walkTextures);
+    free(player->attackTextures);
+
 }

@@ -4,12 +4,15 @@
 #include "comoJogar.h"
 #include "jogo.h" 
 #include "bullet.h" 
+#include "globals.h"     
+#include "char_select.h"  
 
 typedef enum {
     STATE_MENU,
     STATE_GAME,
     STATE_SOBRE,
     STATE_COMO_JOGAR,
+    STATE_CHAR_SELECT,
     STATE_EXIT
 } GameState;
 
@@ -21,8 +24,8 @@ int main(void) {
 
     Menu menu;
     InitMenu(&menu);
-    InitGame();
-    InitBulletPool();
+    InitCharSelectMenu(); 
+    
     GameState state = STATE_MENU;
     bool running = true;
 
@@ -31,14 +34,18 @@ int main(void) {
         switch (state) {
             case STATE_MENU: {
                 int selected = UpdateMenu(&menu);
-                if (selected == MENU_OPTION_PLAY) state = STATE_GAME;
+                if (selected == MENU_OPTION_PLAY) state = STATE_CHAR_SELECT; 
                 else if (selected == MENU_OPTION_ABOUT) state = STATE_SOBRE;
                 else if (selected == MENU_OPTION_HOW_TO_PLAY) state = STATE_COMO_JOGAR;
                 else if (selected == MENU_OPTION_EXIT) running = false;
             } break;
 
             case STATE_GAME:
-                if (UpdateGame()) state = STATE_MENU; 
+                {
+                    int gameResult = UpdateGame();
+                    if (gameResult == 1) state = STATE_MENU; 
+                    else if (gameResult == 2) state = STATE_MENU; 
+                }
                 UpdateBulletPool(screenWidth, screenHeight);
                 break;
 
@@ -49,7 +56,20 @@ int main(void) {
             case STATE_COMO_JOGAR:
                 if (UpdateComoJogarScreen()) state = STATE_MENU;
                 break;
-            
+        
+            case STATE_CHAR_SELECT:
+                { 
+                    GameState oldState = state; 
+                    
+                    UpdateCharSelectMenu((int*)&state);
+
+                    if (oldState == STATE_CHAR_SELECT && state == STATE_GAME) {
+                        InitGame();     
+                        InitBulletPool();
+                    }
+                }
+                break;
+
             case STATE_EXIT:
                 running = false;
                 break;
@@ -75,6 +95,10 @@ int main(void) {
                 DrawComoJogarScreen();
                 break;
             
+            case STATE_CHAR_SELECT:
+                DrawCharSelectMenu();
+                break;
+
             case STATE_EXIT:
                 break;
         }
@@ -85,6 +109,7 @@ int main(void) {
     UnloadGame();
     UnloadMenu(&menu);
     UnloadBulletAssets();
+    UnloadCharSelectMenu(); 
     CloseWindow();
     return 0;
 }

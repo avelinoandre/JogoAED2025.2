@@ -2,12 +2,9 @@
 #define PLAYER_H_
 
 #include "raylib.h"
+#include "globals.h"
 
 #define RUA_LIMITE_SUPERIOR 450.0f
-
-#define PLAYER_IDLE_FRAMES 2
-#define PLAYER_WALK_FRAMES 3
-#define PLAYER_ATTACK_FRAMES 1
 
 typedef struct Player {
     Vector2 position;
@@ -20,9 +17,13 @@ typedef struct Player {
     bool isMoving;
     bool isAttacking;
 
-    Texture2D idleTextures[PLAYER_IDLE_FRAMES];
-    Texture2D walkTextures[PLAYER_WALK_FRAMES];
-    Texture2D attackTextures[PLAYER_ATTACK_FRAMES]; 
+    Texture2D *idleTextures;
+    Texture2D *walkTextures;
+    Texture2D *attackTextures; 
+
+    int idleFrameCount;
+    int walkFrameCount;
+    int attackFrameCount;
 
     int currentFrame;
     int framesCounter;
