@@ -24,10 +24,13 @@ void SpawnSceneEnemies(SceneNode* scene) {
     
     for (int i = 0; i < scene->enemyCount; i++) {
         float spawnX = (float)(screenWidth + 50 + (rand() % 150));
-        
         float spawnY = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150)); 
         
-        SpawnEnemy((Vector2){spawnX, spawnY});
+        
+        int randomType = rand() % 4;
+
+        SpawnEnemy((EnemyType)randomType, (Vector2){spawnX, spawnY});
+        
     }
 
     scene->enemiesSpawned = true;
