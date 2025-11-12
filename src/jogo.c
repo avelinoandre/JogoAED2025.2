@@ -19,6 +19,9 @@ static const int screenHeight = 900;
 static int totalEnemiesInScene = 0;
 static SceneNode* lastScene = NULL; 
 
+static bool emContagemInicial;
+static float tempoContagem;
+
 CharacterType selectedCharacter = CHAR_JOHNNY;
 
 void InitGame(void) {
@@ -35,9 +38,27 @@ void InitGame(void) {
     lastScene = NULL;
 
     Score_Init();
+
+    emContagemInicial = true;
+    tempoContagem = 0.0f;   
 }
 
 int UpdateGame(void) {
+
+    if (emContagemInicial) {
+        tempoContagem += GetFrameTime();
+        
+        if (tempoContagem > 4.0f) {
+            emContagemInicial = false; 
+        }
+
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            Score_Init();
+            return 1; 
+        }
+
+        return 0; 
+    }
 
     if (Score_IsPlayerDead()) {
         if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)) {
@@ -184,6 +205,31 @@ void DrawGame(void) {
         DrawText(rankText, posX, posY + 80, 20, WHITE);
 
         DrawText("Pressione ENTER para voltar", posX - 20, posY + 120, 20, GRAY);
+    }
+
+    if (emContagemInicial) {
+        const char* textoContagem = "";
+        
+        if (tempoContagem <= 1.0f) {
+            textoContagem = "1";
+        } else if (tempoContagem <= 2.0f) {
+            textoContagem = "2";
+        } else if (tempoContagem <= 3.0f) {
+            textoContagem = "3";
+        } else if (tempoContagem <= 4.0f) {
+            textoContagem = "GO!";
+        }
+
+        if (tempoContagem <= 4.0f) {
+            int fontSize = 120; 
+            int textWidth = MeasureText(textoContagem, fontSize);
+            
+            int posX = (screenWidth - textWidth) / 2;
+            int posY = (screenHeight - fontSize) / 2;
+            
+            DrawText(textoContagem, posX + 4, posY + 4, fontSize, BLACK);
+            DrawText(textoContagem, posX, posY, fontSize, YELLOW);
+        }
     }
 }
 
