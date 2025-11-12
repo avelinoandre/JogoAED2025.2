@@ -62,6 +62,13 @@ static Vector2 GerarPosicaoSpawn(Player* jogador) {
 
 static void SpawnarUmInimigo(Player* jogador) {
     Vector2 pos = GerarPosicaoSpawn(jogador);
+
+    float offsetX = (float)((rand() % 61) - 30); 
+    float offsetY = (float)((rand() % 61) - 30);
+    
+    pos.x += offsetX;
+    pos.y += offsetY;
+        
     int randomType;
 
     if (saudeJogadorCache < 50) {
