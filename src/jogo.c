@@ -1,3 +1,4 @@
+#include "gemini_ai.h"
 #include "jogo.h"
 #include "player.h" 
 #include "raylib.h"
@@ -21,6 +22,7 @@ static SceneNode* lastScene = NULL;
 CharacterType selectedCharacter = CHAR_JOHNNY;
 
 void InitGame(void) {
+    Gemini_Init();
     InitMap();
 
     srand(time(NULL));

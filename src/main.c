@@ -6,6 +6,7 @@
 #include "bullet.h" 
 #include "globals.h"      
 #include "char_select.h"  
+#include <curl/curl.h>
 
 typedef enum {
     STATE_MENU,
@@ -19,6 +20,9 @@ typedef enum {
 int main(void) {
     const int screenWidth = 1600;
     const int screenHeight = 900;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
     InitWindow(screenWidth, screenHeight, "SMASH TOONS");
     SetTargetFPS(60);
 
@@ -110,5 +114,8 @@ int main(void) {
     UnloadMenu(&menu);
     UnloadCharSelectMenu(); 
     CloseWindow();
+    
+    curl_global_cleanup();
+
     return 0;
 }

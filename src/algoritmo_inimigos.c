@@ -1,3 +1,4 @@
+#include "gemini_ai.h"
 #include "algoritmo_inimigos.h"
 #include "enemy.h"    
 #include "globals.h"
@@ -5,6 +6,7 @@
 #include "mapa.h"     
 #include <stdlib.h> 
 #include <stdio.h>
+
 
 #define IA_DELAY_INICIAL 2.0f
 #define IA_DELAY_SPAWN_BASE 1.8f      
@@ -87,6 +89,25 @@ static void SpawnarUmInimigo(Player* jogador) {
 
 void IA_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
+
+    if (cena->id == 1) {
+        printf("\n============================================\n");
+        printf("INFO: Entrando no Mapa 5. Consultando API para Stats do Boss...\n");
+        
+        int score = Score_GetScore();
+        float tempo = Score_GetTimer();
+        
+        DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
+        
+        // 3. Atualizar os printf
+        printf("--- RESPOSTA DA API (Stats do Boss) ---\n");
+        printf("  Vida: %d\n", bossStats.health);
+        printf("  Dano: %d\n", bossStats.damage);
+        printf("  Velocidade: %.2f\n", bossStats.speed);
+        printf("  Cooldown Atk: %.2fs\n", bossStats.attackCooldown);
+        printf("  Scale (Tamanho): %.2f\n", bossStats.scale);
+        printf("============================================\n\n");
+    }
 
     int totalInimigosBase = 3 + (int)(cena->id * 0.75f);
     printf("IA (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);

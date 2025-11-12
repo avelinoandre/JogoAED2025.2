@@ -1,7 +1,7 @@
 # Compilador e flags
 CC = gcc
 # Corrigido -Isrc/menu para -Isrc/MENU
-CFLAGS = -Wall -Wextra -Iinclude -Isrc -Isrc/MENU
+CFLAGS = -Wall -Wextra -Iinclude -Isrc -Isrc/MENU -Ilib
 
 # Diretórios
 SRC_DIR = src
