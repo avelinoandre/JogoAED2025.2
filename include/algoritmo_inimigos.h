@@ -1,17 +1,13 @@
-#ifndef GEMINI_AI_H
-#define GEMINI_AI_H
+#ifndef ALGORITMO_INIMIGOS_H
+#define ALGORITMO_INIMIGOS_H
 
+#include "player.h"
 #include "mapa.h"
-#include "player.h" 
-#include <stdbool.h>
 
-void IA_IniciaCena(SceneNode* cena, Player* jogador);
+void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador);
+void ControleSpawn_Update(float deltaTime, Player* jogador);
+int ControleSpawn_GetTotalInimigos(void);
+bool ControleSpawn_EstaAtivo(void);
+int ControleSpawn_GetInimigosSpawnados(void); 
 
-void IA_Update(float deltaTime, Player* jogador);
-
-int IA_GetTotalInimigos();
-bool IA_EstaAtiva();
-
-int IA_GetEnemiesSpawned(void);
-
-#endif 
+#endif

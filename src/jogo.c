@@ -85,15 +85,15 @@ int UpdateGame(void) {
             totalEnemiesInScene = 0; 
             DespawnAllEnemies(); 
         } else {
-            IA_IniciaCena(currentScene, &player);
-            totalEnemiesInScene = IA_GetTotalInimigos();
+            ControleSpawn_IniciaCena(currentScene, &player);
+            totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
         }
         
         lastScene = currentScene;
     }
     
     if (currentScene->id != 5) {
-         IA_Update(GetFrameTime(), &player);
+        ControleSpawn_Update(GetFrameTime(), &player);
     }
     
 
@@ -142,18 +142,18 @@ int UpdateGame(void) {
 }
 
 void DrawEnemyCounter(void) {
-    if (totalEnemiesInScene == 0 && !IA_EstaAtiva()) {
+    if (totalEnemiesInScene == 0 && !ControleSpawn_EstaAtivo()) {
         return;
     }
 
     int remaining = GetActiveEnemyCount();
-    int spawned = IA_GetEnemiesSpawned();
+    int spawned = ControleSpawn_GetInimigosSpawnados();
     
     int killed = spawned - remaining;
     
     if (killed < 0) killed = 0; 
     
-    if (remaining == 0 && !IA_EstaAtiva()) {
+    if (remaining == 0 && !ControleSpawn_EstaAtivo()) {
         const char *text = "LIMPO!";
         int fontSize = 30;
         int textWidth = MeasureText(text, fontSize);

@@ -212,7 +212,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         
         if (current->next != NULL) {
             
-            if (AreAllEnemiesDefeated() && !IA_EstaAtiva()) { 
+            if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
                 DespawnAllEnemies();
                 DespawnAllPlayerBullets(); 
                 DespawnAllEnemyBullets(); 

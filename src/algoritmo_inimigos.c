@@ -6,21 +6,19 @@
 #include "mapa.h"     
 #include <stdlib.h> 
 #include <stdio.h>
+#include "score.h"
 
-
-#define IA_DELAY_INICIAL 2.0f
-#define IA_DELAY_SPAWN_BASE 1.8f      
-#define IA_MIN_INIMIGOS_CENA 3       
-#define IA_MAX_INIMIGOS_CENA 10      
-#define IA_MAX_INIMIGOS_CONCORRENTES 4 
-#define IA_CHANCE_SPAWN_DUPLO 30       
-#define IA_DELAY_SPAWN_DUPLO 0.5f      
+#define DELAY_SPAWN_INICIAL 2.0f
+#define DELAY_SPAWN_BASE 1.8f      
+#define MIN_INIMIGOS_POR_CENA 3       
+#define MAX_INIMIGOS_POR_CENA 10      
+#define MAX_INIMIGOS_SIMULTANEOS 4
 
 static int totalInimigosParaSpawnar;
 static int inimigosJaSpawnados;
 static float delayInicialTimer; 
 static float delayEntreSpawnsTimer;
-static bool iaAtiva;
+static bool controleAtivo;
 
 static float spawnRateModificador; 
 static int saudeJogadorCache; 
@@ -76,7 +74,7 @@ static void SpawnarUmInimigo(Player* jogador) {
     } 
     else if (jogador->health >= jogador->maxHealth && inimigosJaSpawnados == 0) {
         
-        printf("IA (Tático): Vida cheia. Enviando especialista (Mojo/Marvin).\n");
+        printf("ControleSpawn (Tático): Vida cheia. Enviando especialista (Mojo/Marvin).\n");
         randomType = 2 + (rand() % 2); 
     }
     else {
@@ -85,27 +83,26 @@ static void SpawnarUmInimigo(Player* jogador) {
     
     SpawnEnemy((EnemyType)randomType, pos);
 
-    printf("IA: Spawnei inimigo %d/%d em (%.0f, %.0f)\n", 
+    printf("ControleSpawn: Spawnei inimigo %d/%d em (%.0f, %.0f)\n", 
            inimigosJaSpawnados + 1, 
            totalInimigosParaSpawnar, 
            pos.x, pos.y);
 }
 
 
-
-void IA_IniciaCena(SceneNode* cena, Player* jogador) {
+void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
 
     if (cena->id == 5) {
         printf("\n============================================\n");
-        printf("INFO: Entrando no Mapa 5. Consultando API para Stats do Boss...\n");
+        printf("INFO: Entrando no Mapa 5 (Boss). Calculando status...\n");
         
         int score = Score_GetScore();
         float tempo = Score_GetTimer();
         
         DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
         
-        printf("--- RESPOSTA DA API (Stats do Boss) ---\n");
+        printf("--- Stats do Boss Calculados ---\n");
         printf("  Vida: %d\n", bossStats.health);
         printf("  Dano: %d\n", bossStats.damage);
         printf("  Velocidade: %.2f\n", bossStats.speed);
@@ -115,7 +112,7 @@ void IA_IniciaCena(SceneNode* cena, Player* jogador) {
     }
 
     int totalInimigosBase = 2 + (int)(cena->id * 2);
-    printf("IA (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
+    printf("ControleSpawn (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
 
     if (cena->isCleared) {
         totalInimigosBase = 0;
@@ -129,11 +126,11 @@ void IA_IniciaCena(SceneNode* cena, Player* jogador) {
         totalCalculado = totalInimigosBase / 2;
     } 
     
-    totalInimigosParaSpawnar = Clamp(totalCalculado, IA_MIN_INIMIGOS_CENA, IA_MAX_INIMIGOS_CENA);
+    totalInimigosParaSpawnar = Clamp(totalCalculado, MIN_INIMIGOS_POR_CENA, MAX_INIMIGOS_POR_CENA);
     if (cena->isCleared) {
         totalInimigosParaSpawnar = 0;
     }
-    printf("IA (Clamp): Total final: %d\n", totalInimigosParaSpawnar);
+    printf("ControleSpawn (Clamp): %d\n", totalInimigosParaSpawnar);
 
     
     if (saudePercent < 0.5f) spawnRateModificador = 1.5f; 
@@ -141,18 +138,18 @@ void IA_IniciaCena(SceneNode* cena, Player* jogador) {
     else spawnRateModificador = 1.0f; 
 
     inimigosJaSpawnados = 0;
-    iaAtiva = true; 
-    delayInicialTimer = IA_DELAY_INICIAL;
+    controleAtivo = true; 
+    delayInicialTimer = DELAY_SPAWN_INICIAL;
     delayEntreSpawnsTimer = 0.0f;
 }
 
-void IA_Update(float deltaTime, Player* jogador) {
-    if (!iaAtiva) return;
+void ControleSpawn_Update(float deltaTime, Player* jogador) {
+    if (!controleAtivo) return;
 
     if (inimigosJaSpawnados >= totalInimigosParaSpawnar) {
-        if (iaAtiva) {
-            iaAtiva = false;
-            printf("IA: Spawn de %d inimigos concluído.\n", totalInimigosParaSpawnar);
+        if (controleAtivo) {
+            controleAtivo = false;
+            printf("ControleSpawn: Spawn de %d inimigos concluído.\n", totalInimigosParaSpawnar);
         }
         return;
     }
@@ -168,7 +165,7 @@ void IA_Update(float deltaTime, Player* jogador) {
         
         int inimigosVivos = GetActiveEnemyCount();
         
-        int budgetTela = IA_MAX_INIMIGOS_CONCORRENTES - inimigosVivos;
+        int budgetTela = MAX_INIMIGOS_SIMULTANEOS - inimigosVivos;
         
         int restantesNaCena = totalInimigosParaSpawnar - inimigosJaSpawnados;
 
@@ -190,7 +187,7 @@ void IA_Update(float deltaTime, Player* jogador) {
             }
 
             float variacao = (float)(rand() % 10) / 10.0f;
-            delayEntreSpawnsTimer = (IA_DELAY_SPAWN_BASE + variacao) * spawnRateModificador;
+            delayEntreSpawnsTimer = (DELAY_SPAWN_BASE + variacao) * spawnRateModificador;
 
         } 
         else if (inimigosVivos > 0 && restantesNaCena > 0) {
@@ -203,7 +200,7 @@ void IA_Update(float deltaTime, Player* jogador) {
     } 
     else {
         int inimigosVivos = GetActiveEnemyCount();
-        if (inimigosVivos == 0 && iaAtiva) { 
+        if (inimigosVivos == 0 && controleAtivo) { 
             if (delayEntreSpawnsTimer > 0.3f) {
                 delayEntreSpawnsTimer = 0.3f; 
             }
@@ -211,14 +208,14 @@ void IA_Update(float deltaTime, Player* jogador) {
     }
 }
 
-int IA_GetTotalInimigos() {
+int ControleSpawn_GetTotalInimigos() {
     return totalInimigosParaSpawnar;
 }
 
-bool IA_EstaAtiva() {
-    return iaAtiva;
+bool ControleSpawn_EstaAtivo() {
+    return controleAtivo;
 }
 
-int IA_GetEnemiesSpawned() {
+int ControleSpawn_GetInimigosSpawnados() {
     return inimigosJaSpawnados;
 }
