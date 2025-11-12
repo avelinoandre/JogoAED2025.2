@@ -12,4 +12,6 @@ void IA_Update(float deltaTime, Player* jogador);
 int IA_GetTotalInimigos();
 bool IA_EstaAtiva();
 
+int IA_GetEnemiesSpawned(void);
+
 #endif 

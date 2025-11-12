@@ -212,7 +212,7 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         
         if (current->next != NULL) {
             
-            if (AreAllEnemiesDefeated()) {
+            if (AreAllEnemiesDefeated() && !IA_EstaAtiva()) { 
                 DespawnAllEnemies();
                 DespawnAllPlayerBullets(); 
                 DespawnAllEnemyBullets(); 
@@ -230,12 +230,8 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         }
     }
     else if (player->position.x < 0) {
-        SceneNode* current = GetCurrentScene();
-        
-        if (current->previous != NULL) {
-
             player->position.x = 0;
-        }
+        
     }
 
     if (player->position.y < RUA_LIMITE_SUPERIOR) {

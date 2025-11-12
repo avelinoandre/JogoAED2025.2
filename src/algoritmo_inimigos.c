@@ -21,7 +21,6 @@ static int inimigosJaSpawnados;
 static float delayInicialTimer; 
 static float delayEntreSpawnsTimer;
 static bool iaAtiva;
-static bool spawnDuploPendente; 
 
 static float spawnRateModificador; 
 static int saudeJogadorCache; 
@@ -90,7 +89,7 @@ static void SpawnarUmInimigo(Player* jogador) {
 void IA_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
 
-    if (cena->id == 1) {
+    if (cena->id == 5) {
         printf("\n============================================\n");
         printf("INFO: Entrando no Mapa 5. Consultando API para Stats do Boss...\n");
         
@@ -99,7 +98,6 @@ void IA_IniciaCena(SceneNode* cena, Player* jogador) {
         
         DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
         
-        // 3. Atualizar os printf
         printf("--- RESPOSTA DA API (Stats do Boss) ---\n");
         printf("  Vida: %d\n", bossStats.health);
         printf("  Dano: %d\n", bossStats.damage);
@@ -109,7 +107,7 @@ void IA_IniciaCena(SceneNode* cena, Player* jogador) {
         printf("============================================\n\n");
     }
 
-    int totalInimigosBase = 3 + (int)(cena->id * 0.75f);
+    int totalInimigosBase = 2 + (int)(cena->id * 2);
     printf("IA (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
 
     if (cena->isCleared) {
@@ -136,8 +134,7 @@ void IA_IniciaCena(SceneNode* cena, Player* jogador) {
     else spawnRateModificador = 1.0f; 
 
     inimigosJaSpawnados = 0;
-    iaAtiva = true;
-    spawnDuploPendente = false; 
+    iaAtiva = true; 
     delayInicialTimer = IA_DELAY_INICIAL;
     delayEntreSpawnsTimer = 0.0f;
 }
@@ -160,31 +157,49 @@ void IA_Update(float deltaTime, Player* jogador) {
 
     delayEntreSpawnsTimer -= deltaTime;
 
-    if (spawnDuploPendente && delayEntreSpawnsTimer <= 0.0f) {
-        spawnDuploPendente = false; 
-        delayEntreSpawnsTimer = 0; 
-        printf("IA (Tático): Spawnando parceiro (Spawn Duplo)!\n");
-    }
-
     if (delayEntreSpawnsTimer <= 0.0f) {
+        
         int inimigosVivos = GetActiveEnemyCount();
         
-        if (inimigosVivos < IA_MAX_INIMIGOS_CONCORRENTES) {
-            SpawnarUmInimigo(jogador);
-            inimigosJaSpawnados++;
+        int budgetTela = IA_MAX_INIMIGOS_CONCORRENTES - inimigosVivos;
+        
+        int restantesNaCena = totalInimigosParaSpawnar - inimigosJaSpawnados;
+
+        int podeSpawnarAgora = budgetTela;
+        if (restantesNaCena < podeSpawnarAgora) {
+            podeSpawnarAgora = restantesNaCena;
+        }
+
+        if (podeSpawnarAgora > 0) {
+            
+            int quantosSpawnar = (rand() % podeSpawnarAgora) + 1;
+            
+            
+            for (int i = 0; i < quantosSpawnar; i++) {
+                if (inimigosJaSpawnados < totalInimigosParaSpawnar) { 
+                    SpawnarUmInimigo(jogador);
+                    inimigosJaSpawnados++;
+                }
+            }
 
             float variacao = (float)(rand() % 10) / 10.0f;
             delayEntreSpawnsTimer = (IA_DELAY_SPAWN_BASE + variacao) * spawnRateModificador;
 
-            if (!spawnDuploPendente && inimigosJaSpawnados < totalInimigosParaSpawnar) {
-                if (rand() % 100 < IA_CHANCE_SPAWN_DUPLO) {
-                    spawnDuploPendente = true;
-                    delayEntreSpawnsTimer = IA_DELAY_SPAWN_DUPLO; 
-                }
-            }
-        
-        } else {
+        } 
+        else if (inimigosVivos > 0 && restantesNaCena > 0) {
             delayEntreSpawnsTimer = 0.5f;
+        }
+        else {
+            delayEntreSpawnsTimer = 1.0f; 
+        }
+
+    } 
+    else {
+        int inimigosVivos = GetActiveEnemyCount();
+        if (inimigosVivos == 0 && iaAtiva) { 
+            if (delayEntreSpawnsTimer > 0.3f) {
+                delayEntreSpawnsTimer = 0.3f; 
+            }
         }
     }
 }
@@ -195,4 +210,8 @@ int IA_GetTotalInimigos() {
 
 bool IA_EstaAtiva() {
     return iaAtiva;
+}
+
+int IA_GetEnemiesSpawned() {
+    return inimigosJaSpawnados;
 }

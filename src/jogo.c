@@ -60,14 +60,21 @@ int UpdateGame(void) {
     
     if (currentScene != lastScene) 
     {
-        IA_IniciaCena(currentScene, &player);
+        if (currentScene->id == 5) {
+            totalEnemiesInScene = 0; 
+            DespawnAllEnemies(); 
+        } else {
+            IA_IniciaCena(currentScene, &player);
+            totalEnemiesInScene = IA_GetTotalInimigos();
+        }
         
-        totalEnemiesInScene = IA_GetTotalInimigos(); 
-        
-        lastScene = currentScene; 
+        lastScene = currentScene;
     }
     
-    IA_Update(GetFrameTime(), &player);
+    if (currentScene->id != 5) {
+         IA_Update(GetFrameTime(), &player);
+    }
+    
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         Score_Init();
@@ -119,6 +126,11 @@ void DrawEnemyCounter(void) {
     }
 
     int remaining = GetActiveEnemyCount();
+    int spawned = IA_GetEnemiesSpawned();
+    
+    int killed = spawned - remaining;
+    
+    if (killed < 0) killed = 0; 
     
     if (remaining == 0 && !IA_EstaAtiva()) {
         const char *text = "LIMPO!";
@@ -128,7 +140,7 @@ void DrawEnemyCounter(void) {
         int posY = 20;
         DrawText(text, posX, posY, fontSize, GREEN);
     } else {
-        const char *text = TextFormat("INIMIGOS: %d / %d", remaining, totalEnemiesInScene);
+        const char *text = TextFormat("ELIMINADOS: %d / %d", killed, totalEnemiesInScene);
         int fontSize = 30;
         int textWidth = MeasureText(text, fontSize);
         int posX = screenWidth - textWidth - 20;

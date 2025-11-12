@@ -35,20 +35,14 @@ SceneNode* CreateScene(const char* backgroundPath, SceneNode* previousNode, int 
 }
 
 void InitMap(void) {
-    SceneNode* scene1 = CreateScene("assets/Sprites/map/cidade/cidade00.png", NULL, 1);
+    SceneNode* scene1 = CreateScene("assets/Sprites/map/cidade/cidade02.png", NULL, 1);
     firstScene = scene1;
     
-    SceneNode* scene2 = CreateScene("assets/Sprites/map/cidade/cidade01.png", scene1, 2);
-    SceneNode* scene3 = CreateScene("assets/Sprites/map/cidade/cidade02.png", scene2, 3);
-    SceneNode* scene4 = CreateScene("assets/Sprites/map/cidade/cidade03.png", scene3, 4);
-    SceneNode* scene5 = CreateScene("assets/Sprites/map/cidade/cidade04.png", scene4, 5);
-    SceneNode* scene6 = CreateScene("assets/Sprites/map/cidade/cidade05.png", scene5, 6);
-    SceneNode* scene7 = CreateScene("assets/Sprites/map/cidade/cidade06.png", scene6, 7);
-    SceneNode* scene8 = CreateScene("assets/Sprites/map/cidade/cidade07.png", scene7, 8);
-    SceneNode* scene9 = CreateScene("assets/Sprites/map/cidade/cidade08.png", scene8, 9);
-    SceneNode* scene10 = CreateScene("assets/Sprites/map/cidade/cidade09.png", scene9, 10);
-    SceneNode* scene11 = CreateScene("assets/Sprites/map/cidade/cidade10.png", scene10, 11);
-    SceneNode* scene12 = CreateScene("assets/Sprites/map/cidade/cidade11.png", scene11, 12); 
+    SceneNode* scene2 = CreateScene("assets/Sprites/map/cidade/cidade03.png", scene1, 2);
+    SceneNode* scene3 = CreateScene("assets/Sprites/map/bossmap/bossmap09.png", scene2, 3);
+    SceneNode* scene4 = CreateScene("assets/Sprites/map/bossmap/bossmap10.png", scene3, 4);
+    SceneNode* scene5 = CreateScene("assets/Sprites/map/bossmap/bossmap11.png", scene4, 5);
+     
 
 
     currentScene = firstScene;
