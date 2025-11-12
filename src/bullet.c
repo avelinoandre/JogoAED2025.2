@@ -10,7 +10,7 @@
 #define BULLET_DAMAGE 25
 
 static Texture2D bulletTexture; 
-static Texture2D ammoPackTexture;
+
 static Texture2D ammoPackTextures[AMMO_PACK_FRAMES];
 static Bullet bulletPool[MAX_BULLETS];
 static AmmoPack ammoPack;
@@ -20,8 +20,7 @@ static bool isReloading;
 static int ammoPackCurrentFrame = 0;
 static float ammoPackFrameTimer = 0.0f;
 
-#define PASSIVE_RELOAD_TIME 5.0f 
-static float passiveReloadTimer = 0.0f;
+
 
 
 void InitBulletPool(void) {

@@ -1,4 +1,4 @@
-#include "gemini_ai.h"
+#include "algoritmo_inimigos.h"
 #include "enemy.h"    
 #include "globals.h"
 #include "player.h"   

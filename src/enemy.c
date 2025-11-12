@@ -1,3 +1,4 @@
+#include "globals.h"
 #include "enemy.h"
 #include "raymath.h"
 #include <math.h>
@@ -5,6 +6,7 @@
 #include <stdlib.h>  
 #include <stdio.h>   
 #include "globals.h"  
+#include "score.h"
 
 #define ENEMY_ANIM_SPEED_PARADO 50
 #define ENEMY_ANIM_SPEED_ANDANDO 20
@@ -561,6 +563,9 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         }
 
         if (enemy->health <= 0) {
+            if (enemy->active) { 
+               Score_AddPoints(enemy->maxHealth); 
+            }
             enemy->active = false; 
         }
     }

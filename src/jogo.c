@@ -7,8 +7,10 @@
 #include <stdlib.h> 
 #include <time.h>
 #include "globals.h"
-#include "gemini_ai.h" 
+#include "algoritmo_inimigos.h"
 #include <stdio.h> 
+#include <math.h>
+#include "score.h"
 
 static Player player;
 static const int screenWidth = 1600;
@@ -29,10 +31,26 @@ void InitGame(void) {
     InitEnemyBulletPool();
 
     lastScene = NULL;
+
+    Score_Init();
 }
 
 int UpdateGame(void) {
+
+    if (Score_IsPlayerDead()) {
+        if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)) {
+            Score_Init(); 
+            return 1; 
+        }
+        return 0; 
+    }
+
+    Score_Update(GetFrameTime());
+
     if (player.health <= 0) {
+        Score_SetPlayerDead(true);
+        Score_CalculateFinal();
+
         return 2; 
     }
     
@@ -50,6 +68,7 @@ int UpdateGame(void) {
     IA_Update(GetFrameTime(), &player);
 
     if (IsKeyPressed(KEY_ESCAPE)) {
+        Score_Init();
         return 1; 
     }
 
@@ -134,6 +153,24 @@ void DrawGame(void) {
 
     DrawPlayerHealthBar(&player);
     DrawEnemyCounter();
+
+    DrawText(TextFormat("SCORE: %08i", Score_GetScore()), 20, 70, 20, RAYWHITE);
+    DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), 20, 95, 20, RAYWHITE);
+
+    if (Score_IsPlayerDead()) {
+        int posX = screenWidth - 320; 
+        int posY = 130;
+
+        DrawText("GAME OVER", posX, posY, 40, RED);
+        
+        const char *scoreText = TextFormat("FINAL SCORE: %08i", Score_GetFinalScore());
+        DrawText(scoreText, posX, posY + 50, 20, YELLOW);
+
+        const char *rankText = Score_GetRank();
+        DrawText(rankText, posX, posY + 80, 20, WHITE);
+
+        DrawText("Pressione ENTER para voltar", posX - 20, posY + 120, 20, GRAY);
+    }
 }
 
 void UnloadGame(void) {
