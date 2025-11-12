@@ -12,6 +12,7 @@
 #include <stdio.h> 
 #include <math.h>
 #include "score.h"
+#include "boss.h"
 
 static Player player;
 static const int screenWidth = 1600;
@@ -79,22 +80,15 @@ int UpdateGame(void) {
     
     SceneNode* currentScene = GetCurrentScene();
     
-    if (currentScene != lastScene) 
-    {
-        if (currentScene->id == 5) {
-            totalEnemiesInScene = 0; 
-            DespawnAllEnemies(); 
-        } else {
-            ControleSpawn_IniciaCena(currentScene, &player);
-            totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
-        }
+    if (currentScene != lastScene) {
+        ControleSpawn_IniciaCena(currentScene, &player);
+        totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
         
-        lastScene = currentScene;
+        lastScene = currentScene; 
     }
     
-    if (currentScene->id != 5) {
-        ControleSpawn_Update(GetFrameTime(), &player);
-    }
+    ControleSpawn_Update(GetFrameTime(), &player);
+    Boss_Update(&player);
     
 
     if (IsKeyPressed(KEY_ESCAPE)) {

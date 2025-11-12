@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "player.h" 
+#include "gemini_ai.h"
 
 #define MAX_ENEMIES 10 
 
@@ -43,6 +44,10 @@ typedef struct Enemy {
     bool isAttacking;
     int direction; 
 
+    bool isBoss;
+    bool spawnedAt50; 
+    bool spawnedAt25;
+
 } Enemy;
 
 void InitEnemyPool(void);
@@ -53,7 +58,7 @@ void UpdateEnemyPool(Player *player, int screenHeight);
 
 void DrawEnemyPool(void);
 
-void SpawnEnemy(EnemyType type, Vector2 position);
+Enemy* SpawnEnemy(EnemyType type, Vector2 position);
 
 void DespawnAllEnemies(void); 
 
@@ -61,5 +66,7 @@ bool CheckBulletCollision(Rectangle enemyRect, int *damageTaken);
 
 bool AreAllEnemiesDefeated(void);
 int GetActiveEnemyCount(void);
+int GetMaxEnemies(void); 
+Enemy* GetEnemyFromPool(int index);
 
 #endif

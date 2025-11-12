@@ -78,7 +78,7 @@ static char* BuildGeminiPayload(const char* prompt) {
     cJSON_AddItemToObject(root, "contents", contents);
 
     cJSON *genConfig = cJSON_CreateObject();
-    cJSON_AddItemToObject(genConfig, "maxOutputTokens", cJSON_CreateNumber(512));
+    cJSON_AddItemToObject(genConfig, "maxOutputTokens", cJSON_CreateNumber(1024));
     cJSON_AddItemToObject(root, "generationConfig", genConfig);
     
     char *jsonString = cJSON_PrintUnformatted(root);
@@ -92,11 +92,11 @@ static char* BuildGeminiPayload(const char* prompt) {
 static DynamicEnemyStats GetDefaultStats(void) {
     printf("AVISO: Falha na API Gemini. Usando stats padrao (Normal).\n");
     DynamicEnemyStats stats;
-    stats.health = 100;
-    stats.damage = 10;
-    stats.speed = 1.8f;
+    stats.health = 500;
+    stats.damage = 25;
+    stats.speed = 1.9f;
     stats.attackCooldown = 1.5f;
-    stats.scale = 4.0f; 
+    stats.scale = 7.0f; 
     return stats;
 }
 
@@ -112,10 +112,10 @@ static char* BuildPrompt_Boss(int score, float time) {
         "Use esta tabela como guia (pode interpolar):\n"
         "Performance (Score/Tempo) | Dificuldade   | Vida | Dano | Velocidade | Cooldown\n"
         "---------------------------------------------------------------------------------\n"
-        "< 50 (Fraco)                | Facil         | 80   | 5    | 1.5        | 2.0\n"
-        "50 - 149 (Ok)             | Normal        | 100  | 10   | 1.8        | 1.5\n"
-        "150 - 299 (Bom)           | Dificil       | 120  | 15   | 2.2        | 1.2\n"
-        ">= 300 (Excelente)        | Muito Dificil | 150  | 20   | 2.5        | 1.0\n"
+        "< 50 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
+        "50 - 149 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
+        "150 - 299 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
+        ">= 300 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
         "\n"
         "Dados do Jogador:\n";
 
@@ -230,7 +230,7 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
 
                                 float healthBonus = (stats.health / 100.0f) * 0.4f;
                                 float speedPenalty = (stats.speed / 2.0f) * 0.4f;
-                                stats.scale = fmaxf(2.5f, 3.5f + healthBonus - speedPenalty);
+                                stats.scale = fmaxf(6.0f, 3.5f + healthBonus - speedPenalty);
 
                                 printf("INFO: Stats dinâmicos recebidos da API!\n");
                             } else {

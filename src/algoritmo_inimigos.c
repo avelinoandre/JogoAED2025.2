@@ -7,6 +7,7 @@
 #include <stdlib.h> 
 #include <stdio.h>
 #include "score.h"
+#include "boss.h"
 
 #define DELAY_SPAWN_INICIAL 2.0f
 #define DELAY_SPAWN_BASE 1.8f      
@@ -93,23 +94,31 @@ static void SpawnarUmInimigo(Player* jogador) {
 void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
 
-    if (cena->id == 5) {
-        printf("\n============================================\n");
-        printf("INFO: Entrando no Mapa 5 (Boss). Calculando status...\n");
-        
-        int score = Score_GetScore();
-        float tempo = Score_GetTimer();
-        
-        DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
-        
-        printf("--- Stats do Boss Calculados ---\n");
-        printf("  Vida: %d\n", bossStats.health);
-        printf("  Dano: %d\n", bossStats.damage);
-        printf("  Velocidade: %.2f\n", bossStats.speed);
-        printf("  Cooldown Atk: %.2fs\n", bossStats.attackCooldown);
-        printf("  Scale (Tamanho): %.2f\n", bossStats.scale);
-        printf("============================================\n\n");
-    }
+    if (cena->id == 5) { 
+    printf("\n============================================\n");
+    printf("INFO: Entrando no Mapa 5 (Boss). Calculando status...\n");
+
+    int score = Score_GetScore();
+    float tempo = Score_GetTimer();
+
+    DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
+
+    printf("--- Stats do Boss Calculados ---\n");
+    printf("  Vida: %d\n", bossStats.health);
+    printf("  Dano: %d\n", bossStats.damage);
+    printf("  Velocidade: %.2f\n", bossStats.speed);
+    printf("  Cooldown Atk: %.2fs\n", bossStats.attackCooldown);
+    printf("  Scale (Tamanho): %.2f\n", bossStats.scale);
+    printf("============================================\n\n");
+
+    Boss_Spawn(bossStats);
+
+    totalInimigosParaSpawnar = 1; 
+    inimigosJaSpawnados = 1;      
+    controleAtivo = false;       
+
+    return;
+}
 
     int totalInimigosBase = 2 + (int)(cena->id * 2);
     printf("ControleSpawn (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);

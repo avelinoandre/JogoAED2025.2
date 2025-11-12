@@ -192,7 +192,7 @@ void UnloadEnemyAssets(void) {
     }
 }
 
-void SpawnEnemy(EnemyType type, Vector2 position) {
+Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemyPool[i].active) {
             Enemy *enemy = &enemyPool[i]; 
@@ -207,6 +207,10 @@ void SpawnEnemy(EnemyType type, Vector2 position) {
             enemy->isAttacking = false;
             enemy->isMoving = false;
             
+            enemy->isBoss = false;
+            enemy->spawnedAt50 = false;
+            enemy->spawnedAt25 = false;
+
             switch (type) {
                 
                 case ENEMY_GARNET: {
@@ -290,9 +294,10 @@ void SpawnEnemy(EnemyType type, Vector2 position) {
                     break;
                 }
             }
-            return;
+            return enemy;
         }
     }
+    return NULL;
 }
 
 void DespawnAllEnemies(void) {
@@ -634,4 +639,15 @@ int GetActiveEnemyCount(void) {
         }
     }
     return count;
+}
+
+int GetMaxEnemies(void) {
+    return MAX_ENEMIES;
+}
+
+Enemy* GetEnemyFromPool(int index) {
+    if (index >= 0 && index < MAX_ENEMIES) {
+        return &enemyPool[index];
+    }
+    return NULL;
 }
