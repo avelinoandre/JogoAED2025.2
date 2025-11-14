@@ -12,9 +12,6 @@
 
 void InitPlayer(Player *player, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
-    player->speed = 5.0f;
-    player->maxHealth = 100;
-    player->health = player->maxHealth;
     player->scale = 4.0f;
     player->direction = 1;
     player->isMoving = false;
@@ -27,6 +24,9 @@ void InitPlayer(Player *player, int startX, int startY) {
 
     switch (selectedCharacter) {
         case CHAR_JOHNNY:
+            player->speed = 4.0f;
+            player->maxHealth = 150;
+
             player->idleFrameCount = 2;
             player->walkFrameCount = 3;
             player->attackFrameCount = 1;
@@ -51,6 +51,9 @@ void InitPlayer(Player *player, int startX, int startY) {
             break;
 
         case CHAR_FINN:
+            player->speed = 6.0f;  
+            player->maxHealth = 120; 
+
             player->idleFrameCount = 2; 
             player->walkFrameCount = 4;
             player->attackFrameCount = 2; 
@@ -73,6 +76,10 @@ void InitPlayer(Player *player, int startX, int startY) {
             break;
 
         case CHAR_SAMURAI:
+
+            player->speed = 4.5f;  
+            player->maxHealth = 150;
+
             player->idleFrameCount = 2;
             player->walkFrameCount = 4; 
             player->attackFrameCount = 2;
@@ -95,6 +102,9 @@ void InitPlayer(Player *player, int startX, int startY) {
             break;
             
         case CHAR_MORDECAI:
+            player->speed = 5.5f;
+            player->maxHealth = 150;
+            
             player->idleFrameCount = 2; 
             player->walkFrameCount = 6; 
             player->attackFrameCount = 2; 
@@ -118,6 +128,8 @@ void InitPlayer(Player *player, int startX, int startY) {
             player->attackTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoataque/mordecaidescoladoataque2.png");
             break;
     }
+
+    player->health = player->maxHealth; // MODIFICADO: Define a vida inicial com base no maxHealth do personagem
 }
 
 

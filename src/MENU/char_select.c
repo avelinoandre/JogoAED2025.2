@@ -22,9 +22,9 @@ static const char *charNames[] = {
 
 static const char *statsNames[] = {"VIDA", "PODER","VEL"};
 static const char *statsGrades[4][3] = {
-    {"A", "A","A"}, 
-    {"A", "A","A"},
-    {"A", "A","A"}, 
+    {"A", "B","C"}, 
+    {"B", "B","A"},
+    {"A", "A","B"}, 
     {"A", "A","A"}  
 };
 

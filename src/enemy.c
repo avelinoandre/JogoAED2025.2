@@ -10,7 +10,7 @@
 
 #define ENEMY_ANIM_SPEED_PARADO 50
 #define ENEMY_ANIM_SPEED_ANDANDO 20
-#define ENEMY_MELEE_DAMAGE 50
+
 
 static Enemy enemyPool[MAX_ENEMIES];
 
@@ -560,7 +560,27 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         } else {
             if (player->isAttacking && meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
                 if(enemy->attackTimer <= 0.1f) { 
-                    enemy->health -= ENEMY_MELEE_DAMAGE; 
+                    
+                    int meleeDamage = 50; 
+                    
+                    
+                    switch (selectedCharacter) {
+                        case CHAR_FINN:
+                            meleeDamage = 40;
+                            break;
+                        case CHAR_SAMURAI:
+                            meleeDamage = 60;
+                            break;
+                        case CHAR_MORDECAI:
+                            meleeDamage = 50; 
+                            break;
+                        case CHAR_JOHNNY: 
+                            meleeDamage = 0; 
+                            break;
+                    }
+                    
+                    enemy->health -= meleeDamage; 
+                    
                     enemy->attackTimer = 0.5f; 
                     enemy->isAttacking = false; 
                 }
