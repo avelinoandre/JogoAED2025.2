@@ -11,6 +11,8 @@ static Texture2D bulletTexture;
 static Bullet bulletPool[MAX_BULLETS];
 static int currentAmmo;
 
+static Sound shootSound;
+
 
 void InitBulletPool(void) {
 
@@ -22,6 +24,9 @@ void InitBulletPool(void) {
     
     bulletTexture = LoadTexture("assets/Sprites/BALA.png"); 
     currentAmmo = MAX_AMMO;
+
+    shootSound = LoadSound("assets/audios/shootSound.wav"); 
+    SetSoundVolume(shootSound, 0.4f);
 }
 
 
@@ -54,6 +59,8 @@ void SpawnBullet(Vector2 startPos, int direction) {
                 bulletPool[i].speed.y = 0;
 
                 currentAmmo--;
+
+                PlaySound(shootSound);
                 return;
             }
         }
@@ -105,6 +112,7 @@ bool CheckBulletCollision(Rectangle targetRect, int *damageTaken) {
 
 void UnloadBulletAssets(void) {
     UnloadTexture(bulletTexture);
+    UnloadSound(shootSound);
 }
 
 int GetCurrentAmmo(void) {

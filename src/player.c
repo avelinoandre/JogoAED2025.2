@@ -24,6 +24,8 @@ void InitPlayer(Player *player, int startX, int startY) {
 
     player->isReloading = false;
     player->reloadTimer = 0.0f;
+
+    player->attackSound = (Sound){ 0 };
     
     char path[256];
 
@@ -68,6 +70,9 @@ void InitPlayer(Player *player, int startX, int startY) {
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
             player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
 
+            player->attackSound = LoadSound("assets/audios/swordSound.wav");
+            SetSoundVolume(player->attackSound, 0.6f);
+
             player->idleTextures[0] = LoadTexture("assets/Sprites/Finn/Finnparado/finnparado1.png");
             player->idleTextures[1] = LoadTexture("assets/Sprites/Finn/Finnparado/finn3.png");
             
@@ -93,6 +98,9 @@ void InitPlayer(Player *player, int startX, int startY) {
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
             player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
+
+            player->attackSound = LoadSound("assets/audios/swordSound.wav");
+            SetSoundVolume(player->attackSound, 0.6f);
             
             player->idleTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraiparado/Samuraiparado1.png");
             player->idleTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraiparado/Samurai3.png");
@@ -118,6 +126,9 @@ void InitPlayer(Player *player, int startX, int startY) {
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
             player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
+
+            player->attackSound = LoadSound("assets/audios/punchSound.wav");
+            SetSoundVolume(player->attackSound, 0.9f);
             
             player->idleTextures[0] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoparado/mordecaidescoladoparado.png");
             player->idleTextures[1] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladoparado/mordecai51.png");
@@ -167,14 +178,21 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         float offsetX_Right = playerWidth * 1.0f;
         float offsetX_Left = playerWidth * 0.2f; 
         startPos.y = player->position.y + offsetY;
+        startPos.y = player->position.y + offsetY;
         if (player->direction == 1) { 
             startPos.x = player->position.x + offsetX_Right;
         } else { 
             startPos.x = player->position.x + offsetX_Left;
         }
 
+
         if (selectedCharacter == CHAR_JOHNNY) {
             SpawnBullet(startPos, player->direction);
+        } 
+        else {
+            if (player->attackSound.frameCount > 0) { 
+                PlaySound(player->attackSound);
+            }
         }
     }
 

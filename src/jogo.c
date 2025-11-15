@@ -67,7 +67,7 @@ void InitGame(void) {
     PlayMusicStream(gameMusic);
 
     gameOverSound = LoadSound("assets/audios/gameOverSound.wav"); 
-    SetSoundVolume(gameOverSound, 0.7f);
+    SetSoundVolume(gameOverSound, 0.4f);
 }
 
 int UpdateGame(void) {

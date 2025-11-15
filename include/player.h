@@ -28,6 +28,8 @@ typedef struct Player {
     
     int attackAnimSpeed;
 
+    Sound attackSound;
+
     int currentFrame;
     int framesCounter;
     int framesSpeed; 
