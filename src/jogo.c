@@ -74,8 +74,6 @@ int UpdateGame(void) {
     if (player.health <= 0) {
         Score_SetPlayerDead(true);
         Score_CalculateFinal();
-
-        return 2; 
     }
     
     SceneNode* currentScene = GetCurrentScene();
@@ -178,11 +176,11 @@ void DrawGame(void) {
         const char* textoContagem = "";
         
         if (tempoContagem <= 1.0f) {
-            textoContagem = "1";
+            textoContagem = "3";
         } else if (tempoContagem <= 2.0f) {
             textoContagem = "2";
         } else if (tempoContagem <= 3.0f) {
-            textoContagem = "3";
+            textoContagem = "1";
         } else if (tempoContagem <= 4.0f) {
             textoContagem = "GO!";
         }

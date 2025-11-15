@@ -78,7 +78,7 @@ static char* BuildGeminiPayload(const char* prompt) {
     cJSON_AddItemToObject(root, "contents", contents);
 
     cJSON *genConfig = cJSON_CreateObject();
-    cJSON_AddItemToObject(genConfig, "maxOutputTokens", cJSON_CreateNumber(1024));
+    cJSON_AddItemToObject(genConfig, "maxOutputTokens", cJSON_CreateNumber(2048));
     cJSON_AddItemToObject(root, "generationConfig", genConfig);
     
     char *jsonString = cJSON_PrintUnformatted(root);

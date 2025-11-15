@@ -31,7 +31,8 @@ static const char *statsGrades[4][3] = {
 
 static int selectedOption = 0;
 static Font font;
-static Texture2D portraits[4]; 
+static Texture2D portraits[4];
+static Texture2D portraits_icon[4];
 
 void InitCharSelectMenu(void) {
     selectedOption = 0;
@@ -42,6 +43,12 @@ void InitCharSelectMenu(void) {
     portraits[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finn26.png");
     portraits[2] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samurai26.png");
     portraits[3] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladocomemoracao/mordecai77.png");
+
+    portraits_icon[0] = LoadTexture("assets/Sprites/icons/johnyBravo_icon.png");
+    portraits_icon[1] = LoadTexture("assets/Sprites/icons/finn_icon.png"); 
+    portraits_icon[2] = LoadTexture("assets/Sprites/icons/samuraiJack_icon.png");
+    portraits_icon[3] = LoadTexture("assets/Sprites/icons/mordecai_icon.png");
+
 }
 
 void UpdateCharSelectMenu(int *gameState) {
@@ -131,18 +138,18 @@ void DrawCharSelectMenu(void) {
             DrawTextEx(font, statsGrades[i][j], (Vector2){(float)currentX + columnWidth - 60, (float)statsY + j * statsPadding}, 30, 2, RAYWHITE);
         }
 
-        if (portraits[i].id > 0) {
+        if (portraits_icon[i].id > 0) {
             float smallSpriteHeight = 100;
-            float scale = smallSpriteHeight / portraits[i].height;
-            float smallSpriteWidth = portraits[i].width * scale;
-            Rectangle srcRect = { 0, 0, (float)portraits[i].width, (float)portraits[i].height };
+            float scale = smallSpriteHeight / portraits_icon[i].height;
+            float smallSpriteWidth = portraits_icon[i].width * scale;
+            Rectangle srcRect = { 0, 0, (float)portraits_icon[i].width, (float)portraits_icon[i].height };
             Rectangle destRect = {
                 currentX + (columnWidth - smallSpriteWidth) / 2, 
                 statsY + 140,
                 smallSpriteWidth,
                 smallSpriteHeight
             };
-            DrawTexturePro(portraits[i], srcRect, destRect, (Vector2){0,0}, 0.0f, WHITE);
+            DrawTexturePro(portraits_icon[i], srcRect, destRect, (Vector2){0,0}, 0.0f, WHITE);
         }
     }
 }
@@ -154,6 +161,12 @@ void UnloadCharSelectMenu(void) {
     for (int i = 0; i < 4; i++) {
         if (portraits[i].id > 0) {
             UnloadTexture(portraits[i]);
+        }
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (portraits_icon[i].id > 0) {
+            UnloadTexture(portraits_icon[i]);
         }
     }
 }
