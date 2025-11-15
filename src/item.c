@@ -1,10 +1,15 @@
 #include "item.h"
 #include "player.h"
 #include "score.h" 
+#include "globals.h" 
 #include <stdlib.h>
 
 #define MAX_ITEMS 20
-#define ITEM_SCALE 3.0f
+
+#define MACA_SCALE 1.5f
+#define DINHEIRO_SCALE 3.0f
+#define VIDA_EXTRA_SCALE 3.0f
+
 
 typedef struct Item {
     bool active;
@@ -19,16 +24,28 @@ static Texture2D vidaExtraTexture;
 
 static Rectangle GetItemRect(const Item* item) {
     Texture2D tex;
+    float scale; 
+
     switch (item->type) {
-        case ITEM_MACA: tex = macaTexture; break;
-        case ITEM_DINHEIRO: tex = dinheiroTexture; break;
-        case ITEM_VIDA_EXTRA: tex = vidaExtraTexture; break;
+        case ITEM_MACA: 
+            tex = macaTexture; 
+            scale = MACA_SCALE;
+            break;
+        case ITEM_DINHEIRO: 
+            tex = dinheiroTexture; 
+            scale = DINHEIRO_SCALE;
+            break;
+        case ITEM_VIDA_EXTRA: 
+            tex = vidaExtraTexture; 
+            scale = VIDA_EXTRA_SCALE;
+            break;
         default: return (Rectangle){0, 0, 0, 0};
     }
+
     return (Rectangle){
         item->position.x, item->position.y,
-        (float)tex.width * ITEM_SCALE,
-        (float)tex.height * ITEM_SCALE
+        (float)tex.width * scale,  
+        (float)tex.height * scale 
     };
 }
 
@@ -49,6 +66,16 @@ void Item_Unload(void) {
 }
 
 void Item_Spawn(Vector2 position, ItemType type) {
+    
+    if (type == ITEM_VIDA_EXTRA) {
+        for (int i = 0; i < MAX_ITEMS; i++) {
+            if (itemPool[i].active && itemPool[i].type == ITEM_VIDA_EXTRA) {
+                type = ITEM_DINHEIRO; 
+                break; 
+            }
+        }
+    }
+
     for (int i = 0; i < MAX_ITEMS; i++) {
         if (!itemPool[i].active) {
             itemPool[i].active = true;
@@ -71,16 +98,16 @@ void Item_Update(Player *player) {
         if (CheckCollisionRecs(playerRect, itemRect)) {
             switch (item->type) {
                 case ITEM_MACA:
-                    player->health += 30; 
+                    player->health += 50; 
                     if (player->health > player->maxHealth) {
                         player->health = player->maxHealth;
                     }
                     break;
                 case ITEM_DINHEIRO:
-                    Score_AddPoints(500);
+                    Score_AddPoints(3000);
                     break;
                 case ITEM_VIDA_EXTRA:
-                    player->health = player->maxHealth; 
+                    extraLives++;
                     break;
             }
             item->active = false;
@@ -94,15 +121,25 @@ void Item_Draw(void) {
 
         Item *item = &itemPool[i];
         Texture2D tex;
+        float scale; // Variável local para a escala
         
         switch (item->type) {
-            case ITEM_MACA: tex = macaTexture; break;
-            case ITEM_DINHEIRO: tex = dinheiroTexture; break;
-            case ITEM_VIDA_EXTRA: tex = vidaExtraTexture; break;
+            case ITEM_MACA: 
+                tex = macaTexture; 
+                scale = MACA_SCALE;
+                break;
+            case ITEM_DINHEIRO: 
+                tex = dinheiroTexture; 
+                scale = DINHEIRO_SCALE;
+                break;
+            case ITEM_VIDA_EXTRA: 
+                tex = vidaExtraTexture; 
+                scale = VIDA_EXTRA_SCALE;
+                break;
             default: continue;
         }
         
-        DrawTextureEx(tex, item->position, 0.0f, ITEM_SCALE, WHITE);
+        DrawTextureEx(tex, item->position, 0.0f, scale, WHITE); // Usa a escala correta
     }
 }
 

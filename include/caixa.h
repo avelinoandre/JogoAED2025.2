@@ -9,5 +9,6 @@ void Caixa_Unload(void);
 void Caixa_Update(Player *player);
 void Caixa_Draw(void);
 void Caixa_DespawnAll(void);
+void Caixa_Spawn_At(Vector2 position); // Nova função para spawnar em local específico
 
-#endif 
+#endif

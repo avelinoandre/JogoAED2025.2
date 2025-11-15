@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include "score.h"
 #include "boss.h"
+#include "caixa.h" // Adicionado para poder spawnar caixas
+#include "raymath.h" // Adicionado para Vector2Distance
 
 #define DELAY_SPAWN_INICIAL 2.0f
 #define DELAY_SPAWN_BASE 1.8f      
@@ -24,7 +26,8 @@ static bool controleAtivo;
 static float spawnRateModificador; 
 static int saudeJogadorCache; 
 
-static int Clamp(int valor, int minimo, int maximo) {
+// REQUISIÇÃO: Renomeada de 'Clamp' para 'ClampInt' para evitar conflito com raymath.h
+static int ClampInt(int valor, int minimo, int maximo) {
     if (valor < minimo) return minimo;
     if (valor > maximo) return maximo;
     return valor;
@@ -90,35 +93,72 @@ static void SpawnarUmInimigo(Player* jogador) {
            pos.x, pos.y);
 }
 
+// (Nova helper function para gerar posição da caixa)
+static Vector2 GerarPosicaoCaixa(void) {
+    int screenWidth = 1600;
+    int screenHeight = 900;
+    
+    // Gera posição X (evitando as bordas de transição)
+    float x = (float)(rand() % (screenWidth - 600)) + 300; // Entre 300 e 1300
+    // Gera posição Y (apenas na "rua")
+    float y = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150)); // -150 para não spawnar no limite inferior
+    
+    return (Vector2){x, y};
+}
+
 
 void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
 
+    // --- LÓGICA DA CAIXA ---
+    // Limpa caixas da cena anterior
+    Caixa_DespawnAll();
+    
+    // REQUISIÇÃO: Spawna 2 caixas na cena 4 (antes do boss)
+    if (cena->id == 4) {
+        Vector2 pos1 = GerarPosicaoCaixa();
+        Caixa_Spawn_At(pos1);
+        
+        Vector2 pos2 = GerarPosicaoCaixa();
+        // Garantir que a segunda caixa não spawne em cima da primeira
+        while (Vector2Distance(pos1, pos2) < 100.0f) { // Precisa de raymath.h
+             pos2 = GerarPosicaoCaixa();
+        }
+        Caixa_Spawn_At(pos2);
+    }
+    // Spawna 1 caixa nas cenas sorteadas (agora 1, 2 e 3)
+    else if (cena->id > 0 && cena->id <= TOTAL_SCENES && sceneHasCaixa[cena->id]) {
+        Vector2 pos = GerarPosicaoCaixa();
+        Caixa_Spawn_At(pos);
+    }
+    // --- FIM DA LÓGICA DA CAIXA ---
+
+
     if (cena->id == 5) { 
-    printf("\n============================================\n");
-    printf("INFO: Entrando no Mapa 5 (Boss). Calculando status...\n");
+        printf("\n============================================\n");
+        printf("INFO: Entrando no Mapa 5 (Boss). Calculando status...\n");
 
-    int score = Score_GetScore();
-    float tempo = Score_GetTimer();
+        int score = Score_GetScore();
+        float tempo = Score_GetTimer();
 
-    DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
+        DynamicEnemyStats bossStats = Gemini_GetBalancedStats(score, tempo); 
 
-    printf("--- Stats do Boss Calculados ---\n");
-    printf("  Vida: %d\n", bossStats.health);
-    printf("  Dano: %d\n", bossStats.damage);
-    printf("  Velocidade: %.2f\n", bossStats.speed);
-    printf("  Cooldown Atk: %.2fs\n", bossStats.attackCooldown);
-    printf("  Scale (Tamanho): %.2f\n", bossStats.scale);
-    printf("============================================\n\n");
+        printf("--- Stats do Boss Calculados ---\n");
+        printf("  Vida: %d\n", bossStats.health);
+        printf("  Dano: %d\n", bossStats.damage);
+        printf("  Velocidade: %.2f\n", bossStats.speed);
+        printf("  Cooldown Atk: %.2fs\n", bossStats.attackCooldown);
+        printf("  Scale (Tamanho): %.2f\n", bossStats.scale);
+        printf("============================================\n\n");
 
-    Boss_Spawn(bossStats);
+        Boss_Spawn(bossStats);
 
-    totalInimigosParaSpawnar = 1; 
-    inimigosJaSpawnados = 1;      
-    controleAtivo = false;       
+        totalInimigosParaSpawnar = 1; 
+        inimigosJaSpawnados = 1;      
+        controleAtivo = false;       
 
-    return;
-}
+        return;
+    }
 
     int totalInimigosBase = 2 + (int)(cena->id * 2);
     printf("ControleSpawn (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
@@ -135,7 +175,8 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
         totalCalculado = totalInimigosBase / 2;
     } 
     
-    totalInimigosParaSpawnar = Clamp(totalCalculado, MIN_INIMIGOS_POR_CENA, MAX_INIMIGOS_POR_CENA);
+    // REQUISIÇÃO: 'Clamp' renomeado para 'ClampInt'
+    totalInimigosParaSpawnar = ClampInt(totalCalculado, MIN_INIMIGOS_POR_CENA, MAX_INIMIGOS_POR_CENA);
     if (cena->isCleared) {
         totalInimigosParaSpawnar = 0;
     }

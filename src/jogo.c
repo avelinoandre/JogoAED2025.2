@@ -26,9 +26,28 @@ static SceneNode* lastScene = NULL;
 static bool emContagemInicial;
 static float tempoContagem;
 
+// Definição das variáveis globais
 CharacterType selectedCharacter = CHAR_JOHNNY;
+bool sceneHasCaixa[TOTAL_SCENES + 1];
+int extraLives;
 
 void InitGame(void) {
+    
+    // REQUISIÇÃO: Colocar 1 caixa em cada uma das 3 primeiras cenas.
+    // A cena 4 (antes do boss) terá sua própria regra no algoritmo_inimigos.c
+    for (int i = 0; i <= TOTAL_SCENES; i++) {
+        sceneHasCaixa[i] = false;
+    }
+    sceneHasCaixa[1] = true;
+    sceneHasCaixa[2] = true;
+    sceneHasCaixa[3] = true;
+    // sceneHasCaixa[4] será tratado em algoritmo_inimigos.c
+    // sceneHasCaixa[5] (Boss) não terá caixas.
+
+
+    // Inicializa vidas extras
+    extraLives = 1; // REQUISIÇÃO: Começar com 1 vida extra
+
     Gemini_Init();
     InitMap();
 
@@ -76,9 +95,17 @@ int UpdateGame(void) {
 
     Score_Update(GetFrameTime());
 
+    // Lógica de Morte e Vida Extra
     if (player.health <= 0) {
-        Score_SetPlayerDead(true);
-        Score_CalculateFinal();
+        if (extraLives > 0) {
+            extraLives--; // Usa uma vida extra
+            player.health = player.maxHealth; // Restaura a vida
+            // (Opcional: adicionar invencibilidade temporária ou efeito visual)
+        } else {
+            // Só morre de verdade se não tiver vidas extras
+            Score_SetPlayerDead(true);
+            Score_CalculateFinal();
+        }
     }
     
     SceneNode* currentScene = GetCurrentScene();
@@ -99,7 +126,10 @@ int UpdateGame(void) {
         return 1; 
     }
 
-    UpdatePlayer(&player, screenWidth, screenHeight,currentScene);
+    // Só atualiza o player se ele não estiver morto
+    if (!Score_IsPlayerDead()) {
+        UpdatePlayer(&player, screenWidth, screenHeight,currentScene);
+    }
 
     if (selectedCharacter == CHAR_JOHNNY) 
     {
@@ -168,7 +198,9 @@ void DrawGame(void) {
 
     DrawText(TextFormat("SCORE: %08i", Score_GetScore()), 20, 70, 20, RAYWHITE);
     DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), 20, 95, 20, RAYWHITE);
-    //TA AQUI
+    // Adiciona o contador de Vidas Extras
+    DrawText(TextFormat("LIVES: %d", extraLives), 20, 120, 20, RAYWHITE); 
+    
     if (Score_IsPlayerDead()) {
         int posX = screenWidth - 923; 
         int posY = 350;

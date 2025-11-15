@@ -6,10 +6,9 @@
 #include <stdlib.h>   
 #include <stdio.h>    
 
-#define MAX_CAIXAS 1        
+#define MAX_CAIXAS 2        // REQUISIÇÃO: Alterado de 1 para 2
 #define CAIXA_HEALTH 3      
 #define CAIXA_SCALE 3.0f
-#define CAIXA_SPAWN_TIME 15.0f 
 
 typedef struct Caixa {
     bool active;
@@ -20,7 +19,6 @@ typedef struct Caixa {
 
 static Caixa caixaPool[MAX_CAIXAS];
 static Texture2D caixaTexture;
-static float spawnTimer;
 
 static Rectangle GetCaixaRect(const Caixa* caixa) {
     if (!caixa->active) return (Rectangle){0,0,0,0};
@@ -31,26 +29,17 @@ static Rectangle GetCaixaRect(const Caixa* caixa) {
     };
 }
 
-static void Caixa_Spawn(void) {
+void Caixa_Spawn_At(Vector2 position) {
     for (int i = 0; i < MAX_CAIXAS; i++) {
         if (!caixaPool[i].active) {
             Caixa *caixa = &caixaPool[i];
             
-            int screenWidth = 1600;
-            int screenHeight = 900;
-
-            float w = (float)caixaTexture.width * CAIXA_SCALE;
-            float h = (float)caixaTexture.height * CAIXA_SCALE;
-
-            float x = (float)(rand() % (screenWidth - (int)w));
-            float y = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - h));
-
-            caixa->position = (Vector2){x, y};
+            caixa->position = position;
             caixa->active = true;
             caixa->health = CAIXA_HEALTH;
             caixa->hitStunTimer = 0.0f;
             
-            return;
+            return; 
         }
     }
 }
@@ -60,7 +49,6 @@ void Caixa_Init(void) {
     for (int i = 0; i < MAX_CAIXAS; i++) {
         caixaPool[i].active = false;
     }
-    spawnTimer = CAIXA_SPAWN_TIME;
 }
 
 void Caixa_Unload(void) {
@@ -68,22 +56,6 @@ void Caixa_Unload(void) {
 }
 
 void Caixa_Update(Player *player) {
-    bool caixaAtiva = false;
-    for (int i = 0; i < MAX_CAIXAS; i++) {
-        if (caixaPool[i].active) {
-            caixaAtiva = true;
-            break;
-        }
-    }
-
-    if (!caixaAtiva) {
-        spawnTimer -= GetFrameTime();
-        if (spawnTimer <= 0) {
-            Caixa_Spawn();
-            spawnTimer = CAIXA_SPAWN_TIME;
-        }
-    }
-
     for (int i = 0; i < MAX_CAIXAS; i++) {
         Caixa *caixa = &caixaPool[i];
         if (!caixa->active) continue;
@@ -94,7 +66,7 @@ void Caixa_Update(Player *player) {
 
         Rectangle caixaRect = GetCaixaRect(caixa);
         bool hit = false;
-        int damageTaken = 0;
+        int damageTaken = 0; 
 
         if (selectedCharacter == CHAR_JOHNNY) {
             if (CheckBulletCollision(caixaRect, &damageTaken)) {
@@ -102,9 +74,9 @@ void Caixa_Update(Player *player) {
             }
         } else {
             Rectangle meleeRect = GetPlayerMeleeRect(player);
-            if (player->isAttacking && caixa->hitStunTimer <= 0 && CheckCollisionRecs(meleeRect, caixaRect)) {
+            if (player->isAttacking && meleeRect.width > 0 && caixa->hitStunTimer <= 0 && CheckCollisionRecs(meleeRect, caixaRect)) {
                 hit = true;
-                caixa->hitStunTimer = 0.5f;
+                caixa->hitStunTimer = 0.5f; 
             }
         }
 
@@ -112,9 +84,8 @@ void Caixa_Update(Player *player) {
             caixa->health--;
             if (caixa->health <= 0) {
                 caixa->active = false;
-                spawnTimer = CAIXA_SPAWN_TIME;
 
-                ItemType itemDrop = (ItemType)(rand() % 3);
+                ItemType itemDrop = (ItemType)(rand() % 3); 
                 Item_Spawn(caixa->position, itemDrop);
             }
         }
@@ -133,5 +104,4 @@ void Caixa_DespawnAll(void) {
     for (int i = 0; i < MAX_CAIXAS; i++) {
         caixaPool[i].active = false;
     }
-    spawnTimer = CAIXA_SPAWN_TIME;
 }
