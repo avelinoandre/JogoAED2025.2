@@ -151,45 +151,36 @@ if (remaining == 0 && !ControleSpawn_EstaAtivo()) {
 
         const char *text = "GO";
         
-        // --- AJUSTE DE TAMANHO ---
-        // "um pouco de nada maior"
-        int fontSize = 55; // Aumentado de 50 para 55
-        float arrowSize = 28.0f; // Aumentado de 25 para 28
+        int fontSize = 55;
+        float arrowSize = 28.0f; 
 
         Vector2 textSize = MeasureTextEx(GetFontDefault(), text, fontSize, 0);
 
-        // Ajustei a posição base um pouco mais para a esquerda para compensar o tamanho
         int basePosX = screenWidth - 140; 
         int posY = screenHeight / 2; 
 
         int animatedPosX = basePosX + bounceOffset;
 
-        // --- AJUSTE DE ALINHAMENTO ---
-        // Este valor "puxa" a seta para CIMA. 
-        // Aumente se ainda parecer baixa, diminua se subir demais.
-        int ajusteVerticalSeta = 6; // Vamos tentar subir a seta 8 pixels
+        int ajusteVerticalSeta = 4;
 
-        // Desenha o texto "GO" (centralizado em posY)
         DrawText(text, animatedPosX, posY - (int)(textSize.y / 2), fontSize, YELLOW);
 
-        // Define a posição dos 3 pontos da seta
         Vector2 p1 = { 
-            animatedPosX + textSize.x + 15, // Aumentei o espaço (era 10)
-            (float)posY - arrowSize - ajusteVerticalSeta // Aplica o ajuste
+            animatedPosX + textSize.x + 15,
+            (float)posY - arrowSize - ajusteVerticalSeta 
         };
         Vector2 p2 = { 
             animatedPosX + textSize.x + 15, 
-            (float)posY + arrowSize - ajusteVerticalSeta // Aplica o ajuste
+            (float)posY + arrowSize - ajusteVerticalSeta 
         };
         Vector2 p3 = { 
             animatedPosX + textSize.x + 15 + arrowSize, 
-            (float)posY - ajusteVerticalSeta // Aplica o ajuste
+            (float)posY - ajusteVerticalSeta 
         };
         
         DrawTriangle(p1, p2, p3, YELLOW);
         
     } else {
-        // (Seu código "else" continua exatamente igual)
         const char *text = TextFormat("ELIMINADOS: %d / %d", killed, totalEnemiesInScene);
         int fontSize = 30;
         int textWidth = MeasureText(text, fontSize);
