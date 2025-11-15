@@ -24,6 +24,7 @@ int main(void) {
     curl_global_init(CURL_GLOBAL_ALL);
 
     InitWindow(screenWidth, screenHeight, "SMASH TOONS");
+    InitAudioDevice();
     SetTargetFPS(60);
 
     Menu menu;
@@ -113,6 +114,7 @@ int main(void) {
 
     UnloadMenu(&menu);
     UnloadCharSelectMenu(); 
+    CloseAudioDevice();
     CloseWindow();
     
     curl_global_cleanup();

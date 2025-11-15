@@ -26,6 +26,8 @@ static SceneNode* lastScene = NULL;
 static bool emContagemInicial;
 static float tempoContagem;
 
+static Music gameMusic;
+
 CharacterType selectedCharacter = CHAR_JOHNNY;
 bool sceneHasCaixa[TOTAL_SCENES + 1];
 int extraLives;
@@ -58,9 +60,15 @@ void InitGame(void) {
 
     emContagemInicial = true;
     tempoContagem = 0.0f;   
+
+    gameMusic = LoadMusicStream("assets/audios/gameAudio.mp3"); 
+    SetMusicVolume(gameMusic, 1.0f);
+    PlayMusicStream(gameMusic);
 }
 
 int UpdateGame(void) {
+
+    UpdateMusicStream(gameMusic);
 
     if (emContagemInicial) {
         tempoContagem += GetFrameTime();
@@ -258,6 +266,8 @@ void DrawGame(void) {
 }
 
 void UnloadGame(void) {
+    StopMusicStream(gameMusic);
+    UnloadMusicStream(gameMusic);
     UnloadMap();
     UnloadPlayer(&player);
     UnloadEnemyAssets();
