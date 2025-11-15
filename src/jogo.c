@@ -27,6 +27,7 @@ static bool emContagemInicial;
 static float tempoContagem;
 
 static Music gameMusic;
+static Sound gameOverSound;
 
 CharacterType selectedCharacter = CHAR_JOHNNY;
 bool sceneHasCaixa[TOTAL_SCENES + 1];
@@ -64,6 +65,9 @@ void InitGame(void) {
     gameMusic = LoadMusicStream("assets/audios/gameAudio.mp3"); 
     SetMusicVolume(gameMusic, 1.0f);
     PlayMusicStream(gameMusic);
+
+    gameOverSound = LoadSound("assets/audios/gameOverSound.wav"); 
+    SetSoundVolume(gameOverSound, 0.7f);
 }
 
 int UpdateGame(void) {
@@ -100,8 +104,13 @@ int UpdateGame(void) {
             extraLives--;
             player.health = player.maxHealth; 
         } else {
-            Score_SetPlayerDead(true);
-            Score_CalculateFinal();
+            if (!Score_IsPlayerDead()) {
+                StopMusicStream(gameMusic);
+                PlaySound(gameOverSound); 
+                
+                Score_SetPlayerDead(true); 
+                Score_CalculateFinal();
+            }
         }
     }
     
@@ -153,7 +162,7 @@ void DrawEnemyCounter(void) {
     
     if (killed < 0) killed = 0; 
     
-if (remaining == 0 && !ControleSpawn_EstaAtivo()) {
+    if (remaining == 0 && !ControleSpawn_EstaAtivo()) {
         float pulse = (sin(GetTime() * 8.0f) + 1.0f) / 2.0f;
         int bounceOffset = (int)(pulse * 15.0f);
 
@@ -268,6 +277,7 @@ void DrawGame(void) {
 void UnloadGame(void) {
     StopMusicStream(gameMusic);
     UnloadMusicStream(gameMusic);
+    UnloadSound(gameOverSound);
     UnloadMap();
     UnloadPlayer(&player);
     UnloadEnemyAssets();
