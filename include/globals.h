@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <stdbool.h> // Adicionado para usar o tipo bool
+#include <stdbool.h> 
 
 typedef enum {
     CHAR_JOHNNY,
@@ -13,7 +13,7 @@ typedef enum {
 extern CharacterType selectedCharacter;
 
 #define TOTAL_SCENES 5
-extern bool sceneHasCaixa[TOTAL_SCENES + 1]; // +1 para indexação base 1 (Cenas 1-5)
-extern int extraLives; // Contador de vidas extras
+extern bool sceneHasCaixa[TOTAL_SCENES + 1]; 
+extern int extraLives; 
 
 #endif

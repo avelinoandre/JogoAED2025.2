@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include "score.h"
 #include "boss.h"
-#include "caixa.h" // Adicionado para poder spawnar caixas
-#include "raymath.h" // Adicionado para Vector2Distance
+#include "caixa.h" 
+#include "raymath.h" 
 
 #define DELAY_SPAWN_INICIAL 2.0f
 #define DELAY_SPAWN_BASE 1.8f      
@@ -26,7 +26,6 @@ static bool controleAtivo;
 static float spawnRateModificador; 
 static int saudeJogadorCache; 
 
-// REQUISIÇÃO: Renomeada de 'Clamp' para 'ClampInt' para evitar conflito com raymath.h
 static int ClampInt(int valor, int minimo, int maximo) {
     if (valor < minimo) return minimo;
     if (valor > maximo) return maximo;
@@ -93,15 +92,12 @@ static void SpawnarUmInimigo(Player* jogador) {
            pos.x, pos.y);
 }
 
-// (Nova helper function para gerar posição da caixa)
 static Vector2 GerarPosicaoCaixa(void) {
     int screenWidth = 1600;
     int screenHeight = 900;
-    
-    // Gera posição X (evitando as bordas de transição)
-    float x = (float)(rand() % (screenWidth - 600)) + 300; // Entre 300 e 1300
-    // Gera posição Y (apenas na "rua")
-    float y = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150)); // -150 para não spawnar no limite inferior
+
+    float x = (float)(rand() % (screenWidth - 600)) + 300; 
+    float y = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 250)); 
     
     return (Vector2){x, y};
 }
@@ -110,29 +106,22 @@ static Vector2 GerarPosicaoCaixa(void) {
 void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
     if (cena == NULL || jogador == NULL) return;
 
-    // --- LÓGICA DA CAIXA ---
-    // Limpa caixas da cena anterior
     Caixa_DespawnAll();
     
-    // REQUISIÇÃO: Spawna 2 caixas na cena 4 (antes do boss)
     if (cena->id == 4) {
         Vector2 pos1 = GerarPosicaoCaixa();
         Caixa_Spawn_At(pos1);
         
         Vector2 pos2 = GerarPosicaoCaixa();
-        // Garantir que a segunda caixa não spawne em cima da primeira
-        while (Vector2Distance(pos1, pos2) < 100.0f) { // Precisa de raymath.h
+        while (Vector2Distance(pos1, pos2) < 100.0f) { 
              pos2 = GerarPosicaoCaixa();
         }
         Caixa_Spawn_At(pos2);
     }
-    // Spawna 1 caixa nas cenas sorteadas (agora 1, 2 e 3)
     else if (cena->id > 0 && cena->id <= TOTAL_SCENES && sceneHasCaixa[cena->id]) {
         Vector2 pos = GerarPosicaoCaixa();
         Caixa_Spawn_At(pos);
     }
-    // --- FIM DA LÓGICA DA CAIXA ---
-
 
     if (cena->id == 5) { 
         printf("\n============================================\n");
@@ -174,8 +163,7 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
     if (saudePercent < 0.5f) {
         totalCalculado = totalInimigosBase / 2;
     } 
-    
-    // REQUISIÇÃO: 'Clamp' renomeado para 'ClampInt'
+
     totalInimigosParaSpawnar = ClampInt(totalCalculado, MIN_INIMIGOS_POR_CENA, MAX_INIMIGOS_POR_CENA);
     if (cena->isCleared) {
         totalInimigosParaSpawnar = 0;

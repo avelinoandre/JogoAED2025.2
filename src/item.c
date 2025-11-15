@@ -121,7 +121,7 @@ void Item_Draw(void) {
 
         Item *item = &itemPool[i];
         Texture2D tex;
-        float scale; // Variável local para a escala
+        float scale;
         
         switch (item->type) {
             case ITEM_MACA: 
@@ -139,7 +139,7 @@ void Item_Draw(void) {
             default: continue;
         }
         
-        DrawTextureEx(tex, item->position, 0.0f, scale, WHITE); // Usa a escala correta
+        DrawTextureEx(tex, item->position, 0.0f, scale, WHITE); 
     }
 }
 

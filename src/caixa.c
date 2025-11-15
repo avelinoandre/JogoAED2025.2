@@ -6,7 +6,7 @@
 #include <stdlib.h>   
 #include <stdio.h>    
 
-#define MAX_CAIXAS 2        // REQUISIÇÃO: Alterado de 1 para 2
+#define MAX_CAIXAS 2        
 #define CAIXA_HEALTH 3      
 #define CAIXA_SCALE 3.0f
 
