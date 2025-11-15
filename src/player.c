@@ -19,6 +19,9 @@ void InitPlayer(Player *player, int startX, int startY) {
     player->currentFrame = 0;
     player->framesCounter = 0;
     player->framesSpeed = PLAYER_ANIM_SPEED_PARADO;
+
+    player->isReloading = false;
+    player->reloadTimer = 0.0f;
     
     char path[256];
 
@@ -49,7 +52,7 @@ void InitPlayer(Player *player, int startX, int startY) {
                 player->attackTextures[i] = LoadTexture(path);
             }
             break;
-
+        
         case CHAR_FINN:
             player->speed = 6.0f;  
             player->maxHealth = 120; 
@@ -129,7 +132,7 @@ void InitPlayer(Player *player, int startX, int startY) {
             break;
     }
 
-    player->health = player->maxHealth; 
+    player->health = player->maxHealth;
 }
 
 
@@ -141,7 +144,15 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         player->collisionDamageTimer -= GetFrameTime();
     }
 
-    if (IsKeyPressed(KEY_X) && !player->isAttacking) {
+    if (player->isReloading) {
+        player->reloadTimer -= GetFrameTime();
+        if (player->reloadTimer <= 0.0f) {
+            ReloadAmmo();
+            player->isReloading = false;
+        }
+    }
+
+    if (IsKeyPressed(KEY_X) && !player->isAttacking && !player->isReloading) {
         player->isAttacking = true;
         player->currentFrame = 0;
         player->framesCounter = 0;
@@ -165,18 +176,29 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         }
     }
 
+    if (IsKeyPressed(KEY_R) && selectedCharacter == CHAR_JOHNNY) {
+        if (!player->isReloading && GetCurrentAmmo() < 10) { 
+            player->isReloading = true;
+            player->reloadTimer = 3.0f; 
+        }
+    }
+
     bool wasMoving = player->isMoving;
     player->isMoving = false;
-    if (!player->isAttacking) {
+
+    if (!player->isAttacking) { 
         if (IsKeyDown(KEY_W)) { player->position.y -= player->speed; player->isMoving = true; }
         if (IsKeyDown(KEY_S)) { player->position.y += player->speed; player->isMoving = true; }
         if (IsKeyDown(KEY_A)) { player->position.x -= player->speed; player->isMoving = true; player->direction = -1; }
         if (IsKeyDown(KEY_D)) { player->position.x += player->speed; player->isMoving = true; player->direction = 1; }
     }
     
+
     int currentAnimFrameCount = 0;
+
     if (player->isAttacking) {
-        currentAnimFrameCount = player->attackFrameCount; 
+        currentAnimFrameCount = player->attackFrameCount;
+        
         player->framesCounter++;
         if (player->framesCounter >= player->framesSpeed) {
             player->framesCounter = 0;
@@ -184,20 +206,24 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
             if (player->currentFrame >= currentAnimFrameCount) {
                 player->isAttacking = false;
                 player->currentFrame = 0;
+                player->framesSpeed = PLAYER_ANIM_SPEED_PARADO;
             }
         }
-    } 
+    }
+
     else {
         if (player->isMoving) {
             currentAnimFrameCount = player->walkFrameCount;
         } else {
             currentAnimFrameCount = player->idleFrameCount;
         }
+
         if (player->isMoving != wasMoving) {
             player->currentFrame = 0;
             player->framesCounter = 0;
             player->framesSpeed = player->isMoving ? PLAYER_ANIM_SPEED_ANDANDO : PLAYER_ANIM_SPEED_PARADO;
         }
+
         player->framesCounter++;
         if (player->framesCounter >= player->framesSpeed) {
             player->framesCounter = 0;
@@ -305,13 +331,12 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
 }
 
 Rectangle GetPlayerRect(const Player *player) {
-
     Texture2D baseTexture = player->idleTextures[0];
 
     Rectangle rect = {
         player->position.x, player->position.y,
-        (float)baseTexture.width * player->scale,  
-        (float)baseTexture.height * player->scale 
+        (float)baseTexture.width * player->scale,
+        (float)baseTexture.height * player->scale
     };
     return rect;
 }
@@ -356,4 +381,7 @@ void UnloadPlayer(Player *player) {
     free(player->idleTextures);
     free(player->walkTextures);
     free(player->attackTextures);
+}
+bool Player_IsReloading(const Player *player) {
+    return player->isReloading;
 }

@@ -15,25 +15,16 @@ typedef struct Bullet {
     float radius;
     Color color;
     int damage; 
-} Bullet;
 
-typedef struct AmmoPack {
-    Vector2 position;
-    bool active;
-} AmmoPack;
+} Bullet;
 
 void InitBulletPool(void);
 void UpdateBulletPool(int screenWidth, int screenHeight);
 void DrawBulletPool(void);
 void SpawnBullet(Vector2 startPos, int direction);
-void SpawnAmmoPack(Vector2 position);;
 int GetCurrentAmmo(void);
-bool IsReloading(void);
-void DrawAmmoCount(void);
-void DrawAmmoPack(void);
+void DrawAmmoCount(bool isReloading);
 bool CheckBulletCollision(Rectangle targetRect, int *damageTaken);
-AmmoPack* GetAmmoPack(void);
-Texture2D GetAmmoPackTexture(void); 
 void ReloadAmmo(void);
 void UnloadBulletAssets(void);
 void DespawnAllPlayerBullets(void);

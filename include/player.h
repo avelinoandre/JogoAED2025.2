@@ -31,6 +31,9 @@ typedef struct Player {
     int framesCounter;
     int framesSpeed; 
 
+    bool isReloading;       
+    float reloadTimer;
+
     float collisionDamageTimer;
 } Player;
 

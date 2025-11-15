@@ -101,32 +101,6 @@ int UpdateGame(void) {
     if (selectedCharacter == CHAR_JOHNNY) 
     {
         UpdateBulletPool(screenWidth, screenHeight);
-        
-        AmmoPack* pack = GetAmmoPack();
-
-        if (IsReloading() && !pack->active) {
-            
-            int randX = rand() % (screenWidth - 50); 
-            int alturaJogavel = (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150);
-            if (alturaJogavel <= 0) alturaJogavel = 1; 
-            int randY = RUA_LIMITE_SUPERIOR + (rand() % alturaJogavel);
-
-            SpawnAmmoPack((Vector2){ (float)randX, (float)randY });
-        }
-
-        if (pack->active) { 
-            Rectangle playerBounds = GetPlayerRect(&player); 
-            Texture2D ammoTexture = GetAmmoPackTexture();
-            Rectangle ammoBounds = {
-                pack->position.x,
-                pack->position.y,
-                (float)ammoTexture.width * 4.0f,
-                (float)ammoTexture.height * 4.0f
-            };
-            if (CheckCollisionRecs(playerBounds, ammoBounds)) {
-                ReloadAmmo();
-            }
-        }
     }
 
     UpdateEnemyPool(&player, screenHeight);
@@ -176,8 +150,7 @@ void DrawGame(void) {
     if (selectedCharacter == CHAR_JOHNNY)
     {
         DrawBulletPool(); 
-        DrawAmmoPack();
-        DrawAmmoCount(); 
+        DrawAmmoCount(Player_IsReloading(&player));
     }
 
     DrawPlayerHealthBar(&player);
