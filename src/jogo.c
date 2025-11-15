@@ -13,6 +13,9 @@
 #include <math.h>
 #include "score.h"
 #include "boss.h"
+#include "caixa.h"
+#include "item.h" 
+
 
 static Player player;
 static const int screenWidth = 1600;
@@ -35,7 +38,9 @@ void InitGame(void) {
     InitEnemyPool();
     InitBulletPool();
     InitEnemyBulletPool();
-
+    Item_Init(); 
+    Caixa_Init();  
+    
     lastScene = NULL;
 
     Score_Init();
@@ -104,6 +109,9 @@ int UpdateGame(void) {
     UpdateEnemyPool(&player, screenHeight,currentScene);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
     
+    Item_Update(&player);
+    Caixa_Update(&player);
+
     return 0; 
 }
 
@@ -140,6 +148,10 @@ void DrawGame(void) {
     ClearBackground(DARKGRAY);
 
     DrawCurrentMap();
+
+    Caixa_Draw();
+    Item_Draw();      
+
     DrawPlayer(&player);
     
     DrawEnemyPool();
@@ -204,4 +216,6 @@ void UnloadGame(void) {
     UnloadEnemyAssets();
     UnloadBulletAssets();
     UnloadEnemyBulletAssets();
+    Item_Unload();
+    Caixa_Unload(); 
 }

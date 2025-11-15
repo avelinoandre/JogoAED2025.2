@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include "globals.h"  
+#include "item.h"
+#include "caixa.h"
 
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
@@ -262,6 +264,9 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
                     DespawnAllPlayerBullets(); 
                     DespawnAllEnemyBullets(); 
                     
+                    Item_DespawnAll();
+                    Caixa_DespawnAll();
+
                     current->isCleared = true;
                     
                     SetCurrentScene(current->next);
