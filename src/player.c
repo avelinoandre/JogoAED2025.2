@@ -129,7 +129,7 @@ void InitPlayer(Player *player, int startX, int startY) {
             break;
     }
 
-    player->health = player->maxHealth; // MODIFICADO: Define a vida inicial com base no maxHealth do personagem
+    player->health = player->maxHealth; 
 }
 
 
@@ -305,24 +305,13 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
 }
 
 Rectangle GetPlayerRect(const Player *player) {
-    Texture2D currentTexture;
-    int frame = player->currentFrame;
-    
-    if (player->isAttacking) {
-        if (frame >= player->attackFrameCount) frame = player->attackFrameCount - 1; 
-        currentTexture = player->attackTextures[frame];
-    } else if (player->isMoving) {
-        if (frame >= player->walkFrameCount) frame = player->walkFrameCount - 1;
-        currentTexture = player->walkTextures[frame];
-    } else {
-        if (frame >= player->idleFrameCount) frame = player->idleFrameCount - 1;
-        currentTexture = player->idleTextures[frame];
-    }
+
+    Texture2D baseTexture = player->idleTextures[0];
 
     Rectangle rect = {
         player->position.x, player->position.y,
-        (float)currentTexture.width * player->scale,
-        (float)currentTexture.height * player->scale
+        (float)baseTexture.width * player->scale,  
+        (float)baseTexture.height * player->scale 
     };
     return rect;
 }

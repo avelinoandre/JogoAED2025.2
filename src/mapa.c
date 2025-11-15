@@ -39,9 +39,9 @@ void InitMap(void) {
     firstScene = scene1;
     
     SceneNode* scene2 = CreateScene("assets/Sprites/map/cidade/cidade03.png", scene1, 2);
-    SceneNode* scene3 = CreateScene("assets/Sprites/map/bossmap/bossmap09.png", scene2, 3);
-    SceneNode* scene4 = CreateScene("assets/Sprites/map/bossmap/bossmap10.png", scene3, 4);
-    SceneNode* scene5 = CreateScene("assets/Sprites/map/bossmap/bossmap11.png", scene4, 5);
+    SceneNode* scene3 = CreateScene("assets/Sprites/map/cidade/cidade04.png", scene2, 3);
+    SceneNode* scene4 = CreateScene("assets/Sprites/map/cidade/cidade05.png", scene3, 4);
+    SceneNode* scene5 = CreateScene("assets/Sprites/map/cidade/cidade06.png", scene4, 5);
      
 
 

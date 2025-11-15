@@ -210,6 +210,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
             enemy->isBoss = false;
             enemy->spawnedAt50 = false;
             enemy->spawnedAt25 = false;
+            enemy->hitStunTimer = 0.0f; 
 
             switch (type) {
                 
@@ -323,6 +324,10 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
 
         if (enemy->attackTimer > 0) {
             enemy->attackTimer -= GetFrameTime();
+        }
+
+        if (enemy->hitStunTimer > 0) { 
+            enemy->hitStunTimer -= GetFrameTime();
         }
 
         if (!enemy->isAttacking) {
@@ -559,7 +564,7 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
             }
         } else {
             if (player->isAttacking && meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
-                if(enemy->attackTimer <= 0.1f) { 
+                if(enemy->hitStunTimer <= 0.0f) { 
                     
                     int meleeDamage = 50; 
                     
@@ -581,7 +586,7 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
                     
                     enemy->health -= meleeDamage; 
                     
-                    enemy->attackTimer = 0.5f; 
+                    enemy->hitStunTimer = 0.5f; 
                     enemy->isAttacking = false; 
                 }
             }
@@ -629,7 +634,7 @@ void DrawEnemyPool(void) {
            
             float healthPercent = (float)enemy->health / (float)enemy->maxHealth;
             int barWidth = (int)(ENEMY_HEALTHBAR_WIDTH * healthPercent);
-            int barX = (int)enemy->position.x + (int)((destRec.width - ENEMY_HEALTHBAR_WIDTH) / 2); // Centraliza a barra
+            int barX = (int)enemy->position.x + (int)((destRec.width - ENEMY_HEALTHBAR_WIDTH) / 2); 
             int barY = (int)enemy->position.y - 10;
             
             DrawRectangle(barX, barY, ENEMY_HEALTHBAR_WIDTH, 5, DARKGRAY);

@@ -48,6 +48,8 @@ typedef struct Enemy {
     bool spawnedAt50; 
     bool spawnedAt25;
 
+    float hitStunTimer; 
+
 } Enemy;
 
 void InitEnemyPool(void);
