@@ -6,22 +6,25 @@
 
 static void SpawnMinions(int count) {
     printf("BOSS: Spawnando %d minions!\n", count);
-    const int screenWidth = 1600;
-    const int screenHeight = 900;
 
     for (int i = 0; i < count; i++) {
-        float spawnX = (rand() % 2 == 0) ? -50.0f : (float)(screenWidth + 50);
-        float spawnY = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150));
+        
+        //tlvz ajuste
+        float spawnX = 1000.0f + (rand() % 50); 
+        
+        // tlvz ajuste
+        float spawnY = 400.0f + (rand() % 40); 
         
         int randomType = 1 + (rand() % 3); 
-        
+
         SpawnEnemy((EnemyType)randomType, (Vector2){spawnX, spawnY});
     }
 }
 
 void Boss_Spawn(DynamicEnemyStats stats) {
     
-    Vector2 pos = (Vector2){1600 / 2.0f, RUA_LIMITE_SUPERIOR + 100.0f};
+    // Posição do beco (área azul)
+    Vector2 pos = (Vector2){1000.0f, 450.0f}; //tlvz ajuste
     
     Enemy* boss = SpawnEnemy(ENEMY_GARNET, pos);
 

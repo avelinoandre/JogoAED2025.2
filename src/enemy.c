@@ -307,7 +307,7 @@ void DespawnAllEnemies(void) {
     }
 }
 
-void UpdateEnemyPool(Player *player, int screenHeight) {
+void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) {
     
     Rectangle playerRect = GetPlayerRect(player);
     Rectangle meleeRect = GetPlayerMeleeRect(player); 
@@ -538,18 +538,29 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
         Rectangle enemyRect = GetEnemyRect(enemy);
         int screenWidth = GetScreenWidth(); 
 
+        float limiteInferior = (float)screenHeight; 
+
+        if (currentScene != NULL && currentScene->id == 5) {
+            limiteInferior = 850.0f; 
+        }
+
         if (enemy->position.y < RUA_LIMITE_SUPERIOR) {
             enemy->position.y = RUA_LIMITE_SUPERIOR;
         }
-        if (enemy->position.y + enemyRect.height > screenHeight) {
-            enemy->position.y = screenHeight - enemyRect.height;
+        if (enemy->position.y + enemyRect.height > limiteInferior) {
+            enemy->position.y = limiteInferior - enemyRect.height;
+        }
+
+        float limiteDireito = (float)screenWidth;
+        if (currentScene != NULL && currentScene->id == 5) {
+            limiteDireito = 1350.0f; 
         }
 
         if (enemy->position.x < 0) {
             enemy->position.x = 0;
         }
-        if (enemy->position.x + enemyRect.width > screenWidth) {
-            enemy->position.x = screenWidth - enemyRect.width;
+        if (enemy->position.x + enemyRect.width > limiteDireito) {
+            enemy->position.x = limiteDireito - enemyRect.width;
         }
         
         if (player->collisionDamageTimer <= 0 && CheckCollisionRecs(playerRect, enemyRect)) {
@@ -571,7 +582,7 @@ void UpdateEnemyPool(Player *player, int screenHeight) {
                     
                     switch (selectedCharacter) {
                         case CHAR_FINN:
-                            meleeDamage = 40;
+                            meleeDamage = 330;
                             break;
                         case CHAR_SAMURAI:
                             meleeDamage = 60;

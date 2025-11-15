@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "player.h" 
 #include "gemini_ai.h"
+#include "mapa.h"
 
 #define MAX_ENEMIES 10 
 
@@ -56,7 +57,7 @@ void InitEnemyPool(void);
 
 void UnloadEnemyAssets(void);
 
-void UpdateEnemyPool(Player *player, int screenHeight);
+void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene);
 
 void DrawEnemyPool(void);
 

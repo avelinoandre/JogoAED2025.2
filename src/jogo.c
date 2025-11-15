@@ -96,14 +96,14 @@ int UpdateGame(void) {
         return 1; 
     }
 
-    UpdatePlayer(&player, screenWidth, screenHeight);
+    UpdatePlayer(&player, screenWidth, screenHeight,currentScene);
 
     if (selectedCharacter == CHAR_JOHNNY) 
     {
         UpdateBulletPool(screenWidth, screenHeight);
     }
 
-    UpdateEnemyPool(&player, screenHeight);
+    UpdateEnemyPool(&player, screenHeight,currentScene);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
     
     return 0; 

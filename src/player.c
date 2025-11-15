@@ -138,7 +138,7 @@ void InitPlayer(Player *player, int startX, int startY) {
 
 
 
-void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
+void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene) {
     
     if (player->collisionDamageTimer > 0) {
         player->collisionDamageTimer -= GetFrameTime();
@@ -245,26 +245,33 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
     float playerWidth = (float)currentTexture.width * player->scale;
     float playerHeight = (float)currentTexture.height * player->scale;
 
-    if (player->position.x + playerWidth > screenWidth) {
-        SceneNode* current = GetCurrentScene();
-        
-        if (current->next != NULL) {
-            
-            if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
-                DespawnAllEnemies();
-                DespawnAllPlayerBullets(); 
-                DespawnAllEnemyBullets(); 
-                
-                current->isCleared = true;
-                
-                SetCurrentScene(current->next);
-                player->position.x = 10.0f;
+    float limiteDireito = (float)screenWidth; 
+    if (currentScene != NULL && currentScene->id == 5) {
+        limiteDireito = 1300.0f;
+    }
+
+    if (player->position.x + playerWidth > limiteDireito) {
+        if (currentScene != NULL && currentScene->id == 5) {
+            player->position.x = limiteDireito - playerWidth;
+        } 
+        else {
+            SceneNode* current = GetCurrentScene();
+            if (current->next != NULL) {
+                if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
+                    DespawnAllEnemies();
+                    DespawnAllPlayerBullets(); 
+                    DespawnAllEnemyBullets(); 
+                    
+                    current->isCleared = true;
+                    
+                    SetCurrentScene(current->next);
+                    player->position.x = 10.0f;
+                } else {
+                    player->position.x = screenWidth - playerWidth;
+                }
             } else {
                 player->position.x = screenWidth - playerWidth;
             }
-
-        } else {
-            player->position.x = screenWidth - playerWidth;
         }
     }
     else if (player->position.x < 0) {
@@ -272,11 +279,16 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight) {
         
     }
 
+    float limiteInferior = (float)screenHeight; 
+
+    if (currentScene != NULL && currentScene->id == 5) {
+        limiteInferior = 850.0f; 
+    }
     if (player->position.y < RUA_LIMITE_SUPERIOR) {
         player->position.y = RUA_LIMITE_SUPERIOR;
     }
-    else if (player->position.y + playerHeight > screenHeight) {
-        player->position.y = screenHeight - playerHeight;
+    else if (player->position.y + playerHeight > limiteInferior) {
+        player->position.y = limiteInferior - playerHeight;
     }
 
     if (IsKeyPressed(KEY_SPACE)) {

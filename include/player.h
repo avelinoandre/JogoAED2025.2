@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "globals.h"
+#include "mapa.h"
 
 #define RUA_LIMITE_SUPERIOR 450.0f
 
@@ -38,7 +39,7 @@ typedef struct Player {
 } Player;
 
 void InitPlayer(Player *player, int startX, int startY);
-void UpdatePlayer(Player *player, int screenWidth, int screenHeight);
+void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene);
 void DrawPlayer(const Player *player);
 void DrawPlayerHealthBar(const Player *player);
 void UnloadPlayer(Player *player);
