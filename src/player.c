@@ -295,6 +295,13 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         player->health += 20;
         if (player->health < 0) player->health = 0;
     }
+
+    if (IsKeyPressed(KEY_L)){
+
+        player->health -= 20;
+        if (player->health < 0) player->health = 0;
+        
+    }
 }
 
 void DrawPlayer(const Player *player) {

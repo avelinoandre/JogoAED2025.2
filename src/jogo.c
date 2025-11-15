@@ -156,10 +156,10 @@ void DrawGame(void) {
 
     DrawText(TextFormat("SCORE: %08i", Score_GetScore()), 20, 70, 20, RAYWHITE);
     DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), 20, 95, 20, RAYWHITE);
-
+    //TA AQUI
     if (Score_IsPlayerDead()) {
-        int posX = screenWidth - 320; 
-        int posY = 130;
+        int posX = screenWidth - 923; 
+        int posY = 350;
 
         DrawText("GAME OVER", posX, posY, 40, RED);
         
