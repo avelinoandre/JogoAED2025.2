@@ -27,6 +27,10 @@ int main(void) {
     InitAudioDevice();
     SetTargetFPS(60);
 
+    Music menuMusic = LoadMusicStream("assets/audios/menuSoundtrack.mp3");
+    SetMusicVolume(menuMusic, 0.5f);
+    PlayMusicStream(menuMusic);
+
     Menu menu;
     InitMenu(&menu);
 
@@ -36,6 +40,8 @@ int main(void) {
     bool running = true;
 
     while (!WindowShouldClose() && running) {
+
+        UpdateMusicStream(menuMusic);
         
         switch (state) {
             case STATE_MENU: {
@@ -51,7 +57,9 @@ int main(void) {
                     int gameResult = UpdateGame(); 
                     
                     if (gameResult == 1 || gameResult == 2) { 
-                        UnloadGame();       
+                        UnloadGame();    
+                        StopMusicStream(menuMusic);
+                        PlayMusicStream(menuMusic); 
                         state = STATE_MENU; 
                     }
                 }
@@ -72,6 +80,7 @@ int main(void) {
                     UpdateCharSelectMenu((int*)&state); 
 
                     if (oldState == STATE_CHAR_SELECT && state == STATE_GAME) {
+                        PauseMusicStream(menuMusic);
                         InitGame();    
                     }
                 }
@@ -114,6 +123,7 @@ int main(void) {
 
     UnloadMenu(&menu);
     UnloadCharSelectMenu(); 
+    UnloadMusicStream(menuMusic);
     CloseAudioDevice();
     CloseWindow();
     
