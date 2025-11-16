@@ -7,6 +7,8 @@
 #include "globals.h"      
 #include "telaFinal.h"
 #include "char_select.h"  
+#include "score.h"
+#include "highscore.h"
 #include <curl/curl.h>
 
 typedef enum {
@@ -16,6 +18,7 @@ typedef enum {
     STATE_COMO_JOGAR,
     STATE_CHAR_SELECT, 
     STATE_FINAL,
+    STATE_RANKING,
     STATE_EXIT
 } GameState;
 
@@ -38,6 +41,7 @@ int main(void) {
 
     InitTelaFinal();
     InitCharSelectMenu(); 
+    InitHighscoreScreen();
     
     GameState state = STATE_MENU;
     bool running = true;
@@ -50,6 +54,10 @@ int main(void) {
             case STATE_MENU: {
                 int selected = UpdateMenu(&menu);
                 if (selected == MENU_OPTION_PLAY) state = STATE_CHAR_SELECT; 
+                else if (selected == MENU_OPTION_RANKING) {
+                    RefreshHighscores();
+                    state = STATE_RANKING;
+                }
                 else if (selected == MENU_OPTION_ABOUT) state = STATE_SOBRE;
                 else if (selected == MENU_OPTION_HOW_TO_PLAY) state = STATE_COMO_JOGAR;
                 else if (selected == MENU_OPTION_EXIT) running = false;
@@ -63,9 +71,19 @@ int main(void) {
                         UnloadGame();    
                         PlayMusicStream(menuMusic);
                         state = STATE_MENU; 
-                    } else if (gameResult == 2) { 
+                    } else if (gameResult == 2) {
+                        
+                        Score_CalculateFinal();
+
+                        Score_SaveFinalScore(Score_GetFinalScore());
+                        
                         UnloadGame();
+
+                        PauseMusicStream(menuMusic);
+                        PlayVictoryMusic(); 
+                        
                         state = STATE_FINAL; 
+                        
                     }
                 }
                 break;
@@ -93,7 +111,15 @@ int main(void) {
             
             case STATE_FINAL:
                 if (UpdateTelaFinal() == 1) { 
+                    StopVictoryMusic();
+                    ResumeMusicStream(menuMusic);
                     state = STATE_MENU; 
+                }
+                break;
+            
+            case STATE_RANKING:
+                if (UpdateHighscoreScreen() == 1) {
+                    state = STATE_MENU;
                 }
                 break;
 
@@ -128,6 +154,10 @@ int main(void) {
             case STATE_FINAL:
                 DrawTelaFinal();
                 break;
+            
+            case STATE_RANKING:
+                DrawHighscoreScreen();
+                break;
 
             case STATE_EXIT:
                 break;
@@ -139,6 +169,7 @@ int main(void) {
     UnloadMenu(&menu);
     UnloadCharSelectMenu(); 
     UnloadTelaFinal();
+    UnloadHighscoreScreen();
     UnloadMusicStream(menuMusic);
     CloseAudioDevice();
     CloseWindow();

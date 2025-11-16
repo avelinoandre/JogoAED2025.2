@@ -9,6 +9,8 @@ static bool isPlayerDead;
 static bool scoreCalculated;
 static const char* rankText;
 
+static const char *SCORE_FILENAME = "highscores.txt";
+
 void Score_Init(void) {
     playerScore = 0;
     finalScore = 0;
@@ -71,4 +73,45 @@ float Score_GetTimer(void) {
 
 const char* Score_GetRank(void) {
     return rankText;
+}
+
+void Score_SaveFinalScore(int score) {
+    FILE *file = fopen(SCORE_FILENAME, "a");
+    if (file == NULL) {
+        TraceLog(LOG_ERROR, "Nao foi possivel abrir o arquivo de scores para salvar.");
+        return;
+    }
+
+    fprintf(file, "%d\n", score);
+    
+    fclose(file);
+}
+
+int Score_LoadHighScores(int *scoresArray, int maxScores) {
+    FILE *file = fopen(SCORE_FILENAME, "r");
+    if (file == NULL) {
+        return 0; 
+    }
+
+    int count = 0;
+    while (count < maxScores && fscanf(file, "%d", &scoresArray[count]) == 1) {
+        count++;
+    }
+
+    fclose(file);
+    return count;
+}
+
+void Score_SortHighScores(int *scoresArray, int count) {
+    int i, j, key;
+    for (i = 1; i < count; i++) {
+        key = scoresArray[i];
+        j = i - 1;
+
+        while (j >= 0 && scoresArray[j] < key) {
+            scoresArray[j + 1] = scoresArray[j];
+            j = j - 1;
+        }
+        scoresArray[j + 1] = key;
+    }
 }

@@ -3,6 +3,7 @@
 
 static const char *options[MENU_OPTION_COUNT] = {
     "JOGAR",
+    "RANKING",
     "SOBRE",
     "COMO JOGAR",
     "SAIR"
@@ -61,17 +62,20 @@ void DrawMenu(Menu *menu) {
         (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 271, 120},
         titleSize, 4, YELLOW);
 
+    int spacing = 75; 
+    int baseY = 250;
+
+    float panelHeight = (float)(MENU_OPTION_COUNT * spacing) + 40.0f;
+
     Rectangle panel = { 
         (float)screenWidth / 2 - 250, 
-        230, 
+        (float)baseY - 20, 
         500, 
-        (float)MENU_OPTION_COUNT * 70 + 30 
+        panelHeight 
     };
+
     DrawRectangleRec(panel, (Color){0, 0, 0, 150});
     DrawRectangleLinesEx(panel, 2, (Color){255, 255, 255, 50});
-
-    int baseY = 250;
-    int spacing = 70;
 
     for (int i = 0; i < MENU_OPTION_COUNT; i++) {
         
@@ -93,7 +97,7 @@ void DrawMenu(Menu *menu) {
 
         Vector2 textSize = MeasureTextEx(menu->font, text, fontSize, 2);
         DrawTextEx(menu->font, text,
-            (Vector2){screenWidth/2 - textSize.x/2 - 100, (float)baseY + i * spacing},
+            (Vector2){screenWidth/2 - textSize.x/2 - 100, (float)baseY + i * spacing}, 
             fontSize, 2, color);
     }
 

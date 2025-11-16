@@ -1,5 +1,4 @@
 #include "telaFinal.h"
-
 #include "score.h"
 #include "raylib.h"
 
@@ -19,7 +18,6 @@ void InitTelaFinal(void) {
     
     SetMusicVolume(victoryMusic, 0.4f); 
     
-    PlayMusicStream(victoryMusic);
 }
 
 int UpdateTelaFinal(void) {
@@ -62,6 +60,14 @@ void UnloadTelaFinal(void) {
         UnloadFont(font);
     }
 
-    StopMusicStream(victoryMusic);
     UnloadMusicStream(victoryMusic);
+}
+
+void PlayVictoryMusic(void) {
+    StopMusicStream(victoryMusic); 
+    PlayMusicStream(victoryMusic);
+}
+
+void StopVictoryMusic(void) {
+    StopMusicStream(victoryMusic);
 }

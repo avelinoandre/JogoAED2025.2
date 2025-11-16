@@ -11,4 +11,7 @@ void DrawTelaFinal(void);
 
 void UnloadTelaFinal(void);
 
+void PlayVictoryMusic(void);
+void StopVictoryMusic(void);
+
 #endif // TELA_FINAL_H
