@@ -6,14 +6,15 @@
 #include <stdlib.h>   
 #include <stdio.h>   
 #include "score.h"
-#include "player.h" // <-- ADIÇÃO IMPORTANTE PARA CORRIGIR O ERRO
+#include "player.h" 
+#include "boss.h" 
 
 #define ENEMY_ANIM_SPEED_PARADO 50
 #define ENEMY_ANIM_SPEED_ANDANDO 20
 
 static Enemy enemyPool[MAX_ENEMIES];
 
-// --- Texturas GARNET ---
+
 #define GARNET_IDLE_FRAMES 2
 #define GARNET_WALK_FRAMES 4
 #define GARNET_ATTACK_FRAMES 2
@@ -22,27 +23,25 @@ static Texture2D garnetIdleTextures[GARNET_IDLE_FRAMES];
 static Texture2D garnetWalkTextures[GARNET_WALK_FRAMES];
 static Texture2D garnetAttackTextures[GARNET_ATTACK_FRAMES];
 
-// --- Texturas LIMAO (Amarelo Original) REMOVIDAS ---
 
-// --- NOVO: Texturas LIMAO PRETO ---
 #define LIMAO_PRETO_IDLE_FRAMES 2
 #define LIMAO_PRETO_WALK_FRAMES 4
 #define LIMAO_PRETO_ATTACK_FRAMES 2
-#define LIMAO_PRETO_ATTACK_SPEED 10 // Mesma velocidade de animação
+#define LIMAO_PRETO_ATTACK_SPEED 10 
 static Texture2D LimaoPretoIdleTextures[LIMAO_PRETO_IDLE_FRAMES];
 static Texture2D LimaoPretoWalkTextures[LIMAO_PRETO_WALK_FRAMES];
 static Texture2D LimaoPretoAttackTextures[LIMAO_PRETO_ATTACK_FRAMES];
 
-// --- NOVO: Texturas LIMAO BRANCO ---
+
 #define LIMAO_BRANCO_IDLE_FRAMES 2
 #define LIMAO_BRANCO_WALK_FRAMES 4
 #define LIMAO_BRANCO_ATTACK_FRAMES 2
-#define LIMAO_BRANCO_ATTACK_SPEED 10 // Mesma velocidade de animação
+#define LIMAO_BRANCO_ATTACK_SPEED 10 
 static Texture2D LimaoBrancoIdleTextures[LIMAO_BRANCO_IDLE_FRAMES];
 static Texture2D LimaoBrancoWalkTextures[LIMAO_BRANCO_WALK_FRAMES];
 static Texture2D LimaoBrancoAttackTextures[LIMAO_BRANCO_ATTACK_FRAMES];
 
-// --- Texturas MOJO ---
+
 #define Mojo_IDLE_FRAMES 2
 #define Mojo_WALK_FRAMES 2
 #define Mojo_ATTACK_FRAMES 1
@@ -51,7 +50,7 @@ static Texture2D MojoIdleTextures[Mojo_IDLE_FRAMES];
 static Texture2D MojoWalkTextures[Mojo_WALK_FRAMES];
 static Texture2D MojoAttackTextures[Mojo_ATTACK_FRAMES];
 
-// --- Texturas MARVIN ---
+
 #define Marvin_IDLE_FRAMES 2
 #define Marvin_WALK_FRAMES 4
 #define Marvin_ATTACK_FRAMES 2
@@ -95,6 +94,7 @@ Rectangle GetEnemyRect(const Enemy *enemy) {
 
 void InitEnemyPool(void) {
     char path[256]; 
+
 
     for (int i = 0; i < GARNET_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/Garnet/Garnetparada/Garnet_parada%d.png", i + 1);
@@ -266,7 +266,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->maxHealth = 200;
                     enemy->speed = 1.0f; 
                     enemy->scale = 4.5f; 
-                    enemy->damage = 20;  
+                    enemy->damage = 20;   
                     enemy->attackCooldown = 2.1f; 
                     enemy->framesSpeed = Mojo_ATTACK_SPEED;
 
@@ -285,7 +285,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->maxHealth = 80;
                     enemy->speed = 1.5f; 
                     enemy->scale = 4.0f;
-                    enemy->damage = 15;  
+                    enemy->damage = 15;   
                     enemy->attackCooldown = 1.8f; 
                     enemy->framesSpeed = Marvin_ATTACK_SPEED;
 
@@ -604,34 +604,42 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
         int damageTaken = 0;
         if (selectedCharacter == CHAR_JOHNNY) {
             if (CheckBulletCollision(enemyRect, &damageTaken)) {
-                enemy->health -= damageTaken;
-                enemy->hitStunTimer = 0.1f; 
+                if (enemy->isBoss && Boss_IsShielded()) {
+                } else {
+                    enemy->health -= damageTaken;
+                    enemy->hitStunTimer = 0.1f; 
+                }
             }
         } else {
 
             if (player->isAttacking && meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
                 if(enemy->hitStunTimer <= 0.0f) { 
-                    
-                    int meleeDamage = 50; 
-                    
-                    switch (selectedCharacter) {
-                        case CHAR_FINN:
-                            meleeDamage = 330;
-                            break;
-                        case CHAR_SAMURAI:
-                            meleeDamage = 60;
-                            break;
-                        case CHAR_MORDECAI:
-                            meleeDamage = 50; 
-                            break;
-                        case CHAR_JOHNNY: 
-                            meleeDamage = 0; 
-                            break;
+  
+                    if (enemy->isBoss && Boss_IsShielded()) {
+                        enemy->hitStunTimer = 0.1f; 
+                    } else {
+                        
+                        int meleeDamage = 50; 
+                        
+                        switch (selectedCharacter) {
+                            case CHAR_FINN:
+                                meleeDamage = 330;
+                                break;
+                            case CHAR_SAMURAI:
+                                meleeDamage = 60;
+                                break;
+                            case CHAR_MORDECAI:
+                                meleeDamage = 50; 
+                                break;
+                            case CHAR_JOHNNY: 
+                                meleeDamage = 0; 
+                                break;
+                        }
+                        
+                        enemy->health -= meleeDamage; 
+                        enemy->hitStunTimer = 0.5f;
+                        enemy->isAttacking = false; 
                     }
-                    
-                    enemy->health -= meleeDamage; 
-                    enemy->hitStunTimer = 0.5f;
-                    enemy->isAttacking = false; 
                 }
             }
         }
@@ -674,7 +682,11 @@ void DrawEnemyPool(void) {
             Vector2 origin = { 0.0f, 0.0f };
 
             Color tint = WHITE;
-            if (enemy->hitStunTimer > 0) {
+
+            if (enemy->isBoss && Boss_IsShielded()) {
+                tint = (Color){100, 100, 255, 200}; 
+            }
+            else if (enemy->hitStunTimer > 0) {
                 int flash = (int)(enemy->hitStunTimer * 20.0f);
                 if (flash % 2 == 0) {
                     tint = (Color){255, 100, 100, 200}; 

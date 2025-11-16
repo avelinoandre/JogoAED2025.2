@@ -13,5 +13,6 @@ void Boss_Update(Player* player);
 
 bool Boss_IsDefeated(void);
 
+bool Boss_IsShielded(void);
 
 #endif 

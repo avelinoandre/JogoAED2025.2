@@ -7,10 +7,12 @@
 
 static bool bossWasSpawned = false;
 static bool bossIsDead = false;
+static bool bossIsShielded = false; 
 
 void Boss_Init(void) {
     bossWasSpawned = false;
     bossIsDead = false;
+    bossIsShielded = false; 
 }
 
 static void SpawnMinions(int count) {
@@ -18,22 +20,22 @@ static void SpawnMinions(int count) {
 
     for (int i = 0; i < count; i++) {
         
-        //tlvz ajuste
         float spawnX = 1000.0f + (rand() % 50); 
         
-        // tlvz ajuste
         float spawnY = 400.0f + (rand() % 40); 
         
         int randomType = 1 + (rand() % 3); 
 
         SpawnEnemy((EnemyType)randomType, (Vector2){spawnX, spawnY});
     }
+
+    bossIsShielded = true;
+    printf("BOSS: Escudo ATIVADO!\n");
 }
 
 void Boss_Spawn(DynamicEnemyStats stats) {
     
-    // Posição do beco (área azul)
-    Vector2 pos = (Vector2){1000.0f, 450.0f}; //tlvz ajuste
+    Vector2 pos = (Vector2){1000.0f, 450.0f}; 
     
     Enemy* boss = SpawnEnemy(ENEMY_GARNET, pos);
 
@@ -55,6 +57,7 @@ void Boss_Spawn(DynamicEnemyStats stats) {
 
     bossWasSpawned = true;
     bossIsDead = false;
+    bossIsShielded = false; 
     
     printf("BOSS SPAWNADO! Vida: %d, Dano: %d\n", boss->health, boss->damage);
 }
@@ -81,6 +84,15 @@ void Boss_Update(Player* player) {
     } else {
         return;
     }
+
+    if (bossIsShielded) {
+        int activeEnemies = GetActiveEnemyCount(); 
+        
+        if (activeEnemies == 1) {
+            bossIsShielded = false;
+            printf("BOSS: Escudo DESATIVADO! Minions derrotados.\n");
+        }
+    }
     
     float healthPercent = (float)boss->health / (float)boss->maxHealth;
 
@@ -97,4 +109,8 @@ void Boss_Update(Player* player) {
 
 bool Boss_IsDefeated(void) {
     return bossIsDead;
+}
+
+bool Boss_IsShielded(void) {
+    return bossIsShielded;
 }
