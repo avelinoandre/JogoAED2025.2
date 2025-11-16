@@ -73,14 +73,26 @@ void Item_Unload(void) {
 void Item_Spawn(Vector2 position, ItemType type) {
     
     if (type == ITEM_VIDA_EXTRA) {
+        bool alreadyOnGround = false;
         for (int i = 0; i < MAX_ITEMS; i++) {
             if (itemPool[i].active && itemPool[i].type == ITEM_VIDA_EXTRA) {
-                type = ITEM_DINHEIRO; 
+                alreadyOnGround = true;
                 break; 
             }
         }
-    }
 
+        bool alreadyPickedUp = (extraLives > 1); 
+
+        if (alreadyOnGround || alreadyPickedUp) {
+ 
+            if (rand() % 2 == 0) {
+                type = ITEM_DINHEIRO;
+            } else {
+                type = ITEM_MACA;
+            }
+        }
+    }
+    
     for (int i = 0; i < MAX_ITEMS; i++) {
         if (!itemPool[i].active) {
             itemPool[i].active = true;
