@@ -21,6 +21,7 @@ static Item itemPool[MAX_ITEMS];
 static Texture2D macaTexture;
 static Texture2D dinheiroTexture;
 static Texture2D vidaExtraTexture;
+static Sound itemPickupSound;
 
 static Rectangle GetItemRect(const Item* item) {
     Texture2D tex;
@@ -54,6 +55,9 @@ void Item_Init(void) {
     dinheiroTexture = LoadTexture("assets/Sprites/itens/dinheiro.png");
     vidaExtraTexture = LoadTexture("assets/Sprites/itens/vidaExtra.png");
 
+    itemPickupSound = LoadSound("assets/audios/itemSound.wav");
+    SetSoundVolume(itemPickupSound, 0.8f);
+
     for (int i = 0; i < MAX_ITEMS; i++) {
         itemPool[i].active = false;
     }
@@ -63,6 +67,7 @@ void Item_Unload(void) {
     UnloadTexture(macaTexture);
     UnloadTexture(dinheiroTexture);
     UnloadTexture(vidaExtraTexture);
+    UnloadSound(itemPickupSound);
 }
 
 void Item_Spawn(Vector2 position, ItemType type) {
@@ -96,6 +101,7 @@ void Item_Update(Player *player) {
         Rectangle itemRect = GetItemRect(item);
 
         if (CheckCollisionRecs(playerRect, itemRect)) {
+            PlaySound(itemPickupSound); 
             switch (item->type) {
                 case ITEM_MACA:
                     player->health += 50; 
