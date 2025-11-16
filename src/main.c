@@ -5,6 +5,7 @@
 #include "jogo.h" 
 #include "bullet.h" 
 #include "globals.h"      
+#include "telaFinal.h"
 #include "char_select.h"  
 #include <curl/curl.h>
 
@@ -14,6 +15,7 @@ typedef enum {
     STATE_SOBRE,
     STATE_COMO_JOGAR,
     STATE_CHAR_SELECT, 
+    STATE_FINAL,
     STATE_EXIT
 } GameState;
 
@@ -34,6 +36,7 @@ int main(void) {
     Menu menu;
     InitMenu(&menu);
 
+    InitTelaFinal();
     InitCharSelectMenu(); 
     
     GameState state = STATE_MENU;
@@ -56,11 +59,14 @@ int main(void) {
                 {
                     int gameResult = UpdateGame(); 
                     
-                    if (gameResult == 1 || gameResult == 2) { 
+                    if (gameResult == 1) {
                         UnloadGame();    
-                        StopMusicStream(menuMusic);
-                        PlayMusicStream(menuMusic); 
+                        PlayMusicStream(menuMusic);
                         state = STATE_MENU; 
+                    } else if (gameResult == 2) { 
+                        UnloadGame();
+                        PlayMusicStream(menuMusic); 
+                        state = STATE_FINAL; 
                     }
                 }
                 break;
@@ -83,6 +89,12 @@ int main(void) {
                         PauseMusicStream(menuMusic);
                         InitGame();    
                     }
+                }
+                break;
+            
+            case STATE_FINAL:
+                if (UpdateTelaFinal() == 1) { 
+                    state = STATE_MENU; 
                 }
                 break;
 
@@ -113,6 +125,10 @@ int main(void) {
             case STATE_CHAR_SELECT:
                 DrawCharSelectMenu();
                 break;
+            
+            case STATE_FINAL:
+                DrawTelaFinal();
+                break;
 
             case STATE_EXIT:
                 break;
@@ -123,6 +139,7 @@ int main(void) {
 
     UnloadMenu(&menu);
     UnloadCharSelectMenu(); 
+    UnloadTelaFinal();
     UnloadMusicStream(menuMusic);
     CloseAudioDevice();
     CloseWindow();

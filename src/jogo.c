@@ -53,6 +53,7 @@ void InitGame(void) {
     InitEnemyPool();
     InitBulletPool();
     InitEnemyBulletPool();
+    Boss_Init();
     Item_Init(); 
     Caixa_Init();  
     
@@ -130,6 +131,15 @@ int UpdateGame(void) {
     
     ControleSpawn_Update(GetFrameTime(), &player);
     Boss_Update(&player);
+
+    if (Boss_IsDefeated()) {
+        if (!Score_IsPlayerDead()) {
+            Score_CalculateFinal(); 
+            StopMusicStream(gameMusic);
+            
+            return 2; 
+        }
+    }
     
 
     if (IsKeyPressed(KEY_ESCAPE)) {

@@ -3,6 +3,15 @@
 #include "globals.h"  
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h> 
+
+static bool bossWasSpawned = false;
+static bool bossIsDead = false;
+
+void Boss_Init(void) {
+    bossWasSpawned = false;
+    bossIsDead = false;
+}
 
 static void SpawnMinions(int count) {
     printf("BOSS: Spawnando %d minions!\n", count);
@@ -43,25 +52,36 @@ void Boss_Spawn(DynamicEnemyStats stats) {
     boss->isBoss = true;
     boss->spawnedAt50 = false;
     boss->spawnedAt25 = false;
+
+    bossWasSpawned = true;
+    bossIsDead = false;
     
     printf("BOSS SPAWNADO! Vida: %d, Dano: %d\n", boss->health, boss->damage);
 }
 
 void Boss_Update(Player* player) {
     Enemy* boss = NULL;
-    int max = GetMaxEnemies();
-    for (int i = 0; i < max; i++) {
-        Enemy* e = GetEnemyFromPool(i);
-        if (e && e->active && e->isBoss) {
-            boss = e;
-            break; 
+    
+    if (bossWasSpawned && !bossIsDead) {
+        int max = GetMaxEnemies();
+        for (int i = 0; i < max; i++) {
+            Enemy* e = GetEnemyFromPool(i);
+            if (e && e->active && e->isBoss) {
+                boss = e;
+                break; 
+            }
         }
-    }
 
-    if (boss == NULL) {
+        if (boss == NULL) {
+            printf("BOSS FOI DERROTADO!\n");
+            bossIsDead = true;
+            return; 
+        }
+
+    } else {
         return;
     }
-
+    
     float healthPercent = (float)boss->health / (float)boss->maxHealth;
 
     if (healthPercent <= 0.50f && !boss->spawnedAt50) {
@@ -73,4 +93,8 @@ void Boss_Update(Player* player) {
         boss->spawnedAt25 = true; 
         SpawnMinions(2);
     }
+}
+
+bool Boss_IsDefeated(void) {
+    return bossIsDead;
 }
