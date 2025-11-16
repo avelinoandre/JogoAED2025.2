@@ -28,6 +28,7 @@ static float tempoContagem;
 
 static Music gameMusic;
 static Sound gameOverSound;
+static Sound extraLifeSound;
 
 CharacterType selectedCharacter = CHAR_JOHNNY;
 bool sceneHasCaixa[TOTAL_SCENES + 1];
@@ -67,7 +68,10 @@ void InitGame(void) {
     PlayMusicStream(gameMusic);
 
     gameOverSound = LoadSound("assets/audios/gameOverSound.wav"); 
-    SetSoundVolume(gameOverSound, 0.4f);
+    SetSoundVolume(gameOverSound, 0.8f);
+
+    extraLifeSound = LoadSound("assets/audios/vidaExtra.wav");
+    SetSoundVolume(extraLifeSound, 0.6f);
 }
 
 int UpdateGame(void) {
@@ -103,6 +107,7 @@ int UpdateGame(void) {
         if (extraLives > 0) {
             extraLives--;
             player.health = player.maxHealth; 
+            PlaySound(extraLifeSound);
         } else {
             if (!Score_IsPlayerDead()) {
                 StopMusicStream(gameMusic);
@@ -278,6 +283,7 @@ void UnloadGame(void) {
     StopMusicStream(gameMusic);
     UnloadMusicStream(gameMusic);
     UnloadSound(gameOverSound);
+    UnloadSound(extraLifeSound);
     UnloadMap();
     UnloadPlayer(&player);
     UnloadEnemyAssets();
