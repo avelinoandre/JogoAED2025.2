@@ -41,18 +41,16 @@ bool Score_IsPlayerDead(void) {
 void Score_CalculateFinal(void) {
     if (scoreCalculated) return; 
 
-    int timeBonusBase = 30000;
-    int timePenalty = (int)(gameTimer * 10);
-    int timeBonus = (int)fmax(0, timeBonusBase - timePenalty);
+    if (gameTimer < 1.0f) { 
+        finalScore = 0;
+    } else {
+        finalScore = (int)(((float)playerScore * 100.0f) / gameTimer);
+    }
     
-    playerScore += timeBonus;
-    finalScore = playerScore; 
-    
-    
-    if (finalScore > 30000) rankText = "RANK: S (SMASHING!)";
-    else if (finalScore > 20000) rankText = "RANK: A (AWESOME)";
-    else if (finalScore > 10000) rankText = "RANK: B (COOL)";
-    else if (finalScore > 5000) rankText = "RANK: C (OKAY)";
+    if (finalScore > 750) rankText = "RANK: S (SMASHING!)";
+    else if (finalScore > 500) rankText = "RANK: A (AWESOME)";
+    else if (finalScore > 250) rankText = "RANK: B (COOL)";
+    else if (finalScore > 100) rankText = "RANK: C (OKAY)";
     else rankText = "RANK: D (TRY AGAIN)";
 
     scoreCalculated = true;
