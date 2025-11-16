@@ -1,8 +1,11 @@
 #include "telaFinal.h"
+
 #include "score.h"
 #include "raylib.h"
 
 static Font font;
+
+static Music victoryMusic;
 
 void InitTelaFinal(void) {
 
@@ -10,9 +13,18 @@ void InitTelaFinal(void) {
     if (font.texture.id == 0) {
         font = GetFontDefault(); 
     }
+
+    victoryMusic = LoadMusicStream("assets/audios/vitoria.mp3");
+    victoryMusic.looping = false; 
+    
+    SetMusicVolume(victoryMusic, 0.4f); 
+    
+    PlayMusicStream(victoryMusic);
 }
 
 int UpdateTelaFinal(void) {
+    UpdateMusicStream(victoryMusic);
+
     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_ESCAPE)) {
         return 1;
     }
@@ -49,4 +61,7 @@ void UnloadTelaFinal(void) {
     if (font.texture.id != GetFontDefault().texture.id) {
         UnloadFont(font);
     }
+
+    StopMusicStream(victoryMusic);
+    UnloadMusicStream(victoryMusic);
 }

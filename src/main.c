@@ -65,7 +65,6 @@ int main(void) {
                         state = STATE_MENU; 
                     } else if (gameResult == 2) { 
                         UnloadGame();
-                        PlayMusicStream(menuMusic); 
                         state = STATE_FINAL; 
                     }
                 }
