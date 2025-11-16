@@ -427,3 +427,16 @@ void UnloadPlayer(Player *player) {
 bool Player_IsReloading(const Player *player) {
     return player->isReloading;
 }
+
+void Player_RecebeDano(Player *player, int dano) {
+    if (player == NULL) return; 
+    if (player->collisionDamageTimer > 0) {
+        return; 
+    }
+
+    player->health -= dano;
+    if (player->health < 0) {
+        player->health = 0;
+    }
+    player->collisionDamageTimer = 0.5f; 
+}

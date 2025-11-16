@@ -71,24 +71,34 @@ static void SpawnarUmInimigo(Player* jogador) {
     pos.y += offsetY;
         
     int randomType;
+    
+    int grupoInimigo = rand() % 3; 
 
     if (saudeJogadorCache < 50) {
-        randomType = rand() % 2; 
-    } 
-    else if (jogador->health >= jogador->maxHealth && inimigosJaSpawnados == 0) {
-        
+        grupoInimigo = 0;
+    } else if (jogador->health >= jogador->maxHealth && inimigosJaSpawnados == 0) {
         printf("ControleSpawn (Tático): Vida cheia. Enviando especialista (Mojo/Marvin).\n");
-        randomType = 2 + (rand() % 2); 
+        grupoInimigo = 1 + (rand() % 2); 
     }
-    else {
-        randomType = rand() % 4; 
+
+    switch (grupoInimigo) {
+        case 0: 
+            randomType = (rand() % 2 == 0) ? ENEMY_LIMAO_PRETO : ENEMY_LIMAO_BRANCO;
+            break;
+        case 1: 
+            randomType = ENEMY_MOJO;
+            break;
+        case 2: 
+            randomType = ENEMY_MARVIN;
+            break;
     }
-    
+
     SpawnEnemy((EnemyType)randomType, pos);
 
-    printf("ControleSpawn: Spawnei inimigo %d/%d em (%.0f, %.0f)\n", 
+    printf("ControleSpawn: Spawnei inimigo %d/%d (Tipo: %d) em (%.0f, %.0f)\n", 
            inimigosJaSpawnados + 1, 
            totalInimigosParaSpawnar, 
+           randomType,
            pos.x, pos.y);
 }
 
@@ -146,9 +156,8 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
         inimigosJaSpawnados = 1;      
         controleAtivo = false;       
 
-        return;
+        return; 
     }
-
     int totalInimigosBase = 2 + (int)(cena->id * 2);
     printf("ControleSpawn (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
 

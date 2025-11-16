@@ -10,7 +10,8 @@
 
 typedef enum {
     ENEMY_GARNET,  
-    ENEMY_LIMAO,   
+    ENEMY_LIMAO_BRANCO,
+    ENEMY_LIMAO_PRETO,   
     ENEMY_MOJO,   
     ENEMY_MARVIN   
 } EnemyType;

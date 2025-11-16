@@ -49,5 +49,6 @@ Texture2D GetPlayerCurrentTexture(const Player *player);
 void SpawnBullet(Vector2 startPos, int direction);
 Rectangle GetPlayerRect(const Player *player);
 Rectangle GetPlayerMeleeRect(Player *player);
+void Player_RecebeDano(Player *player, int dano);
 
 #endif

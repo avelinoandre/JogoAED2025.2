@@ -132,7 +132,7 @@ int UpdateGame(void) {
     ControleSpawn_Update(GetFrameTime(), &player);
     Boss_Update(&player);
 
-    if (Boss_IsDefeated()) {
+    if (Boss_IsDefeated() && GetActiveEnemyCount() == 0) {
         if (!Score_IsPlayerDead()) {
             Score_CalculateFinal(); 
             StopMusicStream(gameMusic);
@@ -140,8 +140,6 @@ int UpdateGame(void) {
             return 2; 
         }
     }
-    
-
     if (IsKeyPressed(KEY_ESCAPE)) {
         Score_Init();
         return 1; 
@@ -212,14 +210,7 @@ void DrawEnemyCounter(void) {
         
         DrawTriangle(p1, p2, p3, YELLOW);
         
-    } else {
-        const char *text = TextFormat("ELIMINADOS: %d / %d", killed, totalEnemiesInScene);
-        int fontSize = 30;
-        int textWidth = MeasureText(text, fontSize);
-        int posX = screenWidth - textWidth - 20;
-        int posY = 20;
-        DrawText(text, posX, posY, fontSize, WHITE);
-    }
+    } 
 }
 
 void DrawGame(void) {
@@ -242,7 +233,10 @@ void DrawGame(void) {
     }
 
     DrawPlayerHealthBar(&player);
-    DrawEnemyCounter();
+    
+    if (!emContagemInicial) {
+        DrawEnemyCounter();
+    }
 
     DrawText(TextFormat("SCORE: %08i", Score_GetScore()), 20, 70, 20, RAYWHITE);
     DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), 20, 95, 20, RAYWHITE);

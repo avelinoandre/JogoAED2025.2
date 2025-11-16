@@ -1,20 +1,19 @@
-#include "globals.h"
 #include "enemy.h"
+#include "globals.h"
 #include "raymath.h"
 #include <math.h>
 #include "bullet.h"   
-#include <stdlib.h>  
+#include <stdlib.h>   
 #include <stdio.h>   
-#include "globals.h"  
 #include "score.h"
+#include "player.h" // <-- ADIÇÃO IMPORTANTE PARA CORRIGIR O ERRO
 
 #define ENEMY_ANIM_SPEED_PARADO 50
 #define ENEMY_ANIM_SPEED_ANDANDO 20
 
-
 static Enemy enemyPool[MAX_ENEMIES];
 
-
+// --- Texturas GARNET ---
 #define GARNET_IDLE_FRAMES 2
 #define GARNET_WALK_FRAMES 4
 #define GARNET_ATTACK_FRAMES 2
@@ -23,14 +22,27 @@ static Texture2D garnetIdleTextures[GARNET_IDLE_FRAMES];
 static Texture2D garnetWalkTextures[GARNET_WALK_FRAMES];
 static Texture2D garnetAttackTextures[GARNET_ATTACK_FRAMES];
 
-#define Limao_IDLE_FRAMES 2
-#define Limao_WALK_FRAMES 4
-#define Limao_ATTACK_FRAMES 2
-#define Limao_ATTACK_SPEED 10
-static Texture2D LimaoIdleTextures[Limao_IDLE_FRAMES];
-static Texture2D LimaoWalkTextures[Limao_WALK_FRAMES];
-static Texture2D LimaoAttackTextures[Limao_ATTACK_FRAMES];
+// --- Texturas LIMAO (Amarelo Original) REMOVIDAS ---
 
+// --- NOVO: Texturas LIMAO PRETO ---
+#define LIMAO_PRETO_IDLE_FRAMES 2
+#define LIMAO_PRETO_WALK_FRAMES 4
+#define LIMAO_PRETO_ATTACK_FRAMES 2
+#define LIMAO_PRETO_ATTACK_SPEED 10 // Mesma velocidade de animação
+static Texture2D LimaoPretoIdleTextures[LIMAO_PRETO_IDLE_FRAMES];
+static Texture2D LimaoPretoWalkTextures[LIMAO_PRETO_WALK_FRAMES];
+static Texture2D LimaoPretoAttackTextures[LIMAO_PRETO_ATTACK_FRAMES];
+
+// --- NOVO: Texturas LIMAO BRANCO ---
+#define LIMAO_BRANCO_IDLE_FRAMES 2
+#define LIMAO_BRANCO_WALK_FRAMES 4
+#define LIMAO_BRANCO_ATTACK_FRAMES 2
+#define LIMAO_BRANCO_ATTACK_SPEED 10 // Mesma velocidade de animação
+static Texture2D LimaoBrancoIdleTextures[LIMAO_BRANCO_IDLE_FRAMES];
+static Texture2D LimaoBrancoWalkTextures[LIMAO_BRANCO_WALK_FRAMES];
+static Texture2D LimaoBrancoAttackTextures[LIMAO_BRANCO_ATTACK_FRAMES];
+
+// --- Texturas MOJO ---
 #define Mojo_IDLE_FRAMES 2
 #define Mojo_WALK_FRAMES 2
 #define Mojo_ATTACK_FRAMES 1
@@ -39,6 +51,7 @@ static Texture2D MojoIdleTextures[Mojo_IDLE_FRAMES];
 static Texture2D MojoWalkTextures[Mojo_WALK_FRAMES];
 static Texture2D MojoAttackTextures[Mojo_ATTACK_FRAMES];
 
+// --- Texturas MARVIN ---
 #define Marvin_IDLE_FRAMES 2
 #define Marvin_WALK_FRAMES 4
 #define Marvin_ATTACK_FRAMES 2
@@ -95,22 +108,36 @@ void InitEnemyPool(void) {
         sprintf(path, "assets/Sprites/Garnet/Garnetataque/Garnet_ataque%d.png", i + 1);
         garnetAttackTextures[i] = LoadTexture(path);
     }
-
-
-    for (int i = 0; i < Limao_IDLE_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/Limao/Limaoparado/Limaoparado%d.png", i + 1);
-        LimaoIdleTextures[i] = LoadTexture(path);
-    }
-    for (int i = 0; i < Limao_WALK_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/Limao/Limaoandando/Limaoandando%d.png", i + 1);
-        LimaoWalkTextures[i] = LoadTexture(path);
-    }
-    for (int i = 0; i < Limao_ATTACK_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/Limao/Limaoataque/Limaoataque%d.png", i + 1);
-        LimaoAttackTextures[i] = LoadTexture(path);
-    }
     
+    
+    for (int i = 0; i < LIMAO_PRETO_IDLE_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/limao_preto/parado/limao_parado%d.png", i + 1);
+        LimaoPretoIdleTextures[i] = LoadTexture(path);
+    }
+    for (int i = 0; i < LIMAO_PRETO_WALK_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/limao_preto/andando/limao_andando%d.png", i + 1);
+        LimaoPretoWalkTextures[i] = LoadTexture(path);
+    }
+    for (int i = 0; i < LIMAO_PRETO_ATTACK_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/limao_preto/atacando/limao_atacando%d.png", i + 1);
+        LimaoPretoAttackTextures[i] = LoadTexture(path);
+    }
 
+    
+    for (int i = 0; i < LIMAO_BRANCO_IDLE_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/limao_branco/parado/limao_parado%d.png", i + 1);
+        LimaoBrancoIdleTextures[i] = LoadTexture(path);
+    }
+    for (int i = 0; i < LIMAO_BRANCO_WALK_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/limao_branco/andando/limao_andando%d.png", i + 1);
+        LimaoBrancoWalkTextures[i] = LoadTexture(path);
+    }
+    for (int i = 0; i < LIMAO_BRANCO_ATTACK_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/limao_branco/ataque/limao_ataque%d.png", i + 1);
+        LimaoBrancoAttackTextures[i] = LoadTexture(path);
+    }
+
+    
     for (int i = 0; i < Mojo_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/Mojo/Mojoparado/Mojoparado%d.png", i + 1);
         MojoIdleTextures[i] = LoadTexture(path);
@@ -123,7 +150,7 @@ void InitEnemyPool(void) {
         sprintf(path, "assets/Sprites/Mojo/Mojoataque/Mojoataque%d.png", i + 1);
         MojoAttackTextures[i] = LoadTexture(path);
     }
-
+    
     
     for (int i = 0; i < Marvin_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/Marvin/Marvinparado/Marvinparado%d.png", i + 1);
@@ -148,48 +175,30 @@ void InitEnemyPool(void) {
 
 void UnloadEnemyAssets(void) {
     
-    for (int i = 0; i < GARNET_IDLE_FRAMES; i++) {
-        UnloadTexture(garnetIdleTextures[i]);
-    }
-    for (int i = 0; i < GARNET_WALK_FRAMES; i++) {
-        UnloadTexture(garnetWalkTextures[i]);
-    }
-    for (int i = 0; i < GARNET_ATTACK_FRAMES; i++) {
-        UnloadTexture(garnetAttackTextures[i]);
-    }
+    
+    for (int i = 0; i < GARNET_IDLE_FRAMES; i++) UnloadTexture(garnetIdleTextures[i]);
+    for (int i = 0; i < GARNET_WALK_FRAMES; i++) UnloadTexture(garnetWalkTextures[i]);
+    for (int i = 0; i < GARNET_ATTACK_FRAMES; i++) UnloadTexture(garnetAttackTextures[i]);
+
+
+    for (int i = 0; i < LIMAO_PRETO_IDLE_FRAMES; i++) UnloadTexture(LimaoPretoIdleTextures[i]);
+    for (int i = 0; i < LIMAO_PRETO_WALK_FRAMES; i++) UnloadTexture(LimaoPretoWalkTextures[i]);
+    for (int i = 0; i < LIMAO_PRETO_ATTACK_FRAMES; i++) UnloadTexture(LimaoPretoAttackTextures[i]);
 
     
-    for (int i = 0; i < Limao_IDLE_FRAMES; i++) {
-        UnloadTexture(LimaoIdleTextures[i]);
-    }
-    for (int i = 0; i < Limao_WALK_FRAMES; i++) {
-        UnloadTexture(LimaoWalkTextures[i]);
-    }
-    for (int i = 0; i < Limao_ATTACK_FRAMES; i++) {
-        UnloadTexture(LimaoAttackTextures[i]);
-    }
+    for (int i = 0; i < LIMAO_BRANCO_IDLE_FRAMES; i++) UnloadTexture(LimaoBrancoIdleTextures[i]);
+    for (int i = 0; i < LIMAO_BRANCO_WALK_FRAMES; i++) UnloadTexture(LimaoBrancoWalkTextures[i]);
+    for (int i = 0; i < LIMAO_BRANCO_ATTACK_FRAMES; i++) UnloadTexture(LimaoBrancoAttackTextures[i]);
 
-    
-    for (int i = 0; i < Mojo_IDLE_FRAMES; i++) {
-        UnloadTexture(MojoIdleTextures[i]);
-    }
-    for (int i = 0; i < Mojo_WALK_FRAMES; i++) {
-        UnloadTexture(MojoWalkTextures[i]);
-    }
-    for (int i = 0; i < Mojo_ATTACK_FRAMES; i++) {
-        UnloadTexture(MojoAttackTextures[i]);
-    }
+   
+    for (int i = 0; i < Mojo_IDLE_FRAMES; i++) UnloadTexture(MojoIdleTextures[i]);
+    for (int i = 0; i < Mojo_WALK_FRAMES; i++) UnloadTexture(MojoWalkTextures[i]);
+    for (int i = 0; i < Mojo_ATTACK_FRAMES; i++) UnloadTexture(MojoAttackTextures[i]);
 
-    
-    for (int i = 0; i < Marvin_IDLE_FRAMES; i++) {
-        UnloadTexture(MarvinIdleTextures[i]);
-    }
-    for (int i = 0; i < Marvin_WALK_FRAMES; i++) {
-        UnloadTexture(MarvinWalkTextures[i]);
-    }
-    for (int i = 0; i < Marvin_ATTACK_FRAMES; i++) {
-        UnloadTexture(MarvinAttackTextures[i]);
-    }
+   
+    for (int i = 0; i < Marvin_IDLE_FRAMES; i++) UnloadTexture(MarvinIdleTextures[i]);
+    for (int i = 0; i < Marvin_WALK_FRAMES; i++) UnloadTexture(MarvinWalkTextures[i]);
+    for (int i = 0; i < Marvin_ATTACK_FRAMES; i++) UnloadTexture(MarvinAttackTextures[i]);
 }
 
 Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
@@ -233,25 +242,25 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     break;
                 }
 
-                case ENEMY_LIMAO: { 
+                case ENEMY_LIMAO_PRETO: { 
                     enemy->health = 60;
                     enemy->maxHealth = 60;
                     enemy->speed = 2.5f; 
                     enemy->scale = 3.5f; 
                     enemy->damage = 5;   
                     enemy->attackCooldown = 0.8f; 
-                    enemy->framesSpeed = Limao_ATTACK_SPEED;
+                    enemy->framesSpeed = LIMAO_PRETO_ATTACK_SPEED; 
 
-                    enemy->idleFrameCount = Limao_IDLE_FRAMES;
-                    enemy->walkFrameCount = Limao_WALK_FRAMES;
-                    enemy->attackFrameCount = Limao_ATTACK_FRAMES;
+                    enemy->idleFrameCount = LIMAO_PRETO_IDLE_FRAMES;
+                    enemy->walkFrameCount = LIMAO_PRETO_WALK_FRAMES;
+                    enemy->attackFrameCount = LIMAO_PRETO_ATTACK_FRAMES;
                     
-                    enemy->idleTextures = LimaoIdleTextures;
-                    enemy->walkTextures = LimaoWalkTextures;
-                    enemy->attackTextures = LimaoAttackTextures;
+                    enemy->idleTextures = LimaoPretoIdleTextures;
+                    enemy->walkTextures = LimaoPretoWalkTextures;
+                    enemy->attackTextures = LimaoPretoAttackTextures;
                     break;
                 }
-                    
+                        
                 case ENEMY_MOJO: { 
                     enemy->health = 200;
                     enemy->maxHealth = 200;
@@ -287,6 +296,25 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->idleTextures = MarvinIdleTextures;
                     enemy->walkTextures = MarvinWalkTextures;
                     enemy->attackTextures = MarvinAttackTextures;
+                    break;
+                }
+
+                case ENEMY_LIMAO_BRANCO: { 
+                    enemy->health = 60;
+                    enemy->maxHealth = 60;
+                    enemy->speed = 2.5f; 
+                    enemy->scale = 3.5f; 
+                    enemy->damage = 5;   
+                    enemy->attackCooldown = 0.8f; 
+                    enemy->framesSpeed = LIMAO_BRANCO_ATTACK_SPEED; 
+
+                    enemy->idleFrameCount = LIMAO_BRANCO_IDLE_FRAMES;
+                    enemy->walkFrameCount = LIMAO_BRANCO_WALK_FRAMES;
+                    enemy->attackFrameCount = LIMAO_BRANCO_ATTACK_FRAMES;
+
+                    enemy->idleTextures = LimaoBrancoIdleTextures;
+                    enemy->walkTextures = LimaoBrancoWalkTextures;
+                    enemy->attackTextures = LimaoBrancoAttackTextures;
                     break;
                 }
 
@@ -330,7 +358,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
             enemy->hitStunTimer -= GetFrameTime();
         }
 
-        if (!enemy->isAttacking) {
+        if (!enemy->isAttacking && enemy->hitStunTimer <= 0) { 
             
             Vector2 playerPos = player->position;
             
@@ -340,13 +368,16 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
 
             
             switch(enemy->type) {
-                
+
                 case ENEMY_GARNET:
-                case ENEMY_LIMAO:
+
+                case ENEMY_LIMAO_PRETO:
+                case ENEMY_LIMAO_BRANCO:
                 {
                     float distance = Vector2Distance(playerPos, enemy->position);
+                    float attackRange = 100.0f; 
 
-                    if (distance > 100.0f) { 
+                    if (distance > attackRange) { 
                         Vector2 direction = Vector2Normalize(Vector2Subtract(playerPos, enemy->position)); 
                         enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
                         enemy->isMoving = true;
@@ -358,7 +389,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                     }
                     break;
                 }
-                
+
                 case ENEMY_MOJO:
                 {
                     float minRange = 300.0f; 
@@ -478,7 +509,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                     break; 
                 }
             }
-            
+
             if (playerPos.x < enemy->position.x) {
                 enemy->direction = -1;
             }
@@ -498,9 +529,12 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                 enemy->currentFrame++;
                 
                 if (enemy->currentFrame >= (enemy->attackFrameCount - 1)) {
-                    if (enemy->type == ENEMY_GARNET || enemy->type == ENEMY_LIMAO) {
+                    if (enemy->type == ENEMY_GARNET || 
+                        enemy->type == ENEMY_LIMAO_PRETO ||
+                        enemy->type == ENEMY_LIMAO_BRANCO) 
+                    {
                         if (CheckCollisionRecs(GetEnemyRect(enemy), playerRect)) {
-                            player->health -= enemy->damage; 
+                            Player_RecebeDano(player, enemy->damage); 
                         }
                     }
                 }
@@ -534,7 +568,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                 }
             }
         }
-        
+
         Rectangle enemyRect = GetEnemyRect(enemy);
         int screenWidth = GetScreenWidth(); 
 
@@ -562,23 +596,23 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
         if (enemy->position.x + enemyRect.width > limiteDireito) {
             enemy->position.x = limiteDireito - enemyRect.width;
         }
-        
-        if (player->collisionDamageTimer <= 0 && CheckCollisionRecs(playerRect, enemyRect)) {
-            player->health -= 3; 
-            player->collisionDamageTimer = 0.5f; 
+
+        if (CheckCollisionRecs(playerRect, enemyRect)) {
+            Player_RecebeDano(player, 3); 
         }
 
         int damageTaken = 0;
         if (selectedCharacter == CHAR_JOHNNY) {
             if (CheckBulletCollision(enemyRect, &damageTaken)) {
                 enemy->health -= damageTaken;
+                enemy->hitStunTimer = 0.1f; 
             }
         } else {
+
             if (player->isAttacking && meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
                 if(enemy->hitStunTimer <= 0.0f) { 
                     
                     int meleeDamage = 50; 
-                    
                     
                     switch (selectedCharacter) {
                         case CHAR_FINN:
@@ -596,8 +630,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                     }
                     
                     enemy->health -= meleeDamage; 
-                    
-                    enemy->hitStunTimer = 0.5f; 
+                    enemy->hitStunTimer = 0.5f;
                     enemy->isAttacking = false; 
                 }
             }
@@ -605,7 +638,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
 
         if (enemy->health <= 0) {
             if (enemy->active) { 
-               Score_AddPoints(enemy->maxHealth); 
+                Score_AddPoints(enemy->maxHealth); 
             }
             enemy->active = false; 
         }
@@ -639,10 +672,16 @@ void DrawEnemyPool(void) {
                 (float)textureToDraw.height * enemy->scale
             };
             Vector2 origin = { 0.0f, 0.0f };
+
+            Color tint = WHITE;
+            if (enemy->hitStunTimer > 0) {
+                int flash = (int)(enemy->hitStunTimer * 20.0f);
+                if (flash % 2 == 0) {
+                    tint = (Color){255, 100, 100, 200}; 
+                }
+            }
             
-            DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, WHITE);
-            
-           
+            DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, tint);
             float healthPercent = (float)enemy->health / (float)enemy->maxHealth;
             int barWidth = (int)(ENEMY_HEALTHBAR_WIDTH * healthPercent);
             int barX = (int)enemy->position.x + (int)((destRec.width - ENEMY_HEALTHBAR_WIDTH) / 2); 
