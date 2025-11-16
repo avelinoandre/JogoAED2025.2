@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <math.h>
 
 static const char *options[MENU_OPTION_COUNT] = {
     "JOGAR",
@@ -10,9 +11,14 @@ static const char *options[MENU_OPTION_COUNT] = {
 void InitMenu(Menu *menu) {
     menu->selected = MENU_OPTION_PLAY;
     menu->font = LoadFont("assets/fonts/pixelfont.ttf");
+    
+    menu->background = LoadTexture("assets/Sprites/background/menu/backgroundAPENASUMSHOW.png");
+    menu->animTimer = 0.0f;
 }
 
 MenuOption UpdateMenu(Menu *menu) {
+    menu->animTimer += GetFrameTime();
+
     if (IsKeyPressed(KEY_DOWN)) {
         menu->selected++;
         if (menu->selected >= MENU_OPTION_COUNT)
@@ -33,41 +39,71 @@ void DrawMenu(Menu *menu) {
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
 
-    ClearBackground((Color){30, 30, 40, 255});
+    DrawTexturePro(
+        menu->background,
+        (Rectangle){ 0, 0, (float)menu->background.width, (float)menu->background.height },
+        (Rectangle){ 0, 0, (float)screenWidth, (float)screenHeight },
+        (Vector2){ 0, 0 },
+        0.0f,
+        WHITE
+    );
 
     const char *title = "SMASH TOONS";
     int titleSize = 80;
     Vector2 titleSizeMeasure = MeasureTextEx(menu->font, title, titleSize, 4);
+    
+
     DrawTextEx(menu->font, title,
-        (Vector2){screenWidth/3 - titleSizeMeasure.x/2, 120},
+        (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 275, 120 + 4},
+        titleSize, 4, BLACK);
+
+    DrawTextEx(menu->font, title,
+        (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 271, 120},
         titleSize, 4, YELLOW);
 
-    int baseY = 200;
+    Rectangle panel = { 
+        (float)screenWidth / 2 - 250, 
+        230, 
+        500, 
+        (float)MENU_OPTION_COUNT * 70 + 30 
+    };
+    DrawRectangleRec(panel, (Color){0, 0, 0, 150});
+    DrawRectangleLinesEx(panel, 2, (Color){255, 255, 255, 50});
+
+    int baseY = 250;
     int spacing = 70;
 
     for (int i = 0; i < MENU_OPTION_COUNT; i++) {
         
         Color color;
         int fontSize;
+        const char* text;
 
         if (i == menu->selected) {
+            float pulse = (sinf(menu->animTimer * 1.8f) + 1.0f) / 2.0f; 
+            
             color = ORANGE;
-            fontSize = 50;
+            fontSize = 45 + (int)(pulse * 10.0f);
+            text = TextFormat("> %s <", options[i]);
         } else {
             color = RAYWHITE;
             fontSize = 40;
+            text = options[i];
         }
 
-        Vector2 textSize = MeasureTextEx(menu->font, options[i], fontSize, 2);
-        DrawTextEx(menu->font, options[i],
-            (Vector2){screenWidth/2 - 60 - textSize.x/2, (baseY + 100) + i * spacing},
+        Vector2 textSize = MeasureTextEx(menu->font, text, fontSize, 2);
+        DrawTextEx(menu->font, text,
+            (Vector2){screenWidth/2 - textSize.x/2 - 100, (float)baseY + i * spacing},
             fontSize, 2, color);
     }
 
-    DrawText("Use SETA CIMA e SETA BAIXO para navegar, ENTER para selecionar",
-             screenWidth/3 - 70, screenHeight - 80, 20, GRAY);
+    const char* instruction = "Use SETA CIMA e SETA BAIXO para navegar, ENTER para selecionar";
+    Vector2 instructionSize = MeasureTextEx(GetFontDefault(), instruction, 20, 1);
+    DrawText(instruction,
+             (screenWidth - (int)instructionSize.x) / 2, screenHeight - 60, 20, LIGHTGRAY);
 }
 
 void UnloadMenu(Menu *menu) {
     UnloadFont(menu->font);
+    UnloadTexture(menu->background);
 }

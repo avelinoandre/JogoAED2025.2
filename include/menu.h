@@ -14,6 +14,8 @@ typedef enum {
 typedef struct {
     MenuOption selected;
     Font font;
+    Texture2D background;
+    float animTimer;
 } Menu;
 
 void InitMenu(Menu *menu);

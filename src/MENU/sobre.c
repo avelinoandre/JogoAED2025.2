@@ -11,12 +11,11 @@ void DrawSobreScreen(void) {
     DrawText("Um jogo Beat 'em Up desenvolvido em C com Raylib.", screenWidth/2 - 290, 240, 35, LIGHTGRAY);
     DrawText("Desenvolvido por André, Caio, Gabriel e Rodrigo.", screenWidth/2 - 290, 300, 35, LIGHTGRAY);
 
-    DrawText("Pressione ESC para voltar", screenWidth/2 - 120, screenHeight - 80, 20, GRAY);
+    DrawText("Pressione ENTER para voltar", screenWidth/2 - 120, screenHeight - 80, 20, GRAY);
 }
 
 int UpdateSobreScreen(void) {
-    if (IsKeyPressed(KEY_ESCAPE)) {
+    if (IsKeyPressed(KEY_ENTER)) {
         return 1;
     }
-    return 0;
 }
