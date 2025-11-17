@@ -121,7 +121,7 @@ O menu inicial possui três opções:
 <details>
 <summary> FERRAMENTAS UTILIZADAS</summary>
 
-##LINGUAGENS:
+## LINGUAGENS:
 
 Este jogo foi desenvolvido  na linguagem **C**, como um projeto da disciplina de **AED (Algoritmos e Estrutura de Dados)**. Além disso foi utilizada tambem a biblioteca Raylib (https://www.raylib.com/):
 
