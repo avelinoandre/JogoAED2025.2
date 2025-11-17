@@ -13,7 +13,7 @@ void InitMenu(Menu *menu) {
     menu->selected = MENU_OPTION_PLAY;
     menu->font = LoadFont("assets/fonts/pixelfont.ttf");
     
-    menu->background = LoadTexture("assets/Sprites/background/menu/content.png");
+    menu->background = LoadTexture("assets/Sprites/background/menu/BACKGROUND.png");
     menu->animTimer = 0.0f;
 }
 
@@ -49,33 +49,13 @@ void DrawMenu(Menu *menu) {
         WHITE
     );
 
-    // const char *title = "SMASH TOONS";
-    // int titleSize = 80;
-    // Vector2 titleSizeMeasure = MeasureTextEx(menu->font, title, titleSize, 4);
+    int spacing = 75;
     
+    const int baseFontSize = 40;
+    const int selectedFontSize = 50;
 
-    // DrawTextEx(menu->font, title,
-    //     (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 275, 120 + 4},
-    //     titleSize, 4, BLACK);
-
-    // DrawTextEx(menu->font, title,
-    //     (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 271, 120},
-    //     titleSize, 4, YELLOW);
-
-    int spacing = 75; 
-    int baseY = 250;
-
-    float panelHeight = (float)(MENU_OPTION_COUNT * spacing) + 40.0f;
-
-    Rectangle panel = { 
-        (float)screenWidth / 2 - 250, 
-        (float)baseY - 20, 
-        500, 
-        panelHeight 
-    };
-
-    DrawRectangleRec(panel, (Color){0, 0, 0, 150});
-    DrawRectangleLinesEx(panel, 2, (Color){255, 255, 255, 50});
+    int totalMenuHeight = (MENU_OPTION_COUNT - 1) * spacing;
+    int baseY = (screenHeight - totalMenuHeight) / 2;
 
     for (int i = 0; i < MENU_OPTION_COUNT; i++) {
         
@@ -84,27 +64,41 @@ void DrawMenu(Menu *menu) {
         const char* text;
 
         if (i == menu->selected) {
-            float pulse = (sinf(menu->animTimer * 1.8f) + 1.0f) / 2.0f; 
-            
-            color = ORANGE;
-            fontSize = 45 + (int)(pulse * 10.0f);
-            text = TextFormat("> %s <", options[i]);
+            color = YELLOW;
+            fontSize = selectedFontSize;
+            text = TextFormat("> %s", options[i]);
         } else {
             color = RAYWHITE;
-            fontSize = 40;
+            fontSize = baseFontSize;
             text = options[i];
         }
 
         Vector2 textSize = MeasureTextEx(menu->font, text, fontSize, 2);
+        
+        float optionX = (screenWidth - textSize.x) / 2.0f - 70; 
+        float optionY = (float)baseY + i * spacing;
+        
+        if (i == menu->selected) {
+            optionY -= (selectedFontSize - baseFontSize) / 2.0f;
+        }
+
+        float shadowOffset = 3.0f;
+
         DrawTextEx(menu->font, text,
-            (Vector2){screenWidth/2 - textSize.x/2 - 100, (float)baseY + i * spacing}, 
+            (Vector2){optionX + shadowOffset, optionY + 80 + shadowOffset}, 
+            fontSize, 2, BLACK);
+
+        DrawTextEx(menu->font, text,
+            (Vector2){optionX, optionY + 80}, 
             fontSize, 2, color);
     }
 
     const char* instruction = "Use SETA CIMA e SETA BAIXO para navegar, ENTER para selecionar";
     Vector2 instructionSize = MeasureTextEx(GetFontDefault(), instruction, 20, 1);
+    
     DrawText(instruction,
-             (screenWidth - (int)instructionSize.x) / 2, screenHeight - 60, 20, LIGHTGRAY);
+             (screenWidth - (int)instructionSize.x) / 2,
+             screenHeight - 60, 20, LIGHTGRAY);
 }
 
 void UnloadMenu(Menu *menu) {
