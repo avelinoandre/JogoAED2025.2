@@ -82,7 +82,7 @@ sudo apt-get install libcurl4-openssl-dev
 ### 4. Configurando a IA:
 
 - Criar na pasta "JogoAED2025.2" um .txt nomeado de config
-- Dentro do config colocar a chave: AIzaSyAUtS1SgSyeyujM6pihvFxZVg1fjKUVe6U
+- Dentro do config colocar a chave da API
 
 ### 5. compile e depois rode o jogo:
 ```
