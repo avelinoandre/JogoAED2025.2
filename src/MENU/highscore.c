@@ -81,7 +81,7 @@ void SaveNewScore(const char* name, int mode, int score) {
 }
 
 int UpdateHighscoreScreen(void) {
-    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER)) {
+    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_BACKSPACE)) {
         return 1;
     }
     return 0;

@@ -36,7 +36,7 @@ int UpdateModeSelect(void) {
         return selectedOption + 1;
     }
 
-    if (IsKeyPressed(KEY_ESCAPE)) {
+    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_BACKSPACE)) {
         return 0; 
     }
     
@@ -78,7 +78,7 @@ void DrawModeSelect(void) {
             fontSize, 2, color);
     }
 
-    const char* instruction = "Use SETAS para navegar, ENTER para selecionar, ESC para voltar";
+    const char* instruction = "Use SETAS para navegar, ENTER para selecionar, BACKSPACE para voltar";
     Vector2 instructionSize = MeasureTextEx(GetFontDefault(), instruction, 20, 1);
     DrawText(instruction,
              (screenWidth - (int)instructionSize.x) / 2, screenHeight - 60, 20, LIGHTGRAY);

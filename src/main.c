@@ -83,7 +83,7 @@ int main(void) {
             
             case STATE_NAME_INPUT:
                 {
-                    if (IsKeyPressed(KEY_ESCAPE)) {
+                    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_BACKSPACE)) {
                         state = STATE_MODE_SELECT;
                     }
                     else if (UpdateNameInput() == 1) {

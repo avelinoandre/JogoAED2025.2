@@ -61,7 +61,7 @@ void DrawNameInput(void) {
         }
     }
 
-    DrawText("SETAS para mudar | ENTER para confirmar", screenWidth/2 - 250, 600, 20, LIGHTGRAY);
+    DrawText("SETAS para mudar | ENTER para confirmar | BACKSPACE PARA VOLTAR", screenWidth/2 - 250, 600, 20, LIGHTGRAY);
 }
 
 void UnloadNameInput(void) {

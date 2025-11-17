@@ -62,30 +62,26 @@ void UpdateCharSelectMenu(int *gameState) {
 
     if (IsKeyPressed(KEY_ENTER)) {
         if (!isSelectingP2) {
-            // Selecionando P1
             selectedCharacter = (CharacterType)selectedOption;
             
             if (GetGameMode() == GAME_MODE_2P) {
-                // Se for 2P, prepara para selecionar P2
                 isSelectingP2 = true;
-                selectedOption = 1; // Padrão P2 para Finn
+                selectedOption = 1; 
             } else {
-                // Se for 1P, vai direto para o jogo (Estado 4)
                 *gameState = MAIN_STATE_GAME; 
             }
         } else {
-            // Selecionando P2
             selectedCharacterP2 = (CharacterType)selectedOption;
-            isSelectingP2 = false; // Reseta
-            *gameState = MAIN_STATE_GAME; // Vai para o jogo (Estado 4)
+            isSelectingP2 = false;
+            *gameState = MAIN_STATE_GAME;
         }
     }
 
-    if (IsKeyPressed(KEY_ESCAPE)) {
+    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_BACKSPACE)) {
         if (isSelectingP2) {
             isSelectingP2 = false; 
         } else {
-            *gameState = MAIN_STATE_MODE_SELECT; 
+            *gameState = MAIN_STATE_NAME_INPUT; 
         }
     }
 }

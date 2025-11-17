@@ -16,7 +16,8 @@ void DrawComoJogarScreen(void) {
 }
 
 int UpdateComoJogarScreen(void) {
-    if (IsKeyPressed(KEY_ENTER)){
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_BACKSPACE)){
         return 1;
     }
+    return 0;
 }
