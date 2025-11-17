@@ -52,7 +52,7 @@ static Vector2 GerarPosicaoSpawn(Player* jogador) {
 
     if (rand() % 100 < chanceSpawnDireita) {
         
-        spawnX = (float)(screenWidth + 50 + (rand() % 150));
+        spawnX = (float)(screenWidth + 50 + (rand() % 100));
     } else {
         spawnX = (float)(-50 - (rand() % 150));
     }
@@ -107,7 +107,7 @@ static Vector2 GerarPosicaoCaixa(void) {
     int screenHeight = 900;
 
     float x = (float)(rand() % (screenWidth - 600)) + 300; 
-    float y = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 250)); 
+    float y = RUA_LIMITE_SUPERIOR + (rand() % (int)(screenHeight - RUA_LIMITE_SUPERIOR - 150)); 
     
     return (Vector2){x, y};
 }

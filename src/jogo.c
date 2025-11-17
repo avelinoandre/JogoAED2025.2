@@ -243,9 +243,37 @@ int UpdateGame(void) {
     }
 
     if (!Score_IsPlayerDead()) {
-        UpdatePlayer(&player, screenWidth, screenHeight, currentScene, false);
+        // MODIFICADO: Captura o retorno bool
+        bool p1WantsChange = UpdatePlayer(&player, screenWidth, screenHeight, currentScene, false);
+        bool p2WantsChange = false;
+        
         if (isPlayer2Active) {
-            UpdatePlayer(&player2, screenWidth, screenHeight, currentScene, true);
+            p2WantsChange = UpdatePlayer(&player2, screenWidth, screenHeight, currentScene, true);
+        }
+
+        // MODIFICADO: Lógica de mudança de cena movida para cá
+        if (p1WantsChange || p2WantsChange) {
+            SceneNode* current = GetCurrentScene(); 
+            
+            DespawnAllEnemies();
+            DespawnAllPlayerBullets(); 
+            DespawnAllEnemyBullets(); 
+            Item_DespawnAll();
+            Caixa_DespawnAll();
+
+            current->isCleared = true;
+            
+            SetCurrentScene(current->next);
+            
+            // Reseta a Posição de P1
+            player.position.x = 10.0f;
+            
+            // Reseta a Posição de P2 (se ativo)
+            if (isPlayer2Active) {
+                player2.position.x = 10.0f;
+                // Alinha o P2 com o P1 no eixo Y
+                player2.position.y = player.position.y; 
+            }
         }
     }
 
@@ -258,13 +286,13 @@ int UpdateGame(void) {
         UpdateBulletPool(screenWidth, screenHeight);
     }
 
-    // MODIFICADO: Passa ambos os jogadores para a atualização dos inimigos
+    
     UpdateEnemyPool(&player, &player2, isPlayer2Active, screenHeight, currentScene);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
 
-    // MODIFICADO: Passa ambos os jogadores para a atualização dos itens e caixas
+    
     Item_Update(&player);
-    if(isPlayer2Active) Item_Update(&player2); // Faz o P2 também pegar itens
+    if(isPlayer2Active) Item_Update(&player2); 
 
     Caixa_Update(&player, &player2, isPlayer2Active);
 

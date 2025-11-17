@@ -6,7 +6,7 @@
 
 #define MAX_ITEMS 20
 
-#define MACA_SCALE 1.5f
+#define MACA_SCALE 1.2f
 #define DINHEIRO_SCALE 3.0f
 #define VIDA_EXTRA_SCALE 3.0f
 
