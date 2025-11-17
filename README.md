@@ -75,7 +75,16 @@ git clone https://github.com/avelinoandre/JogoAED2025.2
 ```
 cd JogoAED2025.2
 ```
-### 3. compile e depois rode o jogo:
+### 3. Instalar a IA:
+```
+sudo apt-get install libcurl4-openssl-dev
+```
+### 4. Configurando a IA:
+
+- Criar na pasta "JogoAED2025.2" um .txt nomeado de config
+- Dentro do config colocar a chave: AIzaSyAUtS1SgSyeyujM6pihvFxZVg1fjKUVe6U
+
+### 5. compile e depois rode o jogo:
 ```
 make
 ```
