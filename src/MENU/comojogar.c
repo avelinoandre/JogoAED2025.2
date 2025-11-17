@@ -21,11 +21,11 @@ void DrawComoJogarScreen(void) {
 
     DrawText("ENTER - Voltar ao menu", screenWidth/2 - 300, 660, 35, LIGHTGRAY);
 
-     DrawText("Pressione ENTER para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
+     DrawText("Pressione BACKSPACE para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
 }
 
 int UpdateComoJogarScreen(void) {
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_BACKSPACE)){
+    if (IsKeyPressed(KEY_BACKSPACE)){
         return 1;
     }
     return 0;

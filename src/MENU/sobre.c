@@ -13,11 +13,11 @@ void DrawSobreScreen(void) {
     DrawText("dos heróis da Cartoon, os  quais se uniram para enfrenta-los", screenWidth/2 - 500, 360, 35, LIGHTGRAY);
     DrawText("e defender o multiverso da Cartoon dos vilões", screenWidth/2 - 500, 400, 35, LIGHTGRAY);
 
-    DrawText("Pressione ENTER para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
+    DrawText("Pressione BACKSPACE para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
 }
 
 int UpdateSobreScreen(void) {
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_BACKSPACE)) {
+    if (IsKeyPressed(KEY_BACKSPACE)) {
         return 1;
     }
     return 0;
