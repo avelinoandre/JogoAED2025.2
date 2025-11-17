@@ -37,7 +37,7 @@ int main(void) {
     InitAudioDevice();
     SetTargetFPS(60);
 
-    Music menuMusic = LoadMusicStream("assets/audios/menuSoundtrack.mp3");
+    Music menuMusic = LoadMusicStream("assets/audios/menuSoundtrack1.mp3");
     SetMusicVolume(menuMusic, 0.5f);
     PlayMusicStream(menuMusic);
 
