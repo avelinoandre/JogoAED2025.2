@@ -220,10 +220,10 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                 case ENEMY_LIMAO_PRETO: { 
                     enemy->health = 90;
                     enemy->maxHealth = 90;
-                    enemy->speed = 2.5f; 
+                    enemy->speed = 3.0f; 
                     enemy->scale = 3.5f; 
                     enemy->damage = 5;   
-                    enemy->attackCooldown = 0.8f; 
+                    enemy->attackCooldown = 0.4f; 
                     enemy->framesSpeed = LIMAO_PRETO_ATTACK_SPEED; 
 
                     enemy->idleFrameCount = LIMAO_PRETO_IDLE_FRAMES;
@@ -239,10 +239,10 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                 case ENEMY_LIMAO_BRANCO: { 
                     enemy->health = 90;
                     enemy->maxHealth = 90;
-                    enemy->speed = 2.5f; 
+                    enemy->speed = 3.0f; 
                     enemy->scale = 3.5f; 
                     enemy->damage = 5;   
-                    enemy->attackCooldown = 0.8f; 
+                    enemy->attackCooldown = 0.4f; 
                     enemy->framesSpeed = LIMAO_BRANCO_ATTACK_SPEED; 
 
                     enemy->idleFrameCount = LIMAO_BRANCO_IDLE_FRAMES;
@@ -280,7 +280,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->speed = 2.0f; 
                     enemy->scale = 4.0f; 
                     enemy->damage = 18;   
-                    enemy->attackCooldown = 1.5f; 
+                    enemy->attackCooldown = 1.2f; 
                     enemy->framesSpeed = SPINEL_ATTACK_SPEED;
 
                     enemy->idleFrameCount = SPINEL_IDLE_FRAMES;
