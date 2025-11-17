@@ -34,6 +34,15 @@ CharacterType selectedCharacter = CHAR_JOHNNY;
 bool sceneHasCaixa[TOTAL_SCENES + 1];
 int extraLives;
 
+#define TOTAL_IMAGENS_CUTSCENE 6
+static bool emCutsceneMapa5 = false;
+static bool cutsceneMapa5JaExibida = false;
+static int indiceImagemCutscene = 0;
+static Texture2D imagensCutscene[TOTAL_IMAGENS_CUTSCENE];
+
+static float tempoImagemCutscene = 0.0f;
+static const float DURACAO_POR_IMAGEM = 1.0f; 
+
 void InitGame(void) {
 
     for (int i = 0; i <= TOTAL_SCENES; i++) {
@@ -43,6 +52,18 @@ void InitGame(void) {
     sceneHasCaixa[2] = true;
     sceneHasCaixa[3] = true;
     extraLives = 1; 
+
+    emCutsceneMapa5 = false;
+    cutsceneMapa5JaExibida = false;
+    indiceImagemCutscene = 0;
+    tempoImagemCutscene = 0.0f;
+
+    imagensCutscene[0] = LoadTexture("assets/Sprites/cutscene/cutscene1.png");
+    imagensCutscene[1] = LoadTexture("assets/Sprites/cutscene/cutscene2.png");
+    imagensCutscene[2] = LoadTexture("assets/Sprites/cutscene/cutscene3.png");
+    imagensCutscene[3] = LoadTexture("assets/Sprites/cutscene/cutscene4.png");
+    imagensCutscene[4] = LoadTexture("assets/Sprites/cutscene/cutscene5.png");
+    imagensCutscene[5] = LoadTexture("assets/Sprites/cutscene/cutscene6.png");
 
     Gemini_Init();
     InitMap();
@@ -78,6 +99,39 @@ void InitGame(void) {
 int UpdateGame(void) {
 
     UpdateMusicStream(gameMusic);
+
+    if (emCutsceneMapa5) {
+        
+        tempoImagemCutscene += GetFrameTime();
+
+        bool imagemTerminou = false;
+        
+        if (indiceImagemCutscene == (TOTAL_IMAGENS_CUTSCENE - 1)) { 
+            if (tempoImagemCutscene >= 3.0f) { 
+                imagemTerminou = true;
+            }
+        } else {
+            if (tempoImagemCutscene >= DURACAO_POR_IMAGEM) { 
+                imagemTerminou = true;
+            }
+        }
+
+        if (imagemTerminou) {
+            tempoImagemCutscene = 0.0f;
+            indiceImagemCutscene++;     
+            
+            if (indiceImagemCutscene >= TOTAL_IMAGENS_CUTSCENE) {
+                emCutsceneMapa5 = false;
+                
+                SceneNode* cenaAtual = GetCurrentScene();
+                ControleSpawn_IniciaCena(cenaAtual, &player);
+                totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
+            }
+        }
+        
+        return 0; 
+    }
+
 
     if (emContagemInicial) {
         tempoContagem += GetFrameTime();
@@ -123,8 +177,16 @@ int UpdateGame(void) {
     SceneNode* currentScene = GetCurrentScene();
     
     if (currentScene != lastScene) {
-        ControleSpawn_IniciaCena(currentScene, &player);
-        totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
+        
+        if (currentScene->id == 5 && !cutsceneMapa5JaExibida) {
+            emCutsceneMapa5 = true;
+            indiceImagemCutscene = 0;
+            tempoImagemCutscene = 0.0f; 
+            cutsceneMapa5JaExibida = true;
+        } else {
+            ControleSpawn_IniciaCena(currentScene, &player);
+            totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
+        }
         
         lastScene = currentScene; 
     }
@@ -216,6 +278,37 @@ void DrawEnemyCounter(void) {
 void DrawGame(void) {
     ClearBackground(DARKGRAY);
 
+    if (emCutsceneMapa5) {
+        ClearBackground(BLACK); 
+        
+        if (indiceImagemCutscene < TOTAL_IMAGENS_CUTSCENE) {
+            DrawTexturePro(
+                imagensCutscene[indiceImagemCutscene],
+                (Rectangle){ 0, 0, (float)imagensCutscene[indiceImagemCutscene].width, (float)imagensCutscene[indiceImagemCutscene].height },
+                (Rectangle){ 0, 0, (float)screenWidth, (float)screenHeight },
+                (Vector2){ 0, 0 },
+                0.0f,
+                WHITE
+            );
+            
+            if (indiceImagemCutscene == (TOTAL_IMAGENS_CUTSCENE - 1)) {
+                const char* texto = "Algo sai da luz, se prepare pra batalha...";
+                int fontSize = 30;
+                int textWidth = MeasureText(texto, fontSize);
+                
+                int posX = (screenWidth - textWidth) / 2;
+                int posY = screenHeight - 80;
+                
+                DrawText(texto, posX + 2, posY + 2, fontSize, BLACK);
+
+                DrawText(texto, posX, posY, fontSize, WHITE);
+            }
+        }
+        
+        return; 
+    }
+
+
     DrawCurrentMap();
 
     Caixa_Draw();
@@ -288,6 +381,12 @@ void UnloadGame(void) {
     UnloadMusicStream(gameMusic);
     UnloadSound(gameOverSound);
     UnloadSound(extraLifeSound);
+
+    for (int i = 0; i < TOTAL_IMAGENS_CUTSCENE; i++) {
+        UnloadTexture(imagensCutscene[i]);
+    }
+
+
     UnloadMap();
     UnloadPlayer(&player);
     UnloadEnemyAssets();
@@ -296,3 +395,4 @@ void UnloadGame(void) {
     Item_Unload();
     Caixa_Unload(); 
 }
+
