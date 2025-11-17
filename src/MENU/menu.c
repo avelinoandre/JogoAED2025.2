@@ -13,7 +13,7 @@ void InitMenu(Menu *menu) {
     menu->selected = MENU_OPTION_PLAY;
     menu->font = LoadFont("assets/fonts/pixelfont.ttf");
     
-    menu->background = LoadTexture("assets/Sprites/background/menu/backgroundAPENASUMSHOW.png");
+    menu->background = LoadTexture("assets/Sprites/background/menu/content.png");
     menu->animTimer = 0.0f;
 }
 
@@ -49,18 +49,18 @@ void DrawMenu(Menu *menu) {
         WHITE
     );
 
-    const char *title = "SMASH TOONS";
-    int titleSize = 80;
-    Vector2 titleSizeMeasure = MeasureTextEx(menu->font, title, titleSize, 4);
+    // const char *title = "SMASH TOONS";
+    // int titleSize = 80;
+    // Vector2 titleSizeMeasure = MeasureTextEx(menu->font, title, titleSize, 4);
     
 
-    DrawTextEx(menu->font, title,
-        (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 275, 120 + 4},
-        titleSize, 4, BLACK);
+    // DrawTextEx(menu->font, title,
+    //     (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 275, 120 + 4},
+    //     titleSize, 4, BLACK);
 
-    DrawTextEx(menu->font, title,
-        (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 271, 120},
-        titleSize, 4, YELLOW);
+    // DrawTextEx(menu->font, title,
+    //     (Vector2){(screenWidth - titleSizeMeasure.x) / 2 - 271, 120},
+    //     titleSize, 4, YELLOW);
 
     int spacing = 75; 
     int baseY = 250;
