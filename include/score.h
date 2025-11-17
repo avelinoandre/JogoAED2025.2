@@ -21,7 +21,7 @@ float Score_GetTimer(void);
 const char* Score_GetRank(void);    
 bool Score_IsPlayerDead(void);      
 
-void Score_SaveFinalScore(int score);
+void Score_SaveFinalScore(int score, int mode, const char* name);
 int Score_LoadHighScores(int *scoresArray, int maxScores);
 void Score_SortHighScores(int *scoresArray, int count);
 

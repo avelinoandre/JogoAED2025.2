@@ -15,6 +15,12 @@ typedef enum {
     GAME_MODE_2P
 } GameMode;
 
+typedef struct {
+    char name[4]; 
+    int score;
+    int mode;
+} HighScoreEntry;
+
 extern CharacterType selectedCharacter;
 extern CharacterType selectedCharacterP2; 
 extern GameMode selectedGameMode;      
@@ -22,5 +28,6 @@ extern GameMode selectedGameMode;
 #define TOTAL_SCENES 5
 extern bool sceneHasCaixa[TOTAL_SCENES + 1]; 
 extern int extraLives; 
+extern char currentPlayerName[4];
 
 #endif

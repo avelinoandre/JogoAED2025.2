@@ -58,7 +58,6 @@ void Score_CalculateFinal(void) {
     scoreCalculated = true;
 }
 
-
 int Score_GetScore(void) {
     return playerScore;
 }
@@ -75,43 +74,14 @@ const char* Score_GetRank(void) {
     return rankText;
 }
 
-void Score_SaveFinalScore(int score) {
+void Score_SaveFinalScore(int score, int mode, const char* name) {
     FILE *file = fopen(SCORE_FILENAME, "a");
     if (file == NULL) {
         TraceLog(LOG_ERROR, "Nao foi possivel abrir o arquivo de scores para salvar.");
         return;
     }
 
-    fprintf(file, "%d\n", score);
+    fprintf(file, "%s %d %d\n", name, mode, score);
     
     fclose(file);
-}
-
-int Score_LoadHighScores(int *scoresArray, int maxScores) {
-    FILE *file = fopen(SCORE_FILENAME, "r");
-    if (file == NULL) {
-        return 0; 
-    }
-
-    int count = 0;
-    while (count < maxScores && fscanf(file, "%d", &scoresArray[count]) == 1) {
-        count++;
-    }
-
-    fclose(file);
-    return count;
-}
-
-void Score_SortHighScores(int *scoresArray, int count) {
-    int i, j, key;
-    for (i = 1; i < count; i++) {
-        key = scoresArray[i];
-        j = i - 1;
-
-        while (j >= 0 && scoresArray[j] < key) {
-            scoresArray[j + 1] = scoresArray[j];
-            j = j - 1;
-        }
-        scoresArray[j + 1] = key;
-    }
 }

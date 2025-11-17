@@ -3,11 +3,12 @@
 #include "mode_select.h" 
 #include <stdio.h> 
 
+// ATUALIZADO: A numeração deve bater com a enum no main.c
 #define MAIN_STATE_MENU 0
 #define MAIN_STATE_MODE_SELECT 1
-#define MAIN_STATE_CHAR_SELECT 2
-#define MAIN_STATE_GAME 3
-
+#define MAIN_STATE_NAME_INPUT 2
+#define MAIN_STATE_CHAR_SELECT 3
+#define MAIN_STATE_GAME 4 // <--- Agora o jogo é o estado 4
 
 static const char *charNames[] = {
     "JOHNNY BRAVO",
@@ -24,7 +25,6 @@ static const char *statsGrades[4][3] = {
     {"A", "A","A"}  
 };
 
-
 static int selectedOption = 0;
 static Font font;
 static Texture2D portraits[4];
@@ -37,6 +37,7 @@ void InitCharSelectMenu(void) {
     isSelectingP2 = false; 
 
     font = LoadFont("assets/fonts/pixelfont.ttf"); 
+    if (font.texture.id == 0) font = GetFontDefault(); // Segurança caso falhe
 
     portraits[0] = LoadTexture("assets/Sprites/JohnyBravo/ataque/JohnyBravo21.png");
     portraits[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finn26.png");
@@ -47,7 +48,6 @@ void InitCharSelectMenu(void) {
     portraits_icon[1] = LoadTexture("assets/Sprites/icons/finn_icon.png"); 
     portraits_icon[2] = LoadTexture("assets/Sprites/icons/samuraiJack_icon.png");
     portraits_icon[3] = LoadTexture("assets/Sprites/icons/mordecai_icon.png");
-
 }
 
 void UpdateCharSelectMenu(int *gameState) {
@@ -70,14 +70,14 @@ void UpdateCharSelectMenu(int *gameState) {
                 isSelectingP2 = true;
                 selectedOption = 1; // Padrão P2 para Finn
             } else {
-                // Se for 1P, vai direto para o jogo
-                *gameState = MAIN_STATE_GAME; // CORREÇÃO: Usa o valor de main.c
+                // Se for 1P, vai direto para o jogo (Estado 4)
+                *gameState = MAIN_STATE_GAME; 
             }
         } else {
             // Selecionando P2
             selectedCharacterP2 = (CharacterType)selectedOption;
             isSelectingP2 = false; // Reseta
-            *gameState = MAIN_STATE_GAME; // CORREÇÃO: Usa o valor de main.c
+            *gameState = MAIN_STATE_GAME; // Vai para o jogo (Estado 4)
         }
     }
 
@@ -98,7 +98,7 @@ void DrawCharSelectMenu(void) {
 
     const char *title = isSelectingP2 ? "ESCOLHA SEU LUTADOR (P2)" : "ESCOLHA SEU LUTADOR (P1)";
     Vector2 titleSize = MeasureTextEx(font, title, 60, 4);
-    DrawTextEx(font, title, (Vector2){(screenWidth - titleSize.x) / 3.5, 60}, 60, 4, YELLOW);
+    DrawTextEx(font, title, (Vector2){(screenWidth - titleSize.x) / 2, 60}, 60, 4, YELLOW); // Centralizado melhor
 
     int charCount = 4;
     int columnWidth = 280;
@@ -182,7 +182,7 @@ void DrawCharSelectMenu(void) {
 
 
 void UnloadCharSelectMenu(void) {
-    UnloadFont(font);
+    if (font.texture.id != GetFontDefault().texture.id) UnloadFont(font);
     
     for (int i = 0; i < 4; i++) {
         if (portraits[i].id > 0) {

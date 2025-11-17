@@ -12,9 +12,12 @@
 #include "mode_select.h" 
 #include <curl/curl.h>
 
+#include "name_input.h"
+
 typedef enum {
     STATE_MENU,
-    STATE_MODE_SELECT,  
+    STATE_MODE_SELECT,
+    STATE_NAME_INPUT,
     STATE_CHAR_SELECT, 
     STATE_GAME,
     STATE_SOBRE,
@@ -43,6 +46,7 @@ int main(void) {
 
     InitTelaFinal();
     InitModeSelect(); 
+    InitNameInput();
     InitCharSelectMenu(); 
     InitHighscoreScreen();
     
@@ -66,15 +70,24 @@ int main(void) {
                 else if (selected == MENU_OPTION_EXIT) running = false;
             } break;
 
-            case STATE_MODE_SELECT: 
+            case STATE_MODE_SELECT:
                 {
                     int modeResult = UpdateModeSelect();
-                    if (modeResult == 1) {
-                        state = STATE_CHAR_SELECT;
-                    } else if (modeResult == 2) { 
-                        state = STATE_CHAR_SELECT;
-                    } else if (modeResult == 0) { 
+                    if (modeResult != 0 && modeResult != -1) {
+                        state = STATE_NAME_INPUT;
+                    } else if (modeResult == 0) {
                         state = STATE_MENU;
+                    }
+                }
+                break;
+            
+            case STATE_NAME_INPUT:
+                {
+                    if (IsKeyPressed(KEY_ESCAPE)) {
+                        state = STATE_MODE_SELECT;
+                    }
+                    else if (UpdateNameInput() == 1) {
+                        state = STATE_CHAR_SELECT;
                     }
                 }
                 break;
@@ -85,20 +98,21 @@ int main(void) {
                     
                     if (gameResult == 1) {
                         UnloadGame();    
+                        StopMusicStream(menuMusic);
                         PlayMusicStream(menuMusic);
                         state = STATE_MENU; 
                     } else if (gameResult == 2) {
                         
                         Score_CalculateFinal();
 
-                        Score_SaveFinalScore(Score_GetFinalScore());
-                        
-                        UnloadGame();
+                        int finalScore = Score_GetFinalScore();
+                        int currentMode = (selectedGameMode == GAME_MODE_1P) ? 0 : 1;
+                        SaveNewScore(currentPlayerName, currentMode, finalScore);
 
+                        UnloadGame();
                         PauseMusicStream(menuMusic);
-                        PlayVictoryMusic(); 
-                        
-                        state = STATE_FINAL; 
+                        PlayVictoryMusic();
+                        state = STATE_FINAL;
                         
                     }
                 }
@@ -128,7 +142,8 @@ int main(void) {
             case STATE_FINAL:
                 if (UpdateTelaFinal() == 1) { 
                     StopVictoryMusic();
-                    ResumeMusicStream(menuMusic);
+                    StopMusicStream(menuMusic);
+                    PlayMusicStream(menuMusic);
                     state = STATE_MENU; 
                 }
                 break;
@@ -153,6 +168,10 @@ int main(void) {
             
             case STATE_MODE_SELECT: 
                 DrawModeSelect();
+                break;
+            
+            case STATE_NAME_INPUT: 
+                DrawNameInput();
                 break;
 
             case STATE_GAME:
@@ -189,6 +208,7 @@ int main(void) {
     UnloadMenu(&menu);
     UnloadModeSelect(); 
     UnloadCharSelectMenu(); 
+    UnloadNameInput();
     UnloadTelaFinal();
     UnloadHighscoreScreen();
     UnloadMusicStream(menuMusic);
