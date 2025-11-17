@@ -32,14 +32,21 @@ static float delayEntreSpawnsTimer;
 static bool controleAtivo;
 
 static float spawnRateModificador; 
-static int saudeJogadorCache; 
+static int saudeJogadorCache; // Em 1P, é a vida do P1. Em 2P, é a média de vida P1+P2.
 
+
+// Limita um valor inteiro para que ele permaneça dentro de um intervalo (min/max).
+ 
 static int ClampInt(int valor, int minimo, int maximo) {
     if (valor < minimo) return minimo;
     if (valor > maximo) return maximo;
     return valor;
 }
 
+/*
+   Decide onde um novo inimigo deve aparecer, geralmente fora da tela,
+   com base na posição do P1 para evitar spawns injustos.
+ */
 static Vector2 GerarPosicaoSpawn(Player* jogador) {
     const int screenWidth = 1600;
     const int screenHeight = 900;
@@ -48,6 +55,7 @@ static Vector2 GerarPosicaoSpawn(Player* jogador) {
     float centroTela = screenWidth / 2.0f;
     int chanceSpawnDireita;
 
+    // Tenta spawnar do lado oposto ao que o jogador está
     if (jogador->position.x < centroTela - 200) {
        
         chanceSpawnDireita = 70; 
@@ -69,6 +77,12 @@ static Vector2 GerarPosicaoSpawn(Player* jogador) {
     return (Vector2){spawnX, spawnY};
 }
 
+/*
+   Seleciona aleatoriamente um tipo de inimigo (Limão, Spinel, Marvin)
+   e chama a função SpawnEnemy para colocá-lo no mapa.
+   A seleção de inimigos é depende da vida do player jogador.
+*/
+
 static void SpawnarUmInimigo(Player* jogador) {
     Vector2 pos = GerarPosicaoSpawn(jogador);
 
@@ -80,11 +94,15 @@ static void SpawnarUmInimigo(Player* jogador) {
         
     int randomType;
     
+    // grupoInimigo 0 = Melee Fraco (Limões)
+    // grupoInimigo 1 = Melee Forte (Spinel)
+    // grupoInimigo 2 = Ranged (Marvin)
     int grupoInimigo = rand() % 3; 
 
-    if (saudeJogadorCache < 50) {
+    if (saudeJogadorCache < 50) { // Se a vida do(s) jogador(es) está baixa, spama inimigo fácil
         grupoInimigo = 0;
     } else if (jogador->health >= jogador->maxHealth && inimigosJaSpawnados == 0) {
+        // Se a vida está cheia no começo, manda um especialista
         printf("ControleSpawn (Tático): Vida cheia. Enviando especialista (Spinel/Marvin).\n");
         grupoInimigo = 1 + (rand() % 2); 
     }
@@ -110,6 +128,8 @@ static void SpawnarUmInimigo(Player* jogador) {
            pos.x, pos.y);
 }
 
+// Gera uma posição aleatória no meio da área jogável para uma caixa.
+
 static Vector2 GerarPosicaoCaixa(void) {
     int screenWidth = 1600;
     int screenHeight = 900;
@@ -120,6 +140,12 @@ static Vector2 GerarPosicaoCaixa(void) {
     return (Vector2){x, y};
 }
 
+/*
+   Prepara o spawn para uma nova cena.
+   Define quantas caixas e quantos inimigos devem aparecer, adaptando
+   a dificuldade com base no modo (1P/2P) e na vida dos jogadores.
+   Também lida com o spawn do Boss na cena 5.
+ */
 void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2, bool isPlayer2Active) {
     if (cena == NULL || player1 == NULL) return;
 
@@ -127,6 +153,7 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2,
 
     bool is2P = isPlayer2Active; 
 
+    // Lógica de spawn de caixas
     if (cena->id == 4) {
         Vector2 pos1 = GerarPosicaoCaixa();
         Caixa_Spawn_At(pos1);
@@ -150,6 +177,7 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2,
     }
     
 
+    // Lógica de spawn do Boss
     if (cena->id == 5) { 
         printf("\n============================================\n");
         printf("INFO: Entrando no Mapa 5 (Boss). Calculando status...\n");
@@ -181,11 +209,12 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2,
         return; 
     }
 
+    // Lógica de contagem de inimigos adaptativa (1P vs 2P)
     int totalInimigosBase;
     float saudePercent;
     
     if (isPlayer2Active) {
-        totalInimigosBase = 4 + (int)(cena->id * 3); 
+        totalInimigosBase = 4 + (int)(cena->id * 3); // Rampa 2P (7, 10, 13, 16)
         printf("ControleSpawn (2P - Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
     
         if (cena->id == 3 || cena->id == 4) {
@@ -198,7 +227,7 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2,
     } 
     else 
     {
-        totalInimigosBase = 2 + (int)(cena->id * 2); 
+        totalInimigosBase = 2 + (int)(cena->id * 2); // Rampa 1P (4, 6, 8, 10)
         printf("ControleSpawn (1P - Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
 
         saudePercent = (float)player1->health / (float)player1->maxHealth;
@@ -210,7 +239,7 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2,
     }
 
     int totalCalculado = totalInimigosBase;
-    if (saudePercent < 0.5f) { 
+    if (saudePercent < 0.5f) { // Se a vida (ou média) for baixa, reduz inimigos
         totalCalculado = totalInimigosBase / 2;
     } 
 
@@ -237,6 +266,12 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* player1, Player* player2,
     delayEntreSpawnsTimer = 0.0f;
 }
 
+/*
+   Chamado a cada frame do jogo.
+   Gerencia o "quando" spawnar inimigos, controlando os delays e
+   respeitando o limite máximo de inimigos simultâneos na tela (4 para 1P, 5 para 2P).
+ */
+
 void ControleSpawn_Update(float deltaTime, Player* player1, Player* player2, bool isPlayer2Active) {
     if (!controleAtivo) return;
 
@@ -259,6 +294,7 @@ void ControleSpawn_Update(float deltaTime, Player* player1, Player* player2, boo
         
         int inimigosVivos = GetActiveEnemyCount();
         
+        // Define o limite de inimigos na tela com base no modo
         int maxSimultaneos = (isPlayer2Active) ? MAX_INIMIGOS_SIMULTANEOS_2P : MAX_INIMIGOS_SIMULTANEOS_1P;
         
         int budgetTela = maxSimultaneos - inimigosVivos;
@@ -277,7 +313,7 @@ void ControleSpawn_Update(float deltaTime, Player* player1, Player* player2, boo
             
             for (int i = 0; i < quantosSpawnar; i++) {
                 if (inimigosJaSpawnados < totalInimigosParaSpawnar) { 
-                    SpawnarUmInimigo(player1); 
+                    SpawnarUmInimigo(player1); // Spawna com base na posição do P1
                     inimigosJaSpawnados++;
                 }
             }
@@ -304,14 +340,21 @@ void ControleSpawn_Update(float deltaTime, Player* player1, Player* player2, boo
     }
 }
 
+
+// Retorna o número total de inimigos que devem aparecer na cena.
+ 
 int ControleSpawn_GetTotalInimigos() {
     return totalInimigosParaSpawnar;
 }
 
+// Verifica se o controlador de spawn ainda está ativo (spawnando inimigos).
+ 
 bool ControleSpawn_EstaAtivo() {
     return controleAtivo;
 }
 
+// Retorna quantos inimigos já apareceram na cena.
+ 
 int ControleSpawn_GetInimigosSpawnados() {
     return inimigosJaSpawnados;
 }

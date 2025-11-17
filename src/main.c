@@ -10,10 +10,11 @@
 #include "score.h"
 #include "highscore.h"
 #include "mode_select.h" 
-#include <curl/curl.h>
+#include <curl/curl.h> // Para a IA
 
-#include "name_input.h"
+#include "name_input.h" // Para a tela de nome
 
+// Enumeração de todos os estados (telas) do jogo
 typedef enum {
     STATE_MENU,
     STATE_MODE_SELECT,
@@ -27,11 +28,17 @@ typedef enum {
     STATE_EXIT
 } GameState;
 
+/*
+  Função principal do programa.
+  Inicializa a janela, o áudio e a música do menu.
+  Contém o loop principal (game loop) e a máquina de estados (switch)
+  que controla qual tela (estado) está ativa e sendo desenhada.
+ */
 int main(void) {
     const int screenWidth = 1600;
     const int screenHeight = 900;
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_ALL); // Inicializa a biblioteca cURL (para a API Gemini)
 
     InitWindow(screenWidth, screenHeight, "SMASH TOONS");
     InitAudioDevice();
@@ -41,9 +48,9 @@ int main(void) {
     SetMusicVolume(menuMusic, 0.5f);
     PlayMusicStream(menuMusic);
 
+    // Inicializa todas as telas
     Menu menu;
     InitMenu(&menu);
-
     InitTelaFinal();
     InitModeSelect(); 
     InitNameInput();
@@ -53,10 +60,12 @@ int main(void) {
     GameState state = STATE_MENU;
     bool running = true;
 
+    // Game Loop Principal
     while (!WindowShouldClose() && running) {
 
         UpdateMusicStream(menuMusic);
         
+        // Update das telas
         switch (state) {
             case STATE_MENU: {
                 int selected = UpdateMenu(&menu);
@@ -73,9 +82,9 @@ int main(void) {
             case STATE_MODE_SELECT:
                 {
                     int modeResult = UpdateModeSelect();
-                    if (modeResult != 0 && modeResult != -1) {
+                    if (modeResult != 0 && modeResult != -1) { // 1P ou 2P selecionado
                         state = STATE_NAME_INPUT;
-                    } else if (modeResult == 0) {
+                    } else if (modeResult == 0) { // ESC pressionado
                         state = STATE_MENU;
                     }
                 }
@@ -86,7 +95,7 @@ int main(void) {
                     if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_BACKSPACE)) {
                         state = STATE_MODE_SELECT;
                     }
-                    else if (UpdateNameInput() == 1) {
+                    else if (UpdateNameInput() == 1) { // Nome inserido
                         state = STATE_CHAR_SELECT;
                     }
                 }
@@ -96,24 +105,22 @@ int main(void) {
                 {
                     int gameResult = UpdateGame(); 
                     
-                    if (gameResult == 1) {
+                    if (gameResult == 1) { // Morreu e voltou ao menu
                         UnloadGame();    
                         StopMusicStream(menuMusic);
                         PlayMusicStream(menuMusic);
                         state = STATE_MENU; 
-                    } else if (gameResult == 2) {
+                    } else if (gameResult == 2) { // Venceu o jogo
                         
                         Score_CalculateFinal();
-
                         int finalScore = Score_GetFinalScore();
                         int currentMode = (selectedGameMode == GAME_MODE_1P) ? 0 : 1;
-                        SaveNewScore(currentPlayerName, currentMode, finalScore);
+                        SaveNewScore(currentPlayerName, currentMode, finalScore); // Salva no ranking
 
                         UnloadGame();
                         PauseMusicStream(menuMusic);
                         PlayVictoryMusic();
                         state = STATE_FINAL;
-                        
                     }
                 }
                 break;
@@ -130,16 +137,17 @@ int main(void) {
                 { 
                     GameState oldState = state; 
                     
-                    UpdateCharSelectMenu((int*)&state); 
+                    UpdateCharSelectMenu((int*)&state); // Passa o estado para ser modificado
 
+                    // Se a seleção de personagem terminou e o estado mudou para "GAME"
                     if (oldState == STATE_CHAR_SELECT && state == STATE_GAME) {
                         PauseMusicStream(menuMusic);
-                        InitGame();    
+                        InitGame(); // Inicializa o jogo
                     }
                 }
                 break;
             
-            case STATE_FINAL:
+            case STATE_FINAL: // Tela de Vitória
                 if (UpdateTelaFinal() == 1) { 
                     StopVictoryMusic();
                     StopMusicStream(menuMusic);
@@ -148,7 +156,7 @@ int main(void) {
                 }
                 break;
             
-            case STATE_RANKING:
+            case STATE_RANKING: // Tela de High Scores
                 if (UpdateHighscoreScreen() == 1) {
                     state = STATE_MENU;
                 }
@@ -159,6 +167,7 @@ int main(void) {
                 break;
         }
 
+        // Desenho das telas
         BeginDrawing();
         
         switch (state) {
@@ -205,6 +214,7 @@ int main(void) {
         EndDrawing();
     }
 
+    // Fechando e descarregando tudo usado no jogo
     UnloadMenu(&menu);
     UnloadModeSelect(); 
     UnloadCharSelectMenu(); 
@@ -215,7 +225,7 @@ int main(void) {
     CloseAudioDevice();
     CloseWindow();
     
-    curl_global_cleanup();
+    curl_global_cleanup(); // Limpa a biblioteca cURL
 
     return 0;
 }

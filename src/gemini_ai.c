@@ -19,7 +19,8 @@ typedef struct RespostaWeb {
 } RespostaWeb;
 
 /**
- * @brief 
+ * @brief Função de callback para a biblioteca cURL.
+ * Salva os dados recebidos da internet (a resposta da API) em um buffer de memória.
  */
 static size_t EscreverDadosCallback(void *dados, size_t tamanho, size_t nmemb, void *ponteiroUsuario) {
     size_t tamanhoReal = tamanho * nmemb;
@@ -40,7 +41,7 @@ static size_t EscreverDadosCallback(void *dados, size_t tamanho, size_t nmemb, v
 }
 
 /**
- * @brief 
+ * @brief Tenta ler a chave da API do Google Gemini do arquivo "config.txt".
  */
 void Gemini_Init(void) {
     FILE* configFile = fopen("config.txt", "r");
@@ -49,7 +50,7 @@ void Gemini_Init(void) {
         return;
     }
     if (fgets(apiKey, sizeof(apiKey), configFile) != NULL) {
-        apiKey[strcspn(apiKey, "\n")] = 0;
+        apiKey[strcspn(apiKey, "\n")] = 0; // Remove a quebra de linha
         if (apiKey[0] == 0) {
             printf("DEBUG: [Gemini_Init] 'config.txt' lido, mas esta VAZIO.\n");
         } else {
@@ -62,7 +63,8 @@ void Gemini_Init(void) {
 }
 
 /**
- * @brief 
+ * @brief Constrói o corpo da requisição (payload) JSON
+ * que será enviado para a API Gemini.
  */
 static char* BuildGeminiPayload(const char* prompt) {
     cJSON *root = cJSON_CreateObject();
@@ -87,7 +89,8 @@ static char* BuildGeminiPayload(const char* prompt) {
 }
 
 /**
- * @brief 
+ * @brief Retorna stats de boss padrão (modo Normal) caso a API
+ * falhe, a chave não seja encontrada, ou a internet falhe.
  */
 static DynamicEnemyStats GetDefaultStats(void) {
     printf("AVISO: Falha na API Gemini. Usando stats padrao (Normal).\n");
@@ -101,7 +104,9 @@ static DynamicEnemyStats GetDefaultStats(void) {
 }
 
 /**
- * @brief 
+ * @brief Cria o prompt de texto que será enviado à IA.
+ * Inclui as regras de balanceamento (tabela de dificuldade) e os 
+ * dados de desempenho do jogador (score, tempo) para a IA analisar.
  */
 static char* BuildPrompt_Boss(int score, float time) {
     const char *promptHeader = 
@@ -136,7 +141,10 @@ static char* BuildPrompt_Boss(int score, float time) {
 
 
 /**
- * @brief 
+ * @brief Função principal da IA.
+ * Conecta-se à API Google Gemini, envia o prompt com o desempenho do jogador
+ * e analisa a resposta JSON para extrair os stats balanceados (vida, dano, etc.)
+ * para o Boss.
  */
 DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
     
@@ -187,6 +195,7 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
             fprintf(stderr, "curl_easy_perform() falhou: %s\n", curl_easy_strerror(res));
             stats = GetDefaultStats();
         } else {
+            // Analisa a resposta JSON
             cJSON *jsonResponse = cJSON_Parse(resposta.buffer);
             if (jsonResponse == NULL) {
                 printf("ERRO: Nao foi possivel parsear o JSON da resposta.\n");
@@ -199,6 +208,7 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
                     printf("ERRO DA API: %s\n", errorMessage ? errorMessage->valuestring : "Erro desconhecido");
                     stats = GetDefaultStats();
                 } else {
+                    // Navega pela estrutura do JSON para encontrar o texto
                     cJSON *candidates = cJSON_GetObjectItem(jsonResponse, "candidates");
                     cJSON *firstCandidate = cJSON_GetArrayItem(candidates, 0);
                     cJSON *content = cJSON_GetObjectItem(firstCandidate, "content");
@@ -207,6 +217,7 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
                     cJSON *text = cJSON_GetObjectItem(firstPart, "text");
 
                     if (text && cJSON_IsString(text)) {
+                        // Limpa o JSON (remove ```json ... ```)
                         char* strInicio = strstr(text->valuestring, "{");
                         char* strFim = strrchr(text->valuestring, '}');
                         char* strJsonLimpo = text->valuestring;
@@ -215,6 +226,7 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
                             strJsonLimpo = strInicio;
                         }
 
+                        // Analisa o JSON interno
                         cJSON *innerJson = cJSON_Parse(strJsonLimpo);
                         if (innerJson) {
                             cJSON *health = cJSON_GetObjectItem(innerJson, "vida");
@@ -223,11 +235,13 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
                             cJSON *cooldown = cJSON_GetObjectItem(innerJson, "cooldown");
 
                             if (health && damage && speed && cooldown) {
+                                // Atribui os stats recebidos
                                 stats.health = health->valueint;
                                 stats.damage = damage->valueint;
                                 stats.speed = (float)speed->valuedouble;
                                 stats.attackCooldown = (float)cooldown->valuedouble;
 
+                                // Calcula a escala (tamanho) do boss dinamicamente
                                 float healthBonus = (stats.health / 100.0f) * 0.4f;
                                 float speedPenalty = (stats.speed / 2.0f) * 0.4f;
                                 

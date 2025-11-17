@@ -8,12 +8,13 @@
 
 static Texture2D bulletTexture; 
 
-static Bullet bulletPool[MAX_BULLETS];
-static int currentAmmo[2]; 
+static Bullet bulletPool[MAX_BULLETS]; // Pool de balas do jogador
+static int currentAmmo[2]; // [0] para P1, [1] para P2
 
 static Sound shootSound;
 
-
+// Prepara o "pool" de balas, carrega a textura e reseta a munição.
+ 
 void InitBulletPool(void) {
 
     for (int i = 0; i < MAX_BULLETS; i++) {
@@ -30,7 +31,8 @@ void InitBulletPool(void) {
     SetSoundVolume(shootSound, 0.4f);
 }
 
-
+// Desenha todas as balas ativas do jogador (Johnny) na tela.
+ 
 void DrawBulletPool(void) {
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bulletPool[i].active) {
@@ -48,6 +50,10 @@ void DrawBulletPool(void) {
     }
 }
 
+/*
+   Ativa uma bala do "pool" na posição do jogador, se houver munição.
+   playerOwner 1 para P1, 2 para P2.
+ */
 void SpawnBullet(Vector2 startPos, int direction, int playerOwner) {
 
     int ownerIndex = playerOwner - 1; 
@@ -68,6 +74,8 @@ void SpawnBullet(Vector2 startPos, int direction, int playerOwner) {
     }
 }
 
+// Move todas as balas ativas do jogador e as desativa se saírem da tela.
+
 void UpdateBulletPool(int screenWidth, int screenHeight) {
 
     for (int i = 0; i < MAX_BULLETS; i++) {
@@ -76,6 +84,7 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
             bulletPool[i].position.x += bulletPool[i].speed.x;
             bulletPool[i].position.y += bulletPool[i].speed.y;
 
+            // Desativa a bala se sair da tela
             if (bulletPool[i].position.x < 0 || 
                 bulletPool[i].position.x > screenWidth ||
                 bulletPool[i].position.y < 0 ||
@@ -87,6 +96,10 @@ void UpdateBulletPool(int screenWidth, int screenHeight) {
     }
 }
 
+/*
+   Verifica se alguma bala ativa do jogador está colidindo com um retângulo (inimigo/caixa).
+   Se colidir, a bala é desativada e o inimigo toma dano.
+ */
 bool CheckBulletCollision(Rectangle targetRect, int *damageTaken) {
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (!bulletPool[i].active) continue;
@@ -111,19 +124,25 @@ bool CheckBulletCollision(Rectangle targetRect, int *damageTaken) {
     return false; 
 }
 
+// Libera a textura e o som da bala da memória.
+
 void UnloadBulletAssets(void) {
     UnloadTexture(bulletTexture);
     UnloadSound(shootSound);
 }
 
+// Retorna a quantidade de munição atual para um jogador específico.
+
 int GetCurrentAmmo(int playerOwner) {
     return currentAmmo[playerOwner - 1];
 }
 
+// Desenha a interface de munição (contagem ou "RECARREGANDO...") na tela.
+
 void DrawAmmoCount(bool isReloading, int playerOwner) {
     int barWidth = 200; 
     int posX;
-    int posY = 20 + 20 + 10;
+    int posY = 20 + 20 + 10; // Posição Y (abaixo da barra de vida)
     int fontSize = 20;
     int ownerIndex = playerOwner - 1;
 
@@ -137,7 +156,7 @@ void DrawAmmoCount(bool isReloading, int playerOwner) {
     if (isReloading) {
         DrawText("RECARREGANDO...", posX, posY, fontSize, ORANGE); 
     } else if (currentAmmo[ownerIndex] == 0) {
-        // P1 usa 'R', P2 usa 'J'
+        // P1 usa 'R', P2 usa 'K'
         const char* reloadKey = (playerOwner == 1) ? "(R)" : "(K)";
         DrawText(TextFormat("SEM MUNIÇÃO! %s", reloadKey), posX, posY, fontSize, RED);
     } else {
@@ -145,23 +164,27 @@ void DrawAmmoCount(bool isReloading, int playerOwner) {
     }
 }
 
+// Define a munição de um jogador de volta ao máximo.
+
 void ReloadAmmo(int playerOwner) {
     currentAmmo[playerOwner - 1] = MAX_AMMO;
 }
 
 
 
+// Funções das balas
+
 static Bullet enemyBulletPool[MAX_ENEMY_BULLETS];
 
+// Prepara o "pool" de balas dos inimigos.
+ 
 void InitEnemyBulletPool(void) {
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
         enemyBulletPool[i].active = false;
     }
 }
 
-void UnloadEnemyBulletAssets(void) {
-    
-}
+// Desativa todas as balas do jogador (usado na troca de cena).
 
 void DespawnAllPlayerBullets(void) {
     for (int i = 0; i < MAX_BULLETS; i++) {
@@ -169,12 +192,16 @@ void DespawnAllPlayerBullets(void) {
     }
 }
 
+// Desativa todas as balas dos inimigos (usado na troca de cena).
+
 void DespawnAllEnemyBullets(void) {
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
         enemyBulletPool[i].active = false;
     }
 }
 
+// Ativa uma bala do "pool" de inimigos (usado pelo Marvin e Mojo).
+ 
 void SpawnEnemyBullet(Vector2 startPos, int direction, float speed, int damage) {
     
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
@@ -193,6 +220,8 @@ void SpawnEnemyBullet(Vector2 startPos, int direction, float speed, int damage) 
     }
 }
 
+// Move todas as balas ativas dos inimigos e as desativa se saírem da tela.
+ 
 void UpdateEnemyBulletPool(int screenWidth, int screenHeight) {
     
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
@@ -216,8 +245,12 @@ void UpdateEnemyBulletPool(int screenWidth, int screenHeight) {
     }
 }
 
+/*
+   Desenha todas as balas ativas dos inimigos.
+   (Reutiliza a textura da bala do jogador)
+ */
 void DrawEnemyBulletPool(void) {
-    extern Texture2D bulletTexture; 
+    extern Texture2D bulletTexture; // Usa a textura da bala do P1
 
     for (int i = 0; i < MAX_ENEMY_BULLETS; i++) {
         if (enemyBulletPool[i].active) {          
@@ -234,7 +267,8 @@ void DrawEnemyBulletPool(void) {
     }
 }
 
-
+// Verifica se alguma bala de inimigo está colidindo com um jogador.
+ 
 bool CheckEnemyBulletCollision(Rectangle targetRect, int *damageTaken) {
     
     extern Texture2D bulletTexture; 

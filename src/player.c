@@ -13,7 +13,10 @@
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
 
-
+/**
+ * @brief Inicializa a struct Player com os atributos (velocidade, vida, texturas)
+ * específicos do personagem selecionado.
+ */
 void InitPlayer(Player *player, CharacterType charType, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
     player->scale = 4.0f;
@@ -30,12 +33,13 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
     player->reloadTimer = 0.0f;
     player->collisionDamageTimer = 0.0f; 
 
-    player->extraLives = 1; 
+    player->extraLives = 1; // Cada jogador começa com 1 vida extra
 
     player->attackSound = (Sound){ 0 };
     
     char path[256];
 
+    // Carrega os assets específicos de cada personagem
     switch (charType) {
         case CHAR_JOHNNY:
             player->speed = 4.0f;
@@ -66,7 +70,7 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
         
         case CHAR_FINN:
             player->speed = 6.0f;  
-            player->maxHealth = 100; 
+            player->maxHealth = 100; // Vida baixa, alta velocidade
 
             player->idleFrameCount = 2; 
             player->walkFrameCount = 4;
@@ -154,16 +158,24 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
     player->health = player->maxHealth;
 }
 
+/**
+ * @brief Atualiza a lógica do jogador a cada frame.
+ * Processa inputs (movimento, ataque, recarga), atualiza animações,
+ * checa colisão com balas de inimigos e mantém o jogador dentro dos limites da cena.
+ * @return Retorna 'true' se o jogador alcançou o fim da tela (para mudar de cena), 'false' caso contrário.
+ */
 bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene, bool isPlayer2) {
 
     if (!player->isAlive) return false; 
 
+    // Timer de invencibilidade após tomar dano
     if (player->collisionDamageTimer > 0) {
         player->collisionDamageTimer -= GetFrameTime();
     }
 
     int playerOwner = isPlayer2 ? 2 : 1;
 
+    // Lógica de Recarga (Johnny)
     if (player->isReloading) {
         player->reloadTimer -= GetFrameTime();
         if (player->reloadTimer <= 0.0f) {
@@ -172,12 +184,15 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
+    // Lógica de Ataque (Input)
     bool attackPressed = (!isPlayer2 && IsKeyPressed(KEY_SPACE)) || (isPlayer2 && IsKeyPressed(KEY_L));
     if (attackPressed && !player->isAttacking && !player->isReloading) {
         player->isAttacking = true;
         player->currentFrame = 0;
         player->framesCounter = 0;
         player->framesSpeed = player->attackAnimSpeed;
+        
+        // Define a posição de onde a bala/soco se origina
         Texture2D attackTexture = player->attackTextures[0];
         float playerHeight = (float)attackTexture.height * player->scale;
         float playerWidth = (float)attackTexture.width * player->scale;
@@ -193,7 +208,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
             startPos.x = player->position.x + offsetX_Left;
         }
 
-
+        // Spawna bala (Johnny) ou toca som (Melee)
         if (player->charType == CHAR_JOHNNY) { 
             SpawnBullet(startPos, player->direction, playerOwner); 
         } 
@@ -204,6 +219,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
+    // Lógica de Recarregar (Input)
     bool reloadPressed = (!isPlayer2 && IsKeyPressed(KEY_R)) || (isPlayer2 && IsKeyPressed(KEY_K));
     if (reloadPressed && player->charType == CHAR_JOHNNY) {
         if (!player->isReloading && GetCurrentAmmo(playerOwner) < 10) { 
@@ -212,10 +228,11 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
+    // Lógica de Movimento (Input)
     bool wasMoving = player->isMoving;
     player->isMoving = false;
 
-    if (!player->isAttacking) { 
+    if (!player->isAttacking) { // Não pode se mover enquanto ataca
         if (!isPlayer2) {
             if (IsKeyDown(KEY_W)) { player->position.y -= player->speed; player->isMoving = true; }
             if (IsKeyDown(KEY_S)) { player->position.y += player->speed; player->isMoving = true; }
@@ -230,7 +247,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
     
-
+    // Lógica de Animação (Avança os frames)
     int currentAnimFrameCount = 0;
 
     if (player->isAttacking) {
@@ -247,8 +264,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
             }
         }
     }
-
-    else {
+    else { // Animação de Parado ou Andando
         if (player->isMoving) {
             currentAnimFrameCount = player->walkFrameCount;
         } else {
@@ -271,6 +287,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
+    // Checa colisão com balas inimigas
     int damageTaken = 0;
     Rectangle playerRect = GetPlayerRect(player);
     
@@ -278,15 +295,17 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         player->health -= damageTaken;
     }
 
+    // Lógica de Limites do Mapa
     Texture2D currentTexture = GetPlayerCurrentTexture(player);
     float playerWidth = (float)currentTexture.width * player->scale;
     float playerHeight = (float)currentTexture.height * player->scale;
 
     float limiteDireito = (float)screenWidth; 
     if (currentScene != NULL && currentScene->id == 5) {
-        limiteDireito = 1300.0f;
+        limiteDireito = 1300.0f; // Limite da arena do boss
     }
 
+    // Lógica de Transição de Cena (Borda Direita)
     if (player->position.x + playerWidth > limiteDireito) {
         if (currentScene != NULL && currentScene->id == 5) {
             player->position.x = limiteDireito - playerWidth;
@@ -296,24 +315,24 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
             if (current->next != NULL) {
                 
                 if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
-                    return true; 
+                    return true; // Sinaliza para 'jogo.c' que pode mudar de cena
                 } else {
-                    player->position.x = screenWidth - playerWidth;
+                    player->position.x = screenWidth - playerWidth; // Bate na parede
                 }
             } else {
-                player->position.x = screenWidth - playerWidth;
+                player->position.x = screenWidth - playerWidth; // Borda final
             }
         }
     }
-    else if (player->position.x < 0) {
+    else if (player->position.x < 0) { // Borda Esquerda
             player->position.x = 0;
-        
     }
 
+    // Limites da "Rua" (Cima e Baixo)
     float limiteInferior = (float)screenHeight; 
 
     if (currentScene != NULL && currentScene->id == 5) {
-        limiteInferior = 850.0f; 
+        limiteInferior = 850.0f; // Chão da arena do boss
     }
     if (player->position.y < RUA_LIMITE_SUPERIOR) {
         player->position.y = RUA_LIMITE_SUPERIOR;
@@ -322,14 +341,18 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         player->position.y = limiteInferior - playerHeight;
     }
 
+    // Cheat (Remover?)
     if (IsKeyPressed(KEY_SLASH)) {
         player->health += 20;
         if (player->health < 0) player->health = 0;
     }
 
-    return false; 
+    return false; // Não quer mudar de cena
 }
 
+/**
+ * @brief Desenha o sprite do jogador na tela, espelhado corretamente.
+ */
 void DrawPlayer(const Player *player) {
     if (!player->isAlive) return;
 
@@ -341,9 +364,10 @@ void DrawPlayer(const Player *player) {
     } else {
         textureToDraw = player->idleTextures[player->currentFrame];
     }
+    
     Rectangle sourceRec = { 0.0f, 0.0f, (float)textureToDraw.width, (float)textureToDraw.height };
     if (player->direction == -1) {
-        sourceRec.width = -sourceRec.width;
+        sourceRec.width = -sourceRec.width; // Espelha a textura
     }
     Rectangle destRec = {
         player->position.x, player->position.y,
@@ -354,16 +378,20 @@ void DrawPlayer(const Player *player) {
     DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, WHITE);
 }
   
+/**
+ * @brief Desenha a barra de vida do jogador (P1 ou P2) e
+ * a contagem de vidas extras (individual) logo abaixo.
+ */
 void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     int barWidth = 200;
     int barHeight = 20;
     int barX;
-    int barY = 20;
+    int barY = 20; // Posição Y da barra de vida
 
     if (!isPlayer2) {
-        barX = 20;
+        barX = 20; // Canto superior esquerdo
     } else {
-        barX = GetScreenWidth() - barWidth - 20;
+        barX = GetScreenWidth() - barWidth - 20; // Canto superior direito
     }
 
     float healthPercentage = (float)player->health / (float)player->maxHealth;
@@ -374,12 +402,14 @@ void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
 
 
+    // Lógica de Posição do Texto de Vidas
     int livesTextY;
     
     if (player->charType == CHAR_JOHNNY) {
- 
+        // Se for o Johnny, coloca "LIVES" abaixo da munição (que é desenhada em y=50)
         livesTextY = 50 + 20 + 5; 
     } else {
+        // Para outros, coloca "LIVES" abaixo da barra de vida
         livesTextY = barY + barHeight + 5; 
     }
 
@@ -387,6 +417,9 @@ void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     DrawText(livesText, barX, livesTextY, 20, RAYWHITE);
 }
 
+/**
+ * @brief Retorna a textura de animação correta para o estado atual do jogador.
+ */
 Texture2D GetPlayerCurrentTexture(const Player *player) {
     if (player->isAttacking) {
         return player->attackTextures[player->currentFrame];
@@ -397,8 +430,11 @@ Texture2D GetPlayerCurrentTexture(const Player *player) {
     }
 }
 
+/**
+ * @brief Retorna o retângulo de colisão principal do jogador (hitbox).
+ */
 Rectangle GetPlayerRect(const Player *player) {
-    Texture2D baseTexture = player->idleTextures[0];
+    Texture2D baseTexture = player->idleTextures[0]; // Usa a textura base para tamanho consistente
 
     Rectangle rect = {
         player->position.x, player->position.y,
@@ -408,7 +444,10 @@ Rectangle GetPlayerRect(const Player *player) {
     return rect;
 }
 
-
+/**
+ * @brief Retorna o retângulo de colisão do ATAQUE MELEE (soco/espada).
+ * Retorna um retângulo vazio se for o Johnny Bravo ou se não estiver atacando.
+ */
 Rectangle GetPlayerMeleeRect(Player *player) {
     if (!player->isAlive) {
         return (Rectangle){ 0, 0, 0, 0 };
@@ -424,20 +463,23 @@ Rectangle GetPlayerMeleeRect(Player *player) {
     Rectangle playerRect = GetPlayerRect(player);
     Rectangle meleeRect;
 
+    // Define a hitbox na frente do jogador
     meleeRect.y = playerRect.y + (playerRect.height / 2) - (MELEE_HEIGHT / 2);
     meleeRect.width = MELEE_RANGE;
     meleeRect.height = MELEE_HEIGHT;
 
-    if (player->direction == 1) {
+    if (player->direction == 1) { // Direita
         meleeRect.x = playerRect.x + playerRect.width;
-    } else { 
+    } else { // Esquerda
         meleeRect.x = playerRect.x - MELEE_RANGE;
     }
 
     return meleeRect;
 }
 
-
+/**
+ * @brief Libera da memória todas as texturas e sons carregados para este jogador.
+ */
 void UnloadPlayer(Player *player) {
     for (int i = 0; i < player->idleFrameCount; i++) {
         UnloadTexture(player->idleTextures[i]);
@@ -457,19 +499,26 @@ void UnloadPlayer(Player *player) {
         UnloadSound(player->attackSound);
     }
 }
+
+/**
+ * @brief Verifica se o jogador está no estado de recarga (apenas Johnny).
+ */
 bool Player_IsReloading(const Player *player) {
     return player->isReloading;
 }
 
+/**
+ * @brief Aplica dano ao jogador e ativa um curto período de invencibilidade (i-frames).
+ */
 void Player_RecebeDano(Player *player, int dano) {
     if (player == NULL) return; 
     if (player->collisionDamageTimer > 0) {
-        return; 
+        return; // Está invencível
     }
 
     player->health -= dano;
     if (player->health < 0) {
         player->health = 0;
     }
-    player->collisionDamageTimer = 0.5f; 
+    player->collisionDamageTimer = 0.5f; // Meio segundo de invencibilidade
 }
