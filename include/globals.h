@@ -27,7 +27,6 @@ extern GameMode selectedGameMode;
 
 #define TOTAL_SCENES 5
 extern bool sceneHasCaixa[TOTAL_SCENES + 1]; 
-extern int extraLives; 
 extern char currentPlayerName[4];
 
 #endif

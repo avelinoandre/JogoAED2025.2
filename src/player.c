@@ -30,6 +30,8 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
     player->reloadTimer = 0.0f;
     player->collisionDamageTimer = 0.0f; 
 
+    player->extraLives = 1; 
+
     player->attackSound = (Sound){ 0 };
     
     char path[256];
@@ -170,7 +172,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
-    bool attackPressed = (!isPlayer2 && IsKeyPressed(KEY_X)) || (isPlayer2 && IsKeyPressed(KEY_K));
+    bool attackPressed = (!isPlayer2 && IsKeyPressed(KEY_SPACE)) || (isPlayer2 && IsKeyPressed(KEY_L));
     if (attackPressed && !player->isAttacking && !player->isReloading) {
         player->isAttacking = true;
         player->currentFrame = 0;
@@ -202,7 +204,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
-    bool reloadPressed = (!isPlayer2 && IsKeyPressed(KEY_R)) || (isPlayer2 && IsKeyPressed(KEY_J));
+    bool reloadPressed = (!isPlayer2 && IsKeyPressed(KEY_R)) || (isPlayer2 && IsKeyPressed(KEY_K));
     if (reloadPressed && player->charType == CHAR_JOHNNY) {
         if (!player->isReloading && GetCurrentAmmo(playerOwner) < 10) { 
             player->isReloading = true;
@@ -320,7 +322,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         player->position.y = limiteInferior - playerHeight;
     }
 
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyPressed(KEY_SLASH)) {
         player->health += 20;
         if (player->health < 0) player->health = 0;
     }
@@ -351,16 +353,12 @@ void DrawPlayer(const Player *player) {
     Vector2 origin = { 0.0f, 0.0f };
     DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, WHITE);
 }
-
-// ##################################################################
-// ## MODIFICAÇÃO INICIA AQUI: Barra de Vida e Vidas Extras (Com lógica do Johnny)
-// ##################################################################
-    
+  
 void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     int barWidth = 200;
     int barHeight = 20;
     int barX;
-    int barY = 20; // Posição Y da barra de vida (como você reverteu)
+    int barY = 20;
 
     if (!isPlayer2) {
         barX = 20;
@@ -375,27 +373,19 @@ void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     DrawRectangle(barX, barY, currentHealthWidth, barHeight, GREEN);
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
 
-    // --- LÓGICA DE POSIÇÃO DAS VIDAS EXTRAS (MODIFICADA) ---
+
     int livesTextY;
     
     if (player->charType == CHAR_JOHNNY) {
-        // Se for o Johnny, a munição é desenhada em y=50 (baseado no bullet.c)
-        // Coloca "LIVES" abaixo da munição (assumindo 20px de altura para a munição + 5 de padding)
-        livesTextY = 50 + 20 + 5; // Posição Y = 75
+ 
+        livesTextY = 50 + 20 + 5; 
     } else {
-        // Para outros personagens, coloca "LIVES" abaixo da barra de vida
-        livesTextY = barY + barHeight + 5; // Posição Y = 45
+        livesTextY = barY + barHeight + 5; 
     }
-    // --- FIM DA LÓGICA ---
 
-    const char* livesText = TextFormat("VIDAS EXTRA: %d", extraLives);
+    const char* livesText = TextFormat("VIDAS EXTRA: %d", player->extraLives); 
     DrawText(livesText, barX, livesTextY, 20, RAYWHITE);
 }
-
-// ##################################################################
-// ## MODIFICAÇÃO TERMINA AQUI
-// ##################################################################
-
 
 Texture2D GetPlayerCurrentTexture(const Player *player) {
     if (player->isAttacking) {

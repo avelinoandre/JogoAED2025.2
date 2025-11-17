@@ -39,6 +39,8 @@ typedef struct Player {
 
     float collisionDamageTimer; 
 
+    int extraLives;
+
 } Player;
 
 void InitPlayer(Player *player, CharacterType charType, int startX, int startY);

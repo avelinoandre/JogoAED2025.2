@@ -40,7 +40,6 @@ CharacterType selectedCharacterP2 = CHAR_FINN;
 GameMode selectedGameMode = GAME_MODE_1P;
 
 bool sceneHasCaixa[TOTAL_SCENES + 1];
-int extraLives;
 
 #define TOTAL_IMAGENS_CUTSCENE 6
 static bool emCutsceneMapa5 = false;
@@ -59,7 +58,8 @@ void InitGame(void) {
     sceneHasCaixa[1] = true;
     sceneHasCaixa[2] = true;
     sceneHasCaixa[3] = true;
-    extraLives = 1; 
+    sceneHasCaixa[4] = true; 
+
 
     emCutsceneMapa5 = false;
     cutsceneMapa5JaExibida = false;
@@ -141,7 +141,7 @@ int UpdateGame(void) {
                 emCutsceneMapa5 = false;
                 
                 SceneNode* cenaAtual = GetCurrentScene();
-                ControleSpawn_IniciaCena(cenaAtual, &player);
+                ControleSpawn_IniciaCena(cenaAtual, &player, &player2, isPlayer2Active);
                 totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
             }
         }
@@ -175,10 +175,9 @@ int UpdateGame(void) {
 
     Score_Update(GetFrameTime());
 
-
     if (player.health <= 0 && player.isAlive) {
-        if (extraLives > 0) {
-            extraLives--;
+        if (player.extraLives > 0) { 
+            player.extraLives--;   
             player.health = player.maxHealth; 
             PlaySound(extraLifeSound);
         } else {
@@ -187,8 +186,8 @@ int UpdateGame(void) {
     }
  
     if (isPlayer2Active && player2.health <= 0 && player2.isAlive) {
-        if (extraLives > 0) {
-            extraLives--;
+        if (player2.extraLives > 0) { 
+            player2.extraLives--;     
             player2.health = player2.maxHealth;
             PlaySound(extraLifeSound);
         } else {
@@ -219,14 +218,14 @@ int UpdateGame(void) {
             tempoImagemCutscene = 0.0f; 
             cutsceneMapa5JaExibida = true;
         } else {
-            ControleSpawn_IniciaCena(currentScene, &player);
+            ControleSpawn_IniciaCena(currentScene, &player, &player2, isPlayer2Active);
             totalEnemiesInScene = ControleSpawn_GetTotalInimigos();
         }
         
         lastScene = currentScene; 
     }
   
-    ControleSpawn_Update(GetFrameTime(), &player);
+    ControleSpawn_Update(GetFrameTime(), &player, &player2, isPlayer2Active);
     Boss_Update(&player); 
 
     if (Boss_IsDefeated() && GetActiveEnemyCount() == 0) {
@@ -285,9 +284,8 @@ int UpdateGame(void) {
     UpdateEnemyPool(&player, &player2, isPlayer2Active, screenHeight, currentScene);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
 
-    
-    Item_Update(&player);
-    if(isPlayer2Active) Item_Update(&player2); 
+    Item_Update(&player, &player2, isPlayer2Active);
+
 
     Caixa_Update(&player, &player2, isPlayer2Active);
 
@@ -343,6 +341,7 @@ void DrawEnemyCounter(void) {
         
     } 
 }
+
 
 void DrawGame(void) {
     ClearBackground(DARKGRAY);
@@ -414,14 +413,11 @@ void DrawGame(void) {
         DrawEnemyCounter();
     }
 
-    // ##################################################################
-    // ## MODIFICAÇÃO INICIA AQUI: HUD de Score e Tempo
-    // ##################################################################
 
     const char* scoreText = TextFormat("SCORE: %08i", Score_GetScore());
     const char* timeText = TextFormat("TEMPO: %04.1f", Score_GetTimer());
     
-    int fontSize = 30; // "Maior"
+    int fontSize = 30; 
     int padding = 40;
     
     int scoreWidth = MeasureText(scoreText, fontSize);
@@ -430,21 +426,10 @@ void DrawGame(void) {
     
     int scoreX = (screenWidth - totalWidth) / 2;
     int timeX = scoreX + scoreWidth + padding;
-    int textY = 20; // Posição Y no topo
+    int textY = 20; 
     
     DrawText(scoreText, scoreX, textY, fontSize, YELLOW);
     DrawText(timeText, timeX, textY, fontSize, YELLOW);
-
-    // REMOVIDO: A lógica de desenhar "LIVES" foi movida para DrawPlayerHealthBar em player.c
-    // int hudCenterX = screenWidth / 2 - 100;
-    // DrawText(TextFormat("SCORE: %08i", Score_GetScore()), hudCenterX, 20, 20, RAYWHITE);
-    // DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), hudCenterX, 45, 20, RAYWHITE);
-    // DrawText(TextFormat("LIVES: %d", extraLives), hudCenterX, 70, 20, RAYWHITE); 
-    
-    // ##################################################################
-    // ## MODIFICAÇÃO TERMINA AQUI
-    // ##################################################################
-    
 
     if (Score_IsPlayerDead()) {
         int posX = screenWidth - 923; 

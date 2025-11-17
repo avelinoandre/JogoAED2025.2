@@ -96,7 +96,6 @@ static DynamicEnemyStats GetDefaultStats(void) {
     stats.damage = 25;
     stats.speed = 1.9f;
     stats.attackCooldown = 1.5f;
-    // MODIFICADO: Reduzido o tamanho padrão
     stats.scale = 5.5f; 
     return stats;
 }
@@ -229,10 +228,9 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
                                 stats.speed = (float)speed->valuedouble;
                                 stats.attackCooldown = (float)cooldown->valuedouble;
 
-                                // *** LÓGICA DE ESCALA MODIFICADA ***
                                 float healthBonus = (stats.health / 100.0f) * 0.4f;
                                 float speedPenalty = (stats.speed / 2.0f) * 0.4f;
-                                // Reduzido o mínimo de 6.0f para 5.0f e a base de 3.5f para 3.0f
+                                
                                 stats.scale = fmaxf(5.0f, 3.0f + healthBonus - speedPenalty); 
 
                                 printf("INFO: Stats dinâmicos recebidos da API!\n");

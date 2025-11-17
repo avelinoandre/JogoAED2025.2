@@ -3,27 +3,26 @@
 #include "mode_select.h" 
 #include <stdio.h> 
 
-// ATUALIZADO: A numeração deve bater com a enum no main.c
+
 #define MAIN_STATE_MENU 0
 #define MAIN_STATE_MODE_SELECT 1
 #define MAIN_STATE_NAME_INPUT 2
 #define MAIN_STATE_CHAR_SELECT 3
-#define MAIN_STATE_GAME 4 // <--- Agora o jogo é o estado 4
+#define MAIN_STATE_GAME 4 
 
-// MODIFICADO
+
 static const char *charNames[] = {
     "JOHNNY BRAVO",
     "FINN",
-    "GARNET", // Era "SAMURAI JACK"
+    "GARNET", 
     "MORDECAI"
 };
 
 static const char *statsNames[] = {"VIDA", "PODER","VEL"};
-// MODIFICADO
 static const char *statsGrades[4][3] = {
     {"A", "B","C"}, 
     {"B", "B","A"},
-    {"A", "A","C"}, // Stats da Garnet (Era A, A, B)
+    {"A", "A","C"}, 
     {"A", "A","A"}  
 };
 
@@ -39,29 +38,38 @@ void InitCharSelectMenu(void) {
     isSelectingP2 = false; 
 
     font = LoadFont("assets/fonts/pixelfont.ttf"); 
-    if (font.texture.id == 0) font = GetFontDefault(); // Segurança caso falhe
+    if (font.texture.id == 0) font = GetFontDefault(); 
 
-    // MODIFICADO
     portraits[0] = LoadTexture("assets/Sprites/JohnyBravo/ataque/JohnyBravo21.png");
     portraits[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finn26.png");
-    portraits[2] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque1.png"); // Era Samurai
+    portraits[2] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque1.png"); 
     portraits[3] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladocomemoracao/mordecai77.png");
 
-    // MODIFICADO
     portraits_icon[0] = LoadTexture("assets/Sprites/icons/johnyBravo_icon.png");
     portraits_icon[1] = LoadTexture("assets/Sprites/icons/finn_icon.png"); 
-    portraits_icon[2] = LoadTexture("assets/Sprites/icons/garnet_icon.png"); // Era Samurai
+    portraits_icon[2] = LoadTexture("assets/Sprites/icons/garnet_icon.png"); 
     portraits_icon[3] = LoadTexture("assets/Sprites/icons/mordecai_icon.png");
 }
 
 void UpdateCharSelectMenu(int *gameState) {
+    
     if (IsKeyPressed(KEY_RIGHT)) {
         selectedOption++;
         if (selectedOption >= 4) selectedOption = 0;
+
+        if (isSelectingP2 && selectedOption == selectedCharacter) {
+            selectedOption++;
+            if (selectedOption >= 4) selectedOption = 0;
+        }
     }
     if (IsKeyPressed(KEY_LEFT)) {
         selectedOption--;
         if (selectedOption < 0) selectedOption = 3;
+  
+        if (isSelectingP2 && selectedOption == selectedCharacter) {
+            selectedOption--;
+            if (selectedOption < 0) selectedOption = 3;
+        }
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
@@ -70,11 +78,21 @@ void UpdateCharSelectMenu(int *gameState) {
             
             if (GetGameMode() == GAME_MODE_2P) {
                 isSelectingP2 = true;
-                selectedOption = 1; 
+                selectedOption++; 
+                if (selectedOption >= 4) selectedOption = 0;
+                
+                if (selectedOption == selectedCharacter) {
+                    selectedOption++;
+                    if (selectedOption >= 4) selectedOption = 0;
+                }
             } else {
                 *gameState = MAIN_STATE_GAME; 
             }
         } else {
+            if (selectedOption == selectedCharacter) {
+                return; 
+            }
+            
             selectedCharacterP2 = (CharacterType)selectedOption;
             isSelectingP2 = false;
             *gameState = MAIN_STATE_GAME;
@@ -98,7 +116,7 @@ void DrawCharSelectMenu(void) {
 
     const char *title = isSelectingP2 ? "ESCOLHA SEU LUTADOR (P2)" : "ESCOLHA SEU LUTADOR (P1)";
     Vector2 titleSize = MeasureTextEx(font, title, 60, 4);
-    DrawTextEx(font, title, (Vector2){(screenWidth - titleSize.x) / 2, 60}, 60, 4, YELLOW); // Centralizado melhor
+    DrawTextEx(font, title, (Vector2){(screenWidth - titleSize.x) / 2, 60}, 60, 4, YELLOW); 
 
     int charCount = 4;
     int columnWidth = 280;
@@ -108,12 +126,11 @@ void DrawCharSelectMenu(void) {
     int startX = (screenWidth - totalWidth) / 2;
     int startY = (screenHeight - columnHeight) / 2 + 30; 
 
-    // MODIFICADO
     static float nameOffsetsX[4] = {
-        30.0f,  // Johnny Bravo
-        105.0f, // Finn
-        90.0f,  // Garnet (Era 30.0f)
-        70.0f   // Mordecai
+        30.0f,  
+        105.0f, 
+        90.0f,  
+        70.0f   
     };
 
     for (int i = 0; i < charCount; i++) {
@@ -129,8 +146,9 @@ void DrawCharSelectMenu(void) {
              DrawRectangle(currentX, startY - 30, columnWidth, 30, BLUE);
              Vector2 tagSize = MeasureTextEx(font, "1 PLAYER", 20, 2);
              DrawTextEx(font, "1 PLAYER", (Vector2){currentX + (columnWidth - tagSize.x)/2, startY - 25}, 20, 2, WHITE);
+             
+             DrawRectangleRec(columnRect, (Color){0, 0, 0, 100}); 
         }
-
         if (i == selectedOption) {
             const char* playerTag = isSelectingP2 ? "2 PLAYER" : "1 PLAYER";
             DrawRectangle(currentX, startY - 30, columnWidth, 30, ORANGE);

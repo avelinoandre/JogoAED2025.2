@@ -23,8 +23,7 @@ static void SpawnMinions(int count) {
         float spawnX = 1000.0f + (rand() % 50); 
         
         float spawnY = 400.0f + (rand() % 40); 
-        
-        // MODIFICADO: Agora escolhe entre os 4 inimigos comuns (0-3)
+
         int randomType = rand() % 4; 
 
         SpawnEnemy((EnemyType)randomType, (Vector2){spawnX, spawnY});
@@ -38,7 +37,6 @@ void Boss_Spawn(DynamicEnemyStats stats) {
     
     Vector2 pos = (Vector2){1000.0f, 450.0f}; 
     
-    // MODIFICADO: Boss agora é ENEMY_MOJO
     Enemy* boss = SpawnEnemy(ENEMY_MOJO, pos); 
 
     if (boss == NULL) {
@@ -90,7 +88,7 @@ void Boss_Update(Player* player) {
     if (bossIsShielded) {
         int activeEnemies = GetActiveEnemyCount(); 
         
-        if (activeEnemies == 1) { // Só o Boss está vivo
+        if (activeEnemies == 1) { 
             bossIsShielded = false;
             printf("BOSS: Escudo DESATIVADO! Minions derrotados.\n");
         }

@@ -14,9 +14,6 @@
 
 static Enemy enemyPool[MAX_ENEMIES];
 
-
-// REMOVIDO Bloco da GARNET
-
 #define LIMAO_PRETO_IDLE_FRAMES 2
 #define LIMAO_PRETO_WALK_FRAMES 4
 #define LIMAO_PRETO_ATTACK_FRAMES 2
@@ -34,8 +31,6 @@ static Texture2D LimaoBrancoIdleTextures[LIMAO_BRANCO_IDLE_FRAMES];
 static Texture2D LimaoBrancoWalkTextures[LIMAO_BRANCO_WALK_FRAMES];
 static Texture2D LimaoBrancoAttackTextures[LIMAO_BRANCO_ATTACK_FRAMES];
 
-
-// MANTIDO - MOJO (Agora é o Boss)
 #define Mojo_IDLE_FRAMES 2
 #define Mojo_WALK_FRAMES 2
 #define Mojo_ATTACK_FRAMES 1
@@ -53,7 +48,7 @@ static Texture2D MarvinIdleTextures[Marvin_IDLE_FRAMES];
 static Texture2D MarvinWalkTextures[Marvin_WALK_FRAMES];
 static Texture2D MarvinAttackTextures[Marvin_ATTACK_FRAMES];
 
-// ADICIONADO - SPINEL (Novo inimigo)
+
 #define SPINEL_IDLE_FRAMES 1
 #define SPINEL_WALK_FRAMES 4
 #define SPINEL_ATTACK_FRAMES 2
@@ -98,9 +93,6 @@ Rectangle GetEnemyRect(const Enemy *enemy) {
 void InitEnemyPool(void) {
     char path[256]; 
 
-    // REMOVIDO Bloco de carregamento da GARNET
-    
-    
     for (int i = 0; i < LIMAO_PRETO_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/limao_preto/parado/limao_parado%d.png", i + 1);
         LimaoPretoIdleTextures[i] = LoadTexture(path);
@@ -128,7 +120,6 @@ void InitEnemyPool(void) {
         LimaoBrancoAttackTextures[i] = LoadTexture(path);
     }
 
-    // MANTIDO - Carregamento do MOJO (Boss)
     for (int i = 0; i < Mojo_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/Mojo/Mojoparado/Mojoparado%d.png", i + 1);
         MojoIdleTextures[i] = LoadTexture(path);
@@ -156,7 +147,6 @@ void InitEnemyPool(void) {
         MarvinAttackTextures[i] = LoadTexture(path);
     }
 
-    // ADICIONADO - Carregamento da SPINEL
     for (int i = 0; i < SPINEL_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/Spinel/parado/spinel_parado%d.png", i + 1);
         spinelIdleTextures[i] = LoadTexture(path);
@@ -181,8 +171,6 @@ void InitEnemyPool(void) {
 
 void UnloadEnemyAssets(void) {
     
-    // REMOVIDO Bloco de unload da GARNET
-
     for (int i = 0; i < LIMAO_PRETO_IDLE_FRAMES; i++) UnloadTexture(LimaoPretoIdleTextures[i]);
     for (int i = 0; i < LIMAO_PRETO_WALK_FRAMES; i++) UnloadTexture(LimaoPretoWalkTextures[i]);
     for (int i = 0; i < LIMAO_PRETO_ATTACK_FRAMES; i++) UnloadTexture(LimaoPretoAttackTextures[i]);
@@ -192,18 +180,15 @@ void UnloadEnemyAssets(void) {
     for (int i = 0; i < LIMAO_BRANCO_WALK_FRAMES; i++) UnloadTexture(LimaoBrancoWalkTextures[i]);
     for (int i = 0; i < LIMAO_BRANCO_ATTACK_FRAMES; i++) UnloadTexture(LimaoBrancoAttackTextures[i]);
 
-   
-    // MANTIDO - Unload do MOJO (Boss)
+
     for (int i = 0; i < Mojo_IDLE_FRAMES; i++) UnloadTexture(MojoIdleTextures[i]);
     for (int i = 0; i < Mojo_WALK_FRAMES; i++) UnloadTexture(MojoWalkTextures[i]);
     for (int i = 0; i < Mojo_ATTACK_FRAMES; i++) UnloadTexture(MojoAttackTextures[i]);
 
-   
     for (int i = 0; i < Marvin_IDLE_FRAMES; i++) UnloadTexture(MarvinIdleTextures[i]);
     for (int i = 0; i < Marvin_WALK_FRAMES; i++) UnloadTexture(MarvinWalkTextures[i]);
     for (int i = 0; i < Marvin_ATTACK_FRAMES; i++) UnloadTexture(MarvinAttackTextures[i]);
 
-    // ADICIONADO - Unload da SPINEL
     for (int i = 0; i < SPINEL_IDLE_FRAMES; i++) UnloadTexture(spinelIdleTextures[i]);
     for (int i = 0; i < SPINEL_WALK_FRAMES; i++) UnloadTexture(spinelWalkTextures[i]);
     for (int i = 0; i < SPINEL_ATTACK_FRAMES; i++) UnloadTexture(spinelAttackTextures[i]);
@@ -231,7 +216,6 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
 
             switch (type) {
                 
-                // REMOVIDO case ENEMY_GARNET
 
                 case ENEMY_LIMAO_PRETO: { 
                     enemy->health = 60;
@@ -290,7 +274,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     break;
                 }
 
-                case ENEMY_SPINEL: { // (Stats melee)
+                case ENEMY_SPINEL: { 
                     enemy->health = 150; 
                     enemy->maxHealth = 150;
                     enemy->speed = 2.0f; 
@@ -309,7 +293,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     break;
                 }
 
-                case ENEMY_MOJO: { // Base para o Boss
+                case ENEMY_MOJO: { 
                     enemy->health = 200;
                     enemy->maxHealth = 200;
                     enemy->speed = 1.0f; 
@@ -403,7 +387,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
 
                 case ENEMY_LIMAO_PRETO:
                 case ENEMY_LIMAO_BRANCO:
-                case ENEMY_SPINEL: // Spinel usa IA melee
+                case ENEMY_SPINEL:
                 {
                     float distance = Vector2Distance(targetPos, enemy->position);
                     float attackRange = 100.0f; 
@@ -566,44 +550,32 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
             }
         }
 
-        // ##################################################################
-        // ## MODIFICAÇÃO INICIA AQUI: LÓGICA DE SEPARAÇÃO DE INIMIGOS
-        // ##################################################################
-        if (!enemy->isBoss) // O Boss não precisa se separar
+        if (!enemy->isBoss) 
         {
             for (int j = 0; j < MAX_ENEMIES; j++) {
-                if (i == j) continue; // Não checar contra si mesmo
+                if (i == j) continue; 
 
                 Enemy *otherEnemy = &enemyPool[j];
-                if (!otherEnemy->active || otherEnemy->isBoss) continue; // Não separar de inimigos inativos ou do boss
+                if (!otherEnemy->active || otherEnemy->isBoss) continue; 
 
                 Rectangle rectA = GetEnemyRect(enemy);
                 Rectangle rectB = GetEnemyRect(otherEnemy);
 
                 if (CheckCollisionRecs(rectA, rectB)) {
-                    // Calcular vetor de B para A (vetor que "empurra" A para longe de B)
                     Vector2 separationVector = Vector2Subtract(enemy->position, otherEnemy->position);
                     
-                    // Caso de sobreposição perfeita (evita divisão por zero)
                     if (separationVector.x == 0 && separationVector.y == 0) {
-                        separationVector.x = (float)(rand() % 10) - 5.0f; // Aleatório X
-                        separationVector.y = (float)(rand() % 10) - 5.0f; // Aleatório Y
+                        separationVector.x = (float)(rand() % 10) - 5.0f;
+                        separationVector.y = (float)(rand() % 10) - 5.0f; 
                     }
 
                     Vector2 separationDir = Vector2Normalize(separationVector);
-                    
-                    // Aplicar uma pequena força de separação.
-                    // Este valor (1.0f) pode ser ajustado para mais ou menos "força"
+
                     float separationSpeed = 1.0f; 
                     enemy->position = Vector2Add(enemy->position, Vector2Scale(separationDir, separationSpeed));
                 }
             }
         }
-        // ##################################################################
-        // ## MODIFICAÇÃO TERMINA AQUI
-        // ##################################################################
-
-
         int currentAnimFrameCount = 0;
         
         if (enemy->isAttacking) {
@@ -615,7 +587,6 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                 enemy->currentFrame++;
                 
                 if (enemy->currentFrame >= (enemy->attackFrameCount - 1)) {
-                    // Adicionado ENEMY_SPINEL ao check de dano melee
                     if (enemy->type == ENEMY_LIMAO_PRETO || 
                         enemy->type == ENEMY_LIMAO_BRANCO ||
                         enemy->type == ENEMY_SPINEL) 
@@ -729,7 +700,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                     case CHAR_FINN:
                         meleeDamage = 330;
                         break;
-                    case CHAR_GARNET: // Dano da Garnet
+                    case CHAR_GARNET: 
                         meleeDamage = 60;
                         break;
                     case CHAR_MORDECAI:
@@ -772,15 +743,13 @@ void DrawEnemyPool(void) {
             }
 
             Rectangle sourceRec = { 0.0f, 0.0f, (float)textureToDraw.width, (float)textureToDraw.height };
-            
-            // Lógica de flip da Spinel (que olha para a esquerda)
+
             if (enemy->type == ENEMY_SPINEL) {
-                if (enemy->direction == 1) { // Se for para a direita, flipa
+                if (enemy->direction == 1) {
                     sourceRec.width = -sourceRec.width;
                 }
             } else {
-            // Lógica normal (que olha para a direita)
-                if (enemy->direction == -1) { // Se for para a esquerda, flipa
+                if (enemy->direction == -1) { 
                     sourceRec.width = -sourceRec.width;
                 }
             }
