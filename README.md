@@ -132,7 +132,7 @@ Este jogo foi desenvolvido  na linguagem **C**, como um projeto da disciplina de
 <details>
 <summary> VIDEO DA JOGABILIDADE </summary>
 
-[**Video da jogabilidade**]
+[**Clique Aqui para ser redirecionado**](https://youtu.be/N_4XiQFfT-k)
 
 </details>
 
