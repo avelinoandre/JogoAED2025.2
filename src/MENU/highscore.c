@@ -81,7 +81,7 @@ void SaveNewScore(const char* name, int mode, int score) {
 }
 
 int UpdateHighscoreScreen(void) {
-    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_BACKSPACE)) {
+    if (IsKeyPressed(KEY_BACKSPACE)) {
         return 1;
     }
     return 0;
@@ -126,7 +126,7 @@ void DrawHighscoreScreen(void) {
         }
     }
 
-    const char *prompt = "ENTER para voltar";
+    const char *prompt = "BACKSPACE para voltar";
     DrawText(prompt, screenWidth/2 - MeasureText(prompt, 20)/2, screenHeight - 50, 20, GRAY);
 }
 

@@ -16,16 +16,16 @@ void DrawComoJogarScreen(void) {
     DrawText("PLAYER 2:", screenWidth/2 - 300, 420, 35, LIGHTGRAY);
     DrawText("^, <, > , v - Mover o personagem", screenWidth/2 - 300, 480, 35, LIGHTGRAY);
     DrawText("L - Atacar", screenWidth/2 - 300, 540, 35, LIGHTGRAY);
-    DrawText("R - Recarregar", screenWidth/2 - 300, 600, 35, LIGHTGRAY);
+    DrawText("K - Recarregar", screenWidth/2 - 300, 600, 35, LIGHTGRAY);
     
 
     DrawText("ENTER - Voltar ao menu", screenWidth/2 - 300, 660, 35, LIGHTGRAY);
 
-     DrawText("Pressione ENTER para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
+     DrawText("Pressione BACKSPACE para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
 }
 
 int UpdateComoJogarScreen(void) {
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_BACKSPACE)){
+    if (IsKeyPressed(KEY_BACKSPACE)){
         return 1;
     }
     return 0;
