@@ -16,7 +16,7 @@ void DrawComoJogarScreen(void) {
     DrawText("PLAYER 2:", screenWidth/2 - 300, 420, 35, LIGHTGRAY);
     DrawText("^, <, > , v - Mover o personagem", screenWidth/2 - 300, 480, 35, LIGHTGRAY);
     DrawText("L - Atacar", screenWidth/2 - 300, 540, 35, LIGHTGRAY);
-    DrawText("R - Recarregar", screenWidth/2 - 300, 600, 35, LIGHTGRAY);
+    DrawText("K - Recarregar", screenWidth/2 - 300, 600, 35, LIGHTGRAY);
     
 
     DrawText("ENTER - Voltar ao menu", screenWidth/2 - 300, 660, 35, LIGHTGRAY);
