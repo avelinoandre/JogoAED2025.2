@@ -490,7 +490,6 @@ void UnloadGame(void) {
     }
     UnloadEnemyAssets();
     UnloadBulletAssets();
-    UnloadEnemyBulletAssets();
     Item_Unload();
     Caixa_Unload(); 
 }
