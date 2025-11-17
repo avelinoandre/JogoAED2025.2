@@ -480,15 +480,12 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                     break; 
                 }
                 
-                // ##################################################################
-                // ## MODIFICAÇÃO INICIA AQUI
-                // ##################################################################
                 case ENEMY_MOJO:
                 {
                     if (enemy->isBoss) 
                     {
                         Rectangle enemyRect = GetEnemyRect(enemy);
-                        Rectangle playerRect; // Precisamos do Rect do *jogador alvo*
+                        Rectangle playerRect; 
                         if (targetPlayer == player1) {
                             playerRect = player1Rect;
                         } else {
@@ -498,9 +495,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                         float minRange = 300.0f; 
                         float maxRange = 350.0f; 
 
-                        // *** LÓGICA DE ALINHAMENTO DE TIRO (MAIS PRECISA) ***
-                        float bossGunY = enemyRect.y + (enemyRect.height * 0.6f); // Ponto de onde o tiro sai
-                        // Checa se a "arma" do boss (bossGunY) está DENTRO da altura do corpo do jogador
+                        float bossGunY = enemyRect.y + (enemyRect.height * 0.6f); 
                         bool isAlignedY = (bossGunY >= playerRect.y && bossGunY <= (playerRect.y + playerRect.height));
 
                         bool canAttack = (enemy->attackTimer <= 0);
@@ -514,7 +509,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                             enemy->attackTimer = enemy->attackCooldown;
                             
                             Vector2 spawnPos;
-                            spawnPos.y = bossGunY; // Usa a mesma altura que checamos
+                            spawnPos.y = bossGunY; 
 
                             if (enemy->direction == -1) { 
                                 spawnPos.x = enemy->position.x + (enemyRect.width * 0.2f); 
@@ -526,8 +521,6 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                         } 
                         else 
                         {
-                            // Lógica de movimento Y (Alinhamento)
-                            // A lógica anterior (tentar alinhar a arma com o centro do player) ainda é boa
                             if (!isAlignedY) {
                                 float playerCenterY = playerRect.y + (playerRect.height / 2.0f);
 
@@ -539,7 +532,6 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                                 enemy->isMoving = true;
                             }
 
-                            // Lógica de movimento X (Distanciamento)
                             if (distanceX < minRange) { 
                                 if (targetPos.x < enemy->position.x) {
                                     enemy->position.x += enemy->speed * 0.8f; 
@@ -560,14 +552,10 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                     }
                     else 
                     {
-                        // Se for um Mojo comum spawnado por engano, desativa-o
                         enemy->active = false; 
                     }
                     break;
                 }
-                // ##################################################################
-                // ## MODIFICAÇÃO TERMINA AQUI
-                // ##################################################################
             }
 
             if (targetPos.x < enemy->position.x) {
@@ -577,6 +565,44 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                 enemy->direction = 1;
             }
         }
+
+        // ##################################################################
+        // ## MODIFICAÇÃO INICIA AQUI: LÓGICA DE SEPARAÇÃO DE INIMIGOS
+        // ##################################################################
+        if (!enemy->isBoss) // O Boss não precisa se separar
+        {
+            for (int j = 0; j < MAX_ENEMIES; j++) {
+                if (i == j) continue; // Não checar contra si mesmo
+
+                Enemy *otherEnemy = &enemyPool[j];
+                if (!otherEnemy->active || otherEnemy->isBoss) continue; // Não separar de inimigos inativos ou do boss
+
+                Rectangle rectA = GetEnemyRect(enemy);
+                Rectangle rectB = GetEnemyRect(otherEnemy);
+
+                if (CheckCollisionRecs(rectA, rectB)) {
+                    // Calcular vetor de B para A (vetor que "empurra" A para longe de B)
+                    Vector2 separationVector = Vector2Subtract(enemy->position, otherEnemy->position);
+                    
+                    // Caso de sobreposição perfeita (evita divisão por zero)
+                    if (separationVector.x == 0 && separationVector.y == 0) {
+                        separationVector.x = (float)(rand() % 10) - 5.0f; // Aleatório X
+                        separationVector.y = (float)(rand() % 10) - 5.0f; // Aleatório Y
+                    }
+
+                    Vector2 separationDir = Vector2Normalize(separationVector);
+                    
+                    // Aplicar uma pequena força de separação.
+                    // Este valor (1.0f) pode ser ajustado para mais ou menos "força"
+                    float separationSpeed = 1.0f; 
+                    enemy->position = Vector2Add(enemy->position, Vector2Scale(separationDir, separationSpeed));
+                }
+            }
+        }
+        // ##################################################################
+        // ## MODIFICAÇÃO TERMINA AQUI
+        // ##################################################################
+
 
         int currentAnimFrameCount = 0;
         
@@ -703,7 +729,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                     case CHAR_FINN:
                         meleeDamage = 330;
                         break;
-                    case CHAR_GARNET:
+                    case CHAR_GARNET: // Dano da Garnet
                         meleeDamage = 60;
                         break;
                     case CHAR_MORDECAI:
