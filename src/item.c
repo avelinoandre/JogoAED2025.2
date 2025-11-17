@@ -136,7 +136,7 @@ void Item_Update(Player *player1, Player *player2, bool isPlayer2Active) {
                         break;
                     
                     case ITEM_DINHEIRO:
-                        Score_AddPoints(500); 
+                        Score_AddPoints(1000); 
                         PlaySound(itemSound);
                         break;
                     

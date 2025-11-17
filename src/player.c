@@ -66,7 +66,7 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
         
         case CHAR_FINN:
             player->speed = 6.0f;  
-            player->maxHealth = 120; 
+            player->maxHealth = 100; 
 
             player->idleFrameCount = 2; 
             player->walkFrameCount = 4;
@@ -122,7 +122,7 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
             
         case CHAR_MORDECAI:
             player->speed = 5.5f;
-            player->maxHealth = 150;
+            player->maxHealth = 130;
             
             player->idleFrameCount = 2; 
             player->walkFrameCount = 6; 

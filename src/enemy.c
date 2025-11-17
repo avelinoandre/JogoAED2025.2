@@ -218,8 +218,8 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                 
 
                 case ENEMY_LIMAO_PRETO: { 
-                    enemy->health = 60;
-                    enemy->maxHealth = 60;
+                    enemy->health = 90;
+                    enemy->maxHealth = 90;
                     enemy->speed = 2.5f; 
                     enemy->scale = 3.5f; 
                     enemy->damage = 5;   
@@ -237,8 +237,8 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                 }
 
                 case ENEMY_LIMAO_BRANCO: { 
-                    enemy->health = 60;
-                    enemy->maxHealth = 60;
+                    enemy->health = 90;
+                    enemy->maxHealth = 90;
                     enemy->speed = 2.5f; 
                     enemy->scale = 3.5f; 
                     enemy->damage = 5;   
@@ -698,7 +698,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                 
                 switch (attacker->charType) {
                     case CHAR_FINN:
-                        meleeDamage = 330;
+                        meleeDamage = 50;
                         break;
                     case CHAR_GARNET: 
                         meleeDamage = 60;

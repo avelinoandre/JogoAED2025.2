@@ -49,8 +49,8 @@ void Score_CalculateFinal(void) {
         finalScore = (int)(((float)playerScore * 1000) / gameTimer);
     }
     
-    if (finalScore > 75000) rankText = "RANK: S (SMASHING!)";
-    else if (finalScore > 50000) rankText = "RANK: A (AWESOME)";
+    if (finalScore > 65000) rankText = "RANK: S (SMASHING!)";
+    else if (finalScore > 40000) rankText = "RANK: A (AWESOME)";
     else if (finalScore > 25000) rankText = "RANK: B (COOL)";
     else if (finalScore > 15000) rankText = "RANK: C (OKAY)";
     else rankText = "RANK: D (TRY AGAIN)";
