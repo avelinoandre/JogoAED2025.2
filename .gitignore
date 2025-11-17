@@ -6,3 +6,7 @@ object/
 main
 *~
 *.bak
+*.o
+/obj/
+/bin/
+*.exe
