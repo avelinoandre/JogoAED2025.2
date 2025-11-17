@@ -9,7 +9,7 @@
 static Texture2D bulletTexture; 
 
 static Bullet bulletPool[MAX_BULLETS];
-static int currentAmmo;
+static int currentAmmo[2]; // Array para munição P1 (índice 0) e P2 (índice 1)
 
 static Sound shootSound;
 
@@ -23,7 +23,8 @@ void InitBulletPool(void) {
     }
     
     bulletTexture = LoadTexture("assets/Sprites/BALA.png"); 
-    currentAmmo = MAX_AMMO;
+    currentAmmo[0] = MAX_AMMO; // Munição P1
+    currentAmmo[1] = MAX_AMMO; // Munição P2
 
     shootSound = LoadSound("assets/audios/shootSound.wav"); 
     SetSoundVolume(shootSound, 0.4f);
@@ -47,18 +48,21 @@ void DrawBulletPool(void) {
     }
 }
 
-void SpawnBullet(Vector2 startPos, int direction) {
+// Modificado: Aceita playerOwner (1 ou 2)
+void SpawnBullet(Vector2 startPos, int direction, int playerOwner) {
 
+    int ownerIndex = playerOwner - 1; // Converte 1->0, 2->1
 
-    if (currentAmmo > 0) {
+    if (currentAmmo[ownerIndex] > 0) {
         for (int i = 0; i < MAX_BULLETS; i++) {
             if (!bulletPool[i].active) {
                 bulletPool[i].active = true;
                 bulletPool[i].position = startPos;
                 bulletPool[i].speed.x = BULLET_SPEED * direction;
                 bulletPool[i].speed.y = 0;
+                // bulletPool[i].playerOwner = playerOwner; // Se necessário
 
-                currentAmmo--;
+                currentAmmo[ownerIndex]--;
 
                 PlaySound(shootSound);
                 return;
@@ -115,26 +119,40 @@ void UnloadBulletAssets(void) {
     UnloadSound(shootSound);
 }
 
-int GetCurrentAmmo(void) {
-    return currentAmmo;
+// Modificado: Aceita playerOwner (1 ou 2)
+int GetCurrentAmmo(int playerOwner) {
+    return currentAmmo[playerOwner - 1];
 }
 
-void DrawAmmoCount(bool isReloading) {
-    int posX = 20;
-    int posY = 20 + 20 + 10;
+// Modificado: Aceita playerOwner (1 ou 2)
+void DrawAmmoCount(bool isReloading, int playerOwner) {
+    int barWidth = 200; // Largura da barra de vida para alinhamento
+    int posX;
+    int posY = 20 + 20 + 10; // Abaixo da barra de vida
     int fontSize = 20;
+    int ownerIndex = playerOwner - 1;
+
+    if (playerOwner == 1) {
+        posX = 20; // P1 (Esquerda)
+    } else {
+        posX = GetScreenWidth() - barWidth - 20; // P2 (Direita)
+    }
+
 
     if (isReloading) {
         DrawText("RECARREGANDO...", posX, posY, fontSize, ORANGE); 
-    } else if (currentAmmo == 0) {
-        DrawText("SEM MUNIÇÃO! (R)", posX, posY, fontSize, RED);
+    } else if (currentAmmo[ownerIndex] == 0) {
+        // P1 usa 'R', P2 usa 'J'
+        const char* reloadKey = (playerOwner == 1) ? "(R)" : "(J)";
+        DrawText(TextFormat("SEM MUNIÇÃO! %s", reloadKey), posX, posY, fontSize, RED);
     } else {
-        DrawText(TextFormat("Balas: %d / %d", GetCurrentAmmo(), MAX_AMMO), posX, posY, fontSize, WHITE);
+        DrawText(TextFormat("Balas: %d / %d", currentAmmo[ownerIndex], MAX_AMMO), posX, posY, fontSize, WHITE);
     }
 }
 
-void ReloadAmmo(void) {
-    currentAmmo = MAX_AMMO;
+// Modificado: Aceita playerOwner (1 ou 2)
+void ReloadAmmo(int playerOwner) {
+    currentAmmo[playerOwner - 1] = MAX_AMMO;
 }
 
 

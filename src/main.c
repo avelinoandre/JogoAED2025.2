@@ -9,14 +9,16 @@
 #include "char_select.h"  
 #include "score.h"
 #include "highscore.h"
+#include "mode_select.h" 
 #include <curl/curl.h>
 
 typedef enum {
     STATE_MENU,
+    STATE_MODE_SELECT,  
+    STATE_CHAR_SELECT, 
     STATE_GAME,
     STATE_SOBRE,
     STATE_COMO_JOGAR,
-    STATE_CHAR_SELECT, 
     STATE_FINAL,
     STATE_RANKING,
     STATE_EXIT
@@ -40,6 +42,7 @@ int main(void) {
     InitMenu(&menu);
 
     InitTelaFinal();
+    InitModeSelect(); 
     InitCharSelectMenu(); 
     InitHighscoreScreen();
     
@@ -53,7 +56,7 @@ int main(void) {
         switch (state) {
             case STATE_MENU: {
                 int selected = UpdateMenu(&menu);
-                if (selected == MENU_OPTION_PLAY) state = STATE_CHAR_SELECT; 
+                if (selected == MENU_OPTION_PLAY) state = STATE_MODE_SELECT; 
                 else if (selected == MENU_OPTION_RANKING) {
                     RefreshHighscores();
                     state = STATE_RANKING;
@@ -62,6 +65,19 @@ int main(void) {
                 else if (selected == MENU_OPTION_HOW_TO_PLAY) state = STATE_COMO_JOGAR;
                 else if (selected == MENU_OPTION_EXIT) running = false;
             } break;
+
+            case STATE_MODE_SELECT: 
+                {
+                    int modeResult = UpdateModeSelect();
+                    if (modeResult == 1) {
+                        state = STATE_CHAR_SELECT;
+                    } else if (modeResult == 2) { 
+                        state = STATE_CHAR_SELECT;
+                    } else if (modeResult == 0) { 
+                        state = STATE_MENU;
+                    }
+                }
+                break;
 
             case STATE_GAME:
                 {
@@ -134,6 +150,10 @@ int main(void) {
             case STATE_MENU:
                 DrawMenu(&menu);
                 break;
+            
+            case STATE_MODE_SELECT: 
+                DrawModeSelect();
+                break;
 
             case STATE_GAME:
                 DrawGame();
@@ -167,6 +187,7 @@ int main(void) {
     }
 
     UnloadMenu(&menu);
+    UnloadModeSelect(); 
     UnloadCharSelectMenu(); 
     UnloadTelaFinal();
     UnloadHighscoreScreen();

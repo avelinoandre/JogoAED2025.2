@@ -15,9 +15,13 @@
 #include "boss.h"
 #include "caixa.h"
 #include "item.h" 
+#include "mode_select.h" 
 
 
 static Player player;
+static Player player2; 
+static bool isPlayer2Active = false; 
+
 static const int screenWidth = 1600;
 static const int screenHeight = 900;
 static int totalEnemiesInScene = 0;
@@ -30,7 +34,11 @@ static Music gameMusic;
 static Sound gameOverSound;
 static Sound extraLifeSound;
 
+
 CharacterType selectedCharacter = CHAR_JOHNNY;
+CharacterType selectedCharacterP2 = CHAR_FINN; 
+GameMode selectedGameMode = GAME_MODE_1P;
+
 bool sceneHasCaixa[TOTAL_SCENES + 1];
 int extraLives;
 
@@ -69,7 +77,16 @@ void InitGame(void) {
     InitMap();
 
     srand(time(NULL));
-    InitPlayer(&player, screenWidth / 2, screenHeight / 2);
+    
+    selectedGameMode = GetGameMode();
+    isPlayer2Active = (selectedGameMode == GAME_MODE_2P);
+
+    InitPlayer(&player, selectedCharacter, screenWidth / 2 - 50, screenHeight / 2);
+    
+    if (isPlayer2Active) {
+        InitPlayer(&player2, selectedCharacterP2, screenWidth / 2 + 50, screenHeight / 2);
+    }
+
     
     InitEnemyPool();
     InitBulletPool();
@@ -158,21 +175,39 @@ int UpdateGame(void) {
 
     Score_Update(GetFrameTime());
 
-    if (player.health <= 0) {
+
+    if (player.health <= 0 && player.isAlive) {
         if (extraLives > 0) {
             extraLives--;
             player.health = player.maxHealth; 
             PlaySound(extraLifeSound);
         } else {
-            if (!Score_IsPlayerDead()) {
-                StopMusicStream(gameMusic);
-                PlaySound(gameOverSound); 
-                
-                Score_SetPlayerDead(true); 
-                Score_CalculateFinal();
-            }
+            player.isAlive = false; 
         }
     }
+ 
+    if (isPlayer2Active && player2.health <= 0 && player2.isAlive) {
+        if (extraLives > 0) {
+            extraLives--;
+            player2.health = player2.maxHealth;
+            PlaySound(extraLifeSound);
+        } else {
+            player2.isAlive = false; 
+        }
+    }
+
+    bool allPlayersDead = (!player.isAlive && (!isPlayer2Active || !player2.isAlive));
+    
+    if (allPlayersDead) {
+        if (!Score_IsPlayerDead()) {
+            StopMusicStream(gameMusic);
+            PlaySound(gameOverSound); 
+            
+            Score_SetPlayerDead(true); 
+            Score_CalculateFinal();
+        }
+    }
+
     
     SceneNode* currentScene = GetCurrentScene();
     
@@ -190,9 +225,9 @@ int UpdateGame(void) {
         
         lastScene = currentScene; 
     }
-    
+  
     ControleSpawn_Update(GetFrameTime(), &player);
-    Boss_Update(&player);
+    Boss_Update(&player); 
 
     if (Boss_IsDefeated() && GetActiveEnemyCount() == 0) {
         if (!Score_IsPlayerDead()) {
@@ -208,17 +243,24 @@ int UpdateGame(void) {
     }
 
     if (!Score_IsPlayerDead()) {
-        UpdatePlayer(&player, screenWidth, screenHeight,currentScene);
+        UpdatePlayer(&player, screenWidth, screenHeight, currentScene, false);
+        if (isPlayer2Active) {
+            UpdatePlayer(&player2, screenWidth, screenHeight, currentScene, true);
+        }
     }
 
-    if (selectedCharacter == CHAR_JOHNNY) 
+    if (player.charType == CHAR_JOHNNY) 
+    {
+        UpdateBulletPool(screenWidth, screenHeight);
+    }
+    else if (isPlayer2Active && player2.charType == CHAR_JOHNNY)
     {
         UpdateBulletPool(screenWidth, screenHeight);
     }
 
-    UpdateEnemyPool(&player, screenHeight,currentScene);
+    UpdateEnemyPool(&player, screenHeight, currentScene);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
-    
+
     Item_Update(&player);
     Caixa_Update(&player);
 
@@ -314,26 +356,41 @@ void DrawGame(void) {
     Caixa_Draw();
     Item_Draw();      
 
-    DrawPlayer(&player);
+    DrawPlayer(&player); 
+    if (isPlayer2Active) {
+        DrawPlayer(&player2); 
+    }
     
     DrawEnemyPool();
     DrawEnemyBulletPool();
 
-    if (selectedCharacter == CHAR_JOHNNY)
+    if (player.charType == CHAR_JOHNNY)
     {
-        DrawBulletPool(); 
-        DrawAmmoCount(Player_IsReloading(&player));
+        DrawAmmoCount(Player_IsReloading(&player), 1);
     }
 
-    DrawPlayerHealthBar(&player);
+    if (isPlayer2Active && player2.charType == CHAR_JOHNNY)
+    {
+        DrawAmmoCount(Player_IsReloading(&player2), 2);
+    }
+
+    DrawBulletPool(); 
+    
+    DrawPlayerHealthBar(&player, false);
+    
+    if (isPlayer2Active) {
+        DrawPlayerHealthBar(&player2, true);
+    }
+
     
     if (!emContagemInicial) {
         DrawEnemyCounter();
     }
 
-    DrawText(TextFormat("SCORE: %08i", Score_GetScore()), 20, 70, 20, RAYWHITE);
-    DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), 20, 95, 20, RAYWHITE);
-    DrawText(TextFormat("LIVES: %d", extraLives), 20, 120, 20, RAYWHITE); 
+    int hudCenterX = screenWidth / 2 - 100;
+    DrawText(TextFormat("SCORE: %08i", Score_GetScore()), hudCenterX, 20, 20, RAYWHITE);
+    DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), hudCenterX, 45, 20, RAYWHITE);
+    DrawText(TextFormat("LIVES: %d", extraLives), hudCenterX, 70, 20, RAYWHITE); 
     
     if (Score_IsPlayerDead()) {
         int posX = screenWidth - 923; 
@@ -389,10 +446,12 @@ void UnloadGame(void) {
 
     UnloadMap();
     UnloadPlayer(&player);
+    if (isPlayer2Active) {
+        UnloadPlayer(&player2);
+    }
     UnloadEnemyAssets();
     UnloadBulletAssets();
     UnloadEnemyBulletAssets();
     Item_Unload();
     Caixa_Unload(); 
 }
-

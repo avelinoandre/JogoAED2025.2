@@ -7,12 +7,14 @@
 #include "globals.h"  
 #include "item.h"
 #include "caixa.h"
+#include "mode_select.h" 
+#include "algoritmo_inimigos.h" 
 
 #define PLAYER_ANIM_SPEED_PARADO 50
 #define PLAYER_ANIM_SPEED_ANDANDO 15
 
 
-void InitPlayer(Player *player, int startX, int startY) {
+void InitPlayer(Player *player, CharacterType charType, int startX, int startY) {
     player->position = (Vector2){ (float)startX, (float)startY };
     player->scale = 4.0f;
     player->direction = 1;
@@ -21,6 +23,8 @@ void InitPlayer(Player *player, int startX, int startY) {
     player->currentFrame = 0;
     player->framesCounter = 0;
     player->framesSpeed = PLAYER_ANIM_SPEED_PARADO;
+    player->isAlive = true; 
+    player->charType = charType; 
 
     player->isReloading = false;
     player->reloadTimer = 0.0f;
@@ -29,7 +33,7 @@ void InitPlayer(Player *player, int startX, int startY) {
     
     char path[256];
 
-    switch (selectedCharacter) {
+    switch (charType) {
         case CHAR_JOHNNY:
             player->speed = 4.0f;
             player->maxHealth = 150;
@@ -149,23 +153,26 @@ void InitPlayer(Player *player, int startX, int startY) {
 }
 
 
+void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene, bool isPlayer2) {
 
+    if (!player->isAlive) return;
 
-void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene) {
-    
     if (player->collisionDamageTimer > 0) {
         player->collisionDamageTimer -= GetFrameTime();
     }
 
+    int playerOwner = isPlayer2 ? 2 : 1;
+
     if (player->isReloading) {
         player->reloadTimer -= GetFrameTime();
         if (player->reloadTimer <= 0.0f) {
-            ReloadAmmo();
+            ReloadAmmo(playerOwner); 
             player->isReloading = false;
         }
     }
 
-    if (IsKeyPressed(KEY_X) && !player->isAttacking && !player->isReloading) {
+    bool attackPressed = (!isPlayer2 && IsKeyPressed(KEY_X)) || (isPlayer2 && IsKeyPressed(KEY_K));
+    if (attackPressed && !player->isAttacking && !player->isReloading) {
         player->isAttacking = true;
         player->currentFrame = 0;
         player->framesCounter = 0;
@@ -186,8 +193,8 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
 
 
-        if (selectedCharacter == CHAR_JOHNNY) {
-            SpawnBullet(startPos, player->direction);
+        if (player->charType == CHAR_JOHNNY) { 
+            SpawnBullet(startPos, player->direction, playerOwner); 
         } 
         else {
             if (player->attackSound.frameCount > 0) { 
@@ -196,8 +203,9 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         }
     }
 
-    if (IsKeyPressed(KEY_R) && selectedCharacter == CHAR_JOHNNY) {
-        if (!player->isReloading && GetCurrentAmmo() < 10) { 
+    bool reloadPressed = (!isPlayer2 && IsKeyPressed(KEY_R)) || (isPlayer2 && IsKeyPressed(KEY_J));
+    if (reloadPressed && player->charType == CHAR_JOHNNY) {
+        if (!player->isReloading && GetCurrentAmmo(playerOwner) < 10) { 
             player->isReloading = true;
             player->reloadTimer = 3.0f; 
         }
@@ -207,10 +215,18 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
     player->isMoving = false;
 
     if (!player->isAttacking) { 
-        if (IsKeyDown(KEY_W)) { player->position.y -= player->speed; player->isMoving = true; }
-        if (IsKeyDown(KEY_S)) { player->position.y += player->speed; player->isMoving = true; }
-        if (IsKeyDown(KEY_A)) { player->position.x -= player->speed; player->isMoving = true; player->direction = -1; }
-        if (IsKeyDown(KEY_D)) { player->position.x += player->speed; player->isMoving = true; player->direction = 1; }
+        if (!isPlayer2) {
+            if (IsKeyDown(KEY_W)) { player->position.y -= player->speed; player->isMoving = true; }
+            if (IsKeyDown(KEY_S)) { player->position.y += player->speed; player->isMoving = true; }
+            if (IsKeyDown(KEY_A)) { player->position.x -= player->speed; player->isMoving = true; player->direction = -1; }
+            if (IsKeyDown(KEY_D)) { player->position.x += player->speed; player->isMoving = true; player->direction = 1; }
+        } else {
+            // Controles P2
+            if (IsKeyDown(KEY_UP)) { player->position.y -= player->speed; player->isMoving = true; }
+            if (IsKeyDown(KEY_DOWN)) { player->position.y += player->speed; player->isMoving = true; }
+            if (IsKeyDown(KEY_LEFT)) { player->position.x -= player->speed; player->isMoving = true; player->direction = -1; }
+            if (IsKeyDown(KEY_RIGHT)) { player->position.x += player->speed; player->isMoving = true; player->direction = 1; }
+        }
     }
     
 
@@ -277,7 +293,8 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         else {
             SceneNode* current = GetCurrentScene();
             if (current->next != NULL) {
-                if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
+                // Apenas P1 pode avançar a cena
+                if (!isPlayer2 && AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
                     DespawnAllEnemies();
                     DespawnAllPlayerBullets(); 
                     DespawnAllEnemyBullets(); 
@@ -289,6 +306,11 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
                     
                     SetCurrentScene(current->next);
                     player->position.x = 10.0f;
+                    
+                    if (GetGameMode() == GAME_MODE_2P) {
+
+                    }
+
                 } else {
                     player->position.x = screenWidth - playerWidth;
                 }
@@ -318,16 +340,11 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         player->health += 20;
         if (player->health < 0) player->health = 0;
     }
-
-    if (IsKeyPressed(KEY_L)){
-
-        player->health -= 20;
-        if (player->health < 0) player->health = 0;
-        
-    }
 }
 
 void DrawPlayer(const Player *player) {
+    if (!player->isAlive) return;
+
     Texture2D textureToDraw;
     if (player->isAttacking) {
         textureToDraw = player->attackTextures[player->currentFrame];
@@ -349,13 +366,21 @@ void DrawPlayer(const Player *player) {
     DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, WHITE);
 }
     
-void DrawPlayerHealthBar(const Player *player) {
+void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     int barWidth = 200;
     int barHeight = 20;
-    int barX = 20;
+    int barX;
     int barY = 20;
+
+    if (!isPlayer2) {
+        barX = 20;
+    } else {
+        barX = GetScreenWidth() - barWidth - 20;
+    }
+
     float healthPercentage = (float)player->health / (float)player->maxHealth;
     int currentHealthWidth = (int)(barWidth * healthPercentage);
+    
     DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
     DrawRectangle(barX, barY, currentHealthWidth, barHeight, GREEN);
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
@@ -385,7 +410,11 @@ Rectangle GetPlayerRect(const Player *player) {
 
 
 Rectangle GetPlayerMeleeRect(Player *player) {
-    if (!player->isAttacking || selectedCharacter == CHAR_JOHNNY) {
+    if (!player->isAlive) {
+        return (Rectangle){ 0, 0, 0, 0 };
+    }
+
+    if (!player->isAttacking || player->charType == CHAR_JOHNNY) {
         return (Rectangle){ 0, 0, 0, 0 };
     }
 

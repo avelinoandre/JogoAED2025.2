@@ -7,4 +7,4 @@ void DrawHighscoreScreen(void);
 void UnloadHighscoreScreen(void);
 void RefreshHighscores(void);
 
-#endif // HIGHSCORE_H
+#endif 

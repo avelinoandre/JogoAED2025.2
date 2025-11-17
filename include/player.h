@@ -17,6 +17,9 @@ typedef struct Player {
     
     bool isMoving;
     bool isAttacking;
+    
+    bool isAlive; 
+    CharacterType charType; 
 
     Texture2D *idleTextures;
     Texture2D *walkTextures;
@@ -40,15 +43,17 @@ typedef struct Player {
     float collisionDamageTimer;
 } Player;
 
-void InitPlayer(Player *player, int startX, int startY);
-void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene);
+
+void InitPlayer(Player *player, CharacterType charType, int startX, int startY);
+void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene, bool isPlayer2);
 void DrawPlayer(const Player *player);
-void DrawPlayerHealthBar(const Player *player);
+void DrawPlayerHealthBar(const Player *player, bool isPlayer2);
 void UnloadPlayer(Player *player);
 Texture2D GetPlayerCurrentTexture(const Player *player);
-void SpawnBullet(Vector2 startPos, int direction);
+void SpawnBullet(Vector2 startPos, int direction, int playerOwner);
 Rectangle GetPlayerRect(const Player *player);
 Rectangle GetPlayerMeleeRect(Player *player);
 void Player_RecebeDano(Player *player, int dano);
+bool Player_IsReloading(const Player *player);
 
 #endif

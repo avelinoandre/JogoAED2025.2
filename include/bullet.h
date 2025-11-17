@@ -21,11 +21,11 @@ typedef struct Bullet {
 void InitBulletPool(void);
 void UpdateBulletPool(int screenWidth, int screenHeight);
 void DrawBulletPool(void);
-void SpawnBullet(Vector2 startPos, int direction);
-int GetCurrentAmmo(void);
-void DrawAmmoCount(bool isReloading);
+void SpawnBullet(Vector2 startPos, int direction, int playerOwner); 
+int GetCurrentAmmo(int playerOwner);
+void DrawAmmoCount(bool isReloading, int playerOwner); 
 bool CheckBulletCollision(Rectangle targetRect, int *damageTaken);
-void ReloadAmmo(void);
+void ReloadAmmo(int playerOwner); 
 void UnloadBulletAssets(void);
 void DespawnAllPlayerBullets(void);
 
