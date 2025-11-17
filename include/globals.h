@@ -6,7 +6,7 @@
 typedef enum {
     CHAR_JOHNNY,
     CHAR_FINN,
-    CHAR_SAMURAI,
+    CHAR_GARNET,
     CHAR_MORDECAI
 } CharacterType;
 

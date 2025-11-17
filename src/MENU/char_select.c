@@ -10,18 +10,20 @@
 #define MAIN_STATE_CHAR_SELECT 3
 #define MAIN_STATE_GAME 4 // <--- Agora o jogo é o estado 4
 
+// MODIFICADO
 static const char *charNames[] = {
     "JOHNNY BRAVO",
     "FINN",
-    "SAMURAI JACK",
+    "GARNET", // Era "SAMURAI JACK"
     "MORDECAI"
 };
 
 static const char *statsNames[] = {"VIDA", "PODER","VEL"};
+// MODIFICADO
 static const char *statsGrades[4][3] = {
     {"A", "B","C"}, 
     {"B", "B","A"},
-    {"A", "A","B"}, 
+    {"A", "A","C"}, // Stats da Garnet (Era A, A, B)
     {"A", "A","A"}  
 };
 
@@ -39,14 +41,16 @@ void InitCharSelectMenu(void) {
     font = LoadFont("assets/fonts/pixelfont.ttf"); 
     if (font.texture.id == 0) font = GetFontDefault(); // Segurança caso falhe
 
+    // MODIFICADO
     portraits[0] = LoadTexture("assets/Sprites/JohnyBravo/ataque/JohnyBravo21.png");
     portraits[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finn26.png");
-    portraits[2] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samurai26.png");
+    portraits[2] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque1.png"); // Era Samurai
     portraits[3] = LoadTexture("assets/Sprites/Mordecai/Mordecaidescoladocomemoracao/mordecai77.png");
 
+    // MODIFICADO
     portraits_icon[0] = LoadTexture("assets/Sprites/icons/johnyBravo_icon.png");
     portraits_icon[1] = LoadTexture("assets/Sprites/icons/finn_icon.png"); 
-    portraits_icon[2] = LoadTexture("assets/Sprites/icons/samuraiJack_icon.png");
+    portraits_icon[2] = LoadTexture("assets/Sprites/icons/garnet_icon.png"); // Era Samurai
     portraits_icon[3] = LoadTexture("assets/Sprites/icons/mordecai_icon.png");
 }
 
@@ -104,11 +108,12 @@ void DrawCharSelectMenu(void) {
     int startX = (screenWidth - totalWidth) / 2;
     int startY = (screenHeight - columnHeight) / 2 + 30; 
 
+    // MODIFICADO
     static float nameOffsetsX[4] = {
-        30.0f, 
-        105.0f,
-        30.0f,  
-        70.0f   
+        30.0f,  // Johnny Bravo
+        105.0f, // Finn
+        90.0f,  // Garnet (Era 30.0f)
+        70.0f   // Mordecai
     };
 
     for (int i = 0; i < charCount; i++) {

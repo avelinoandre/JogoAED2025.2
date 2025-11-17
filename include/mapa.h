@@ -3,7 +3,7 @@
 
 #include "raylib.h"
 
-#define RUA_LIMITE_SUPERIOR 450.0f
+#define RUA_LIMITE_SUPERIOR 475.0f
 typedef struct SceneNode {
     Texture2D background;
     struct SceneNode* next;

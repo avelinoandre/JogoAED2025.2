@@ -703,7 +703,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                     case CHAR_FINN:
                         meleeDamage = 330;
                         break;
-                    case CHAR_SAMURAI:
+                    case CHAR_GARNET:
                         meleeDamage = 60;
                         break;
                     case CHAR_MORDECAI:

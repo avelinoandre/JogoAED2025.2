@@ -90,34 +90,40 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
             player->attackTextures[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finnataque2.png");
             break;
 
-        case CHAR_SAMURAI:
-
-            player->speed = 4.5f;  
-            player->maxHealth = 150;
+        // ##################################################################
+        // ## MODIFICAÇÃO INICIA AQUI
+        // ##################################################################
+        case CHAR_GARNET: // ERA CHAR_SAMURAI
+            player->speed = 4.0f;  // Stats (Vel 'C')
+            player->maxHealth = 150; // Stats (Vida 'A')
 
             player->idleFrameCount = 2;
             player->walkFrameCount = 4; 
             player->attackFrameCount = 2;
-            player->attackAnimSpeed = 20; 
+            player->attackAnimSpeed = 15; // Soco
             
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
             player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
 
-            player->attackSound = LoadSound("assets/audios/swordSound.wav");
-            SetSoundVolume(player->attackSound, 0.6f);
+            // Garnet usa som de soco
+            player->attackSound = LoadSound("assets/audios/punchSound.wav");
+            SetSoundVolume(player->attackSound, 0.9f);
             
-            player->idleTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraiparado/Samuraiparado1.png");
-            player->idleTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraiparado/Samurai3.png");
+            player->idleTextures[0] = LoadTexture("assets/Sprites/Garnet/Garnetparada/Garnet_parada1.png");
+            player->idleTextures[1] = LoadTexture("assets/Sprites/Garnet/Garnetparada/Garnet_parada2.png");
 
-            player->walkTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando1.png");
-            player->walkTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando2.png");
-            player->walkTextures[2] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando3.png");
-            player->walkTextures[3] = LoadTexture("assets/Sprites/Samurai/Samuraimovimentacao/Samuraiandando4.png");
+            player->walkTextures[0] = LoadTexture("assets/Sprites/Garnet/Garnetmovimentacao/Garnet_andando1.png");
+            player->walkTextures[1] = LoadTexture("assets/Sprites/Garnet/Garnetmovimentacao/Garnet_andando2.png");
+            player->walkTextures[2] = LoadTexture("assets/Sprites/Garnet/Garnetmovimentacao/Garnet_andando3.png");
+            player->walkTextures[3] = LoadTexture("assets/Sprites/Garnet/Garnetmovimentacao/Garnet_andando4.png");
 
-            player->attackTextures[0] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samuraiataque1.png");
-            player->attackTextures[1] = LoadTexture("assets/Sprites/Samurai/Samuraiataque/Samuraiataque2.png");
+            player->attackTextures[0] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque1.png");
+            player->attackTextures[1] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque2.png");
             break;
+        // ##################################################################
+        // ## MODIFICAÇÃO TERMINA AQUI
+        // ##################################################################
             
         case CHAR_MORDECAI:
             player->speed = 5.5f;
