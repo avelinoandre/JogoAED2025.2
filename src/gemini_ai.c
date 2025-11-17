@@ -96,7 +96,8 @@ static DynamicEnemyStats GetDefaultStats(void) {
     stats.damage = 25;
     stats.speed = 1.9f;
     stats.attackCooldown = 1.5f;
-    stats.scale = 7.0f; 
+    // MODIFICADO: Reduzido o tamanho padrão
+    stats.scale = 5.5f; 
     return stats;
 }
 
@@ -112,10 +113,10 @@ static char* BuildPrompt_Boss(int score, float time) {
         "Use esta tabela como guia (pode interpolar):\n"
         "Performance (Score/Tempo) * 1000 | Dificuldade   | Vida | Dano | Velocidade | Cooldown\n"
         "---------------------------------------------------------------------------------\n"
-        "< 25000 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
-        "25000 - 50000 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
-        "50000 - 75000 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
-        "> 75000 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
+        "< 15000 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
+        "16000 - 30000 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
+        "31000 - 45000 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
+        "> 45000 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
         "\n"
         "Dados do Jogador:\n";
 
@@ -228,9 +229,11 @@ DynamicEnemyStats Gemini_GetBalancedStats(int playerScore, float gameTime) {
                                 stats.speed = (float)speed->valuedouble;
                                 stats.attackCooldown = (float)cooldown->valuedouble;
 
+                                // *** LÓGICA DE ESCALA MODIFICADA ***
                                 float healthBonus = (stats.health / 100.0f) * 0.4f;
                                 float speedPenalty = (stats.speed / 2.0f) * 0.4f;
-                                stats.scale = fmaxf(6.0f, 3.5f + healthBonus - speedPenalty);
+                                // Reduzido o mínimo de 6.0f para 5.0f e a base de 3.5f para 3.0f
+                                stats.scale = fmaxf(5.0f, 3.0f + healthBonus - speedPenalty); 
 
                                 printf("INFO: Stats dinâmicos recebidos da API!\n");
                             } else {

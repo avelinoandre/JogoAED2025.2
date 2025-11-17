@@ -395,8 +395,8 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
         if (targetPlayer->isAlive && !enemy->isAttacking && enemy->hitStunTimer <= 0) { 
             
             float distanceX = fabsf(targetPos.x - enemy->position.x);
-            float distanceY = fabsf(targetPos.y - enemy->position.y); // Esta linha ainda é usada por Marvin
-            float alignThreshold = 20.0f; // Esta linha ainda é usada por Marvin
+            float distanceY = fabsf(targetPos.y - enemy->position.y); 
+            float alignThreshold = 20.0f; 
 
             
             switch(enemy->type) {
@@ -487,17 +487,21 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                 {
                     if (enemy->isBoss) 
                     {
-                        // Pega os retângulos do Boss e do Alvo para checar o alinhamento
                         Rectangle enemyRect = GetEnemyRect(enemy);
-                        Rectangle playerRect = GetPlayerRect(targetPlayer); // Pega o Rect do jogador alvo
+                        Rectangle playerRect; // Precisamos do Rect do *jogador alvo*
+                        if (targetPlayer == player1) {
+                            playerRect = player1Rect;
+                        } else {
+                            playerRect = player2Rect;
+                        }
 
                         float minRange = 300.0f; 
                         float maxRange = 350.0f; 
 
-                        // *** LÓGICA DE ALINHAMENTO CORRIGIDA ***
-                        // Checa se o jogador está *verticalmente sobreposto* ao boss
-                        bool isAlignedY = ( (playerRect.y + playerRect.height) >= enemyRect.y && 
-                                            playerRect.y <= (enemyRect.y + enemyRect.height) );
+                        // *** LÓGICA DE ALINHAMENTO DE TIRO (MAIS PRECISA) ***
+                        float bossGunY = enemyRect.y + (enemyRect.height * 0.6f); // Ponto de onde o tiro sai
+                        // Checa se a "arma" do boss (bossGunY) está DENTRO da altura do corpo do jogador
+                        bool isAlignedY = (bossGunY >= playerRect.y && bossGunY <= (playerRect.y + playerRect.height));
 
                         bool canAttack = (enemy->attackTimer <= 0);
                         bool inShootRange = (distanceX <= maxRange);
@@ -510,8 +514,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                             enemy->attackTimer = enemy->attackCooldown;
                             
                             Vector2 spawnPos;
-                            // A "arma" do Mojo está a 60% da altura do sprite
-                            spawnPos.y = enemyRect.y + (enemyRect.height * 0.6f); 
+                            spawnPos.y = bossGunY; // Usa a mesma altura que checamos
 
                             if (enemy->direction == -1) { 
                                 spawnPos.x = enemy->position.x + (enemyRect.width * 0.2f); 
@@ -523,10 +526,9 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                         } 
                         else 
                         {
-                            // *** LÓGICA DE MOVIMENTO CORRIGIDA ***
+                            // Lógica de movimento Y (Alinhamento)
+                            // A lógica anterior (tentar alinhar a arma com o centro do player) ainda é boa
                             if (!isAlignedY) {
-                                // Se não estiver alinhado, move-se para alinhar a "arma" com o "centro" do player
-                                float bossGunY = enemyRect.y + (enemyRect.height * 0.6f);
                                 float playerCenterY = playerRect.y + (playerRect.height / 2.0f);
 
                                 if (playerCenterY < bossGunY) {
@@ -537,7 +539,7 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                                 enemy->isMoving = true;
                             }
 
-                            // Lógica de movimento X (distanciamento)
+                            // Lógica de movimento X (Distanciamento)
                             if (distanceX < minRange) { 
                                 if (targetPos.x < enemy->position.x) {
                                     enemy->position.x += enemy->speed * 0.8f; 
