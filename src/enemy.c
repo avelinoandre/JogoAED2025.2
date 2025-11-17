@@ -335,10 +335,18 @@ void DespawnAllEnemies(void) {
     }
 }
 
-void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) {
+void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int screenHeight, SceneNode* currentScene) {
     
-    Rectangle playerRect = GetPlayerRect(player);
-    Rectangle meleeRect = GetPlayerMeleeRect(player); 
+    Rectangle player1Rect = GetPlayerRect(player1);
+    Rectangle player1MeleeRect = GetPlayerMeleeRect(player1); 
+    
+    Rectangle player2Rect = {0};
+    Rectangle player2MeleeRect = {0};
+    if (isPlayer2Active) {
+        player2Rect = GetPlayerRect(player2);
+        player2MeleeRect = GetPlayerMeleeRect(player2);
+    }
+
 
     for (int i = 0; i < MAX_ENEMIES; i++) {
         
@@ -358,27 +366,40 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
             enemy->hitStunTimer -= GetFrameTime();
         }
 
-        if (!enemy->isAttacking && enemy->hitStunTimer <= 0) { 
+        Player *targetPlayer = player1; 
+        Vector2 targetPos = player1->position;
+        float distToP1 = Vector2Distance(enemy->position, player1->position);
+
+        if (isPlayer2Active && player2->isAlive) {
+            float distToP2 = Vector2Distance(enemy->position, player2->position);
             
-            Vector2 playerPos = player->position;
+            if (!player1->isAlive) {
+                targetPlayer = player2; 
+            } else if (distToP2 < distToP1) {
+                targetPlayer = player2; 
+            }
+        }
+
+        targetPos = targetPlayer->position;
+
+        if (targetPlayer->isAlive && !enemy->isAttacking && enemy->hitStunTimer <= 0) { 
             
-            float distanceX = fabsf(playerPos.x - enemy->position.x);
-            float distanceY = fabsf(playerPos.y - enemy->position.y);
+            float distanceX = fabsf(targetPos.x - enemy->position.x);
+            float distanceY = fabsf(targetPos.y - enemy->position.y);
             float alignThreshold = 20.0f; 
 
             
             switch(enemy->type) {
 
                 case ENEMY_GARNET:
-
                 case ENEMY_LIMAO_PRETO:
                 case ENEMY_LIMAO_BRANCO:
                 {
-                    float distance = Vector2Distance(playerPos, enemy->position);
+                    float distance = Vector2Distance(targetPos, enemy->position);
                     float attackRange = 100.0f; 
 
                     if (distance > attackRange) { 
-                        Vector2 direction = Vector2Normalize(Vector2Subtract(playerPos, enemy->position)); 
+                        Vector2 direction = Vector2Normalize(Vector2Subtract(targetPos, enemy->position)); 
                         enemy->position = Vector2Add(enemy->position, Vector2Scale(direction, enemy->speed));
                         enemy->isMoving = true;
                     } else if (enemy->attackTimer <= 0) { 
@@ -422,7 +443,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                     else 
                     {
                         if (!isAlignedY) {
-                            if (playerPos.y < enemy->position.y) {
+                            if (targetPos.y < enemy->position.y) {
                                 enemy->position.y -= enemy->speed * 0.7f;
                             } else {
                                 enemy->position.y += enemy->speed * 0.7f;
@@ -431,7 +452,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                         }
 
                         if (distanceX < minRange) { 
-                            if (playerPos.x < enemy->position.x) {
+                            if (targetPos.x < enemy->position.x) {
                                 enemy->position.x += enemy->speed * 0.8f; 
                             } else {
                                 enemy->position.x -= enemy->speed * 0.8f;
@@ -439,7 +460,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                             enemy->isMoving = true;
                         } 
                         else if (distanceX > maxRange) { 
-                            if (playerPos.x < enemy->position.x) {
+                            if (targetPos.x < enemy->position.x) {
                                 enemy->position.x -= enemy->speed;
                             } else {
                                 enemy->position.x += enemy->speed;
@@ -481,7 +502,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                     else 
                     {
                         if (!isAlignedY) {
-                            if (playerPos.y < enemy->position.y) {
+                            if (targetPos.y < enemy->position.y) {
                                 enemy->position.y -= enemy->speed * 0.7f;
                             } else {
                                 enemy->position.y += enemy->speed * 0.7f;
@@ -490,7 +511,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                         }
 
                         if (distanceX < minRange) { 
-                            if (playerPos.x < enemy->position.x) {
+                            if (targetPos.x < enemy->position.x) {
                                 enemy->position.x += enemy->speed * 0.8f;
                             } else {
                                 enemy->position.x -= enemy->speed * 0.8f;
@@ -498,7 +519,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                             enemy->isMoving = true;
                         } 
                         else if (distanceX > maxRange) { 
-                            if (playerPos.x < enemy->position.x) {
+                            if (targetPos.x < enemy->position.x) {
                                 enemy->position.x -= enemy->speed;
                             } else {
                                 enemy->position.x += enemy->speed;
@@ -510,14 +531,14 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                 }
             }
 
-            if (playerPos.x < enemy->position.x) {
+            if (targetPos.x < enemy->position.x) {
                 enemy->direction = -1;
             }
-            if (playerPos.x > enemy->position.x) {
+            if (targetPos.x > enemy->position.x) {
                 enemy->direction = 1;
             }
         }
-        
+
         int currentAnimFrameCount = 0;
         
         if (enemy->isAttacking) {
@@ -533,8 +554,11 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
                         enemy->type == ENEMY_LIMAO_PRETO ||
                         enemy->type == ENEMY_LIMAO_BRANCO) 
                     {
-                        if (CheckCollisionRecs(GetEnemyRect(enemy), playerRect)) {
-                            Player_RecebeDano(player, enemy->damage); 
+                        if (player1->isAlive && CheckCollisionRecs(GetEnemyRect(enemy), player1Rect)) {
+                            Player_RecebeDano(player1, enemy->damage); 
+                        }
+                        if (isPlayer2Active && player2->isAlive && CheckCollisionRecs(GetEnemyRect(enemy), player2Rect)) {
+                             Player_RecebeDano(player2, enemy->damage); 
                         }
                     }
                 }
@@ -597,53 +621,65 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
             enemy->position.x = limiteDireito - enemyRect.width;
         }
 
-        if (CheckCollisionRecs(playerRect, enemyRect)) {
-            Player_RecebeDano(player, 3); 
+        if (player1->isAlive && CheckCollisionRecs(player1Rect, enemyRect)) {
+            Player_RecebeDano(player1, 3); 
+        }
+        if (isPlayer2Active && player2->isAlive && CheckCollisionRecs(player2Rect, enemyRect)) {
+            Player_RecebeDano(player2, 3);
         }
 
         int damageTaken = 0;
-        if (selectedCharacter == CHAR_JOHNNY) {
-            if (CheckBulletCollision(enemyRect, &damageTaken)) {
-                if (enemy->isBoss && Boss_IsShielded()) {
-                } else {
-                    enemy->health -= damageTaken;
-                    enemy->hitStunTimer = 0.1f; 
-                }
-            }
-        } else {
+        bool hitByMelee = false;
+        int meleeDamage = 0;
+        Player* attacker = NULL;
 
-            if (player->isAttacking && meleeRect.width > 0 && CheckCollisionRecs(enemyRect, meleeRect)) {
-                if(enemy->hitStunTimer <= 0.0f) { 
-  
-                    if (enemy->isBoss && Boss_IsShielded()) {
-                        enemy->hitStunTimer = 0.1f; 
-                    } else {
-                        
-                        int meleeDamage = 50; 
-                        
-                        switch (selectedCharacter) {
-                            case CHAR_FINN:
-                                meleeDamage = 330;
-                                break;
-                            case CHAR_SAMURAI:
-                                meleeDamage = 60;
-                                break;
-                            case CHAR_MORDECAI:
-                                meleeDamage = 50; 
-                                break;
-                            case CHAR_JOHNNY: 
-                                meleeDamage = 0; 
-                                break;
-                        }
-                        
-                        enemy->health -= meleeDamage; 
-                        enemy->hitStunTimer = 0.5f;
-                        enemy->isAttacking = false; 
-                    }
-                }
+        if (CheckBulletCollision(enemyRect, &damageTaken)) {
+            if (enemy->isBoss && Boss_IsShielded()) {
+            } else {
+                enemy->health -= damageTaken;
+                enemy->hitStunTimer = 0.1f; 
+            }
+        }
+        if (player1->charType != CHAR_JOHNNY && player1->isAttacking && player1MeleeRect.width > 0 && CheckCollisionRecs(enemyRect, player1MeleeRect)) {
+            if(enemy->hitStunTimer <= 0.0f) { 
+                hitByMelee = true;
+                attacker = player1;
             }
         }
 
+        if (!hitByMelee && isPlayer2Active && player2->charType != CHAR_JOHNNY && player2->isAttacking && player2MeleeRect.width > 0 && CheckCollisionRecs(enemyRect, player2MeleeRect)) {
+             if(enemy->hitStunTimer <= 0.0f) {
+                hitByMelee = true;
+                attacker = player2;
+             }
+        }
+ 
+        if (hitByMelee) {
+            if (enemy->isBoss && Boss_IsShielded()) {
+                enemy->hitStunTimer = 0.1f; 
+            } else {
+                
+                switch (attacker->charType) {
+                    case CHAR_FINN:
+                        meleeDamage = 330;
+                        break;
+                    case CHAR_SAMURAI:
+                        meleeDamage = 60;
+                        break;
+                    case CHAR_MORDECAI:
+                        meleeDamage = 50; 
+                        break;
+                    case CHAR_JOHNNY: 
+                        meleeDamage = 0; 
+                        break;
+                }
+                
+                enemy->health -= meleeDamage; 
+                enemy->hitStunTimer = 0.5f;
+                enemy->isAttacking = false;
+            }
+        }
+   
         if (enemy->health <= 0) {
             if (enemy->active) { 
                 Score_AddPoints(enemy->maxHealth); 
@@ -652,6 +688,7 @@ void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene) 
         }
     }
 }
+
 
 void DrawEnemyPool(void) {
     

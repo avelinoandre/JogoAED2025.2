@@ -110,12 +110,12 @@ static char* BuildPrompt_Boss(int score, float time) {
         "Responda APENAS com um objeto JSON contendo os seguintes atributos:\n"
         "{ \"vida\": int, \"dano\": int, \"velocidade\": float, \"cooldown\": float }\n\n"
         "Use esta tabela como guia (pode interpolar):\n"
-        "Performance (Score/Tempo) | Dificuldade   | Vida | Dano | Velocidade | Cooldown\n"
+        "Performance (Score/Tempo) * 1000 | Dificuldade   | Vida | Dano | Velocidade | Cooldown\n"
         "---------------------------------------------------------------------------------\n"
-        "< 15 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
-        "16 - 30 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
-        "31 - 45 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
-        "> 45 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
+        "< 15000 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
+        "16000 - 30000 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
+        "31000 - 45000 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
+        "> 45000 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
         "\n"
         "Dados do Jogador:\n";
 

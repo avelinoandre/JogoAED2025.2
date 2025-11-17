@@ -55,7 +55,8 @@ void Caixa_Unload(void) {
     UnloadTexture(caixaTexture);
 }
 
-void Caixa_Update(Player *player) {
+// MODIFICADO: Lógica de atualização refeita para aceitar P1 e P2
+void Caixa_Update(Player *player1, Player *player2, bool isPlayer2Active) {
     for (int i = 0; i < MAX_CAIXAS; i++) {
         Caixa *caixa = &caixaPool[i];
         if (!caixa->active) continue;
@@ -68,20 +69,32 @@ void Caixa_Update(Player *player) {
         bool hit = false;
         int damageTaken = 0; 
 
-        if (selectedCharacter == CHAR_JOHNNY) {
-            if (CheckBulletCollision(caixaRect, &damageTaken)) {
+        // Verifica dano de bala (de qualquer jogador que seja Johnny)
+        if (CheckBulletCollision(caixaRect, &damageTaken)) {
+            hit = true;
+        }
+
+        // Verifica melee do P1
+        if (!hit && player1->charType != CHAR_JOHNNY && player1->isAttacking && caixa->hitStunTimer <= 0) {
+            Rectangle meleeRectP1 = GetPlayerMeleeRect(player1);
+            if (meleeRectP1.width > 0 && CheckCollisionRecs(meleeRectP1, caixaRect)) {
                 hit = true;
             }
-        } else {
-            Rectangle meleeRect = GetPlayerMeleeRect(player);
-            if (player->isAttacking && meleeRect.width > 0 && caixa->hitStunTimer <= 0 && CheckCollisionRecs(meleeRect, caixaRect)) {
+        }
+        
+        // Verifica melee do P2
+        if (!hit && isPlayer2Active && player2->charType != CHAR_JOHNNY && player2->isAttacking && caixa->hitStunTimer <= 0) {
+            Rectangle meleeRectP2 = GetPlayerMeleeRect(player2);
+            if (meleeRectP2.width > 0 && CheckCollisionRecs(meleeRectP2, caixaRect)) {
                 hit = true;
-                caixa->hitStunTimer = 0.5f; 
             }
         }
 
+
         if (hit) {
+            caixa->hitStunTimer = 0.5f; // Aplica hitstun para melee ou bala
             caixa->health--;
+            
             if (caixa->health <= 0) {
                 caixa->active = false;
 
@@ -91,6 +104,7 @@ void Caixa_Update(Player *player) {
         }
     }
 }
+
 
 void Caixa_Draw(void) {
     for (int i = 0; i < MAX_CAIXAS; i++) {

@@ -58,7 +58,8 @@ void InitEnemyPool(void);
 
 void UnloadEnemyAssets(void);
 
-void UpdateEnemyPool(Player *player, int screenHeight, SceneNode* currentScene);
+// MODIFICADO: Agora aceita ambos os jogadores e o estado de jogo
+void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int screenHeight, SceneNode* currentScene);
 
 void DrawEnemyPool(void);
 

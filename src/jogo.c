@@ -258,11 +258,15 @@ int UpdateGame(void) {
         UpdateBulletPool(screenWidth, screenHeight);
     }
 
-    UpdateEnemyPool(&player, screenHeight, currentScene);
+    // MODIFICADO: Passa ambos os jogadores para a atualização dos inimigos
+    UpdateEnemyPool(&player, &player2, isPlayer2Active, screenHeight, currentScene);
     UpdateEnemyBulletPool(screenWidth, screenHeight);
 
+    // MODIFICADO: Passa ambos os jogadores para a atualização dos itens e caixas
     Item_Update(&player);
-    Caixa_Update(&player);
+    if(isPlayer2Active) Item_Update(&player2); // Faz o P2 também pegar itens
+
+    Caixa_Update(&player, &player2, isPlayer2Active);
 
     return 0; 
 }
