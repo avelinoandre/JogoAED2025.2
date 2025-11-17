@@ -19,7 +19,7 @@ void DrawComoJogarScreen(void) {
     DrawText("K - Recarregar", screenWidth/2 - 300, 600, 35, LIGHTGRAY);
     
 
-    DrawText("ENTER - Voltar ao menu", screenWidth/2 - 300, 660, 35, LIGHTGRAY);
+    DrawText("BACKSPACE - Voltar ao menu", screenWidth/2 - 300, 660, 35, LIGHTGRAY);
 
      DrawText("Pressione BACKSPACE para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
 }
