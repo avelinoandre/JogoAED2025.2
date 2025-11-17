@@ -28,6 +28,7 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
 
     player->isReloading = false;
     player->reloadTimer = 0.0f;
+    player->collisionDamageTimer = 0.0f; // Adicionado para inicializar
 
     player->attackSound = (Sound){ 0 };
     
@@ -152,10 +153,10 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
     player->health = player->maxHealth;
 }
 
+// MODIFICADO: Retorna 'bool'
+bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene, bool isPlayer2) {
 
-void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene, bool isPlayer2) {
-
-    if (!player->isAlive) return;
+    if (!player->isAlive) return false; // MODIFICADO: Retorna false
 
     if (player->collisionDamageTimer > 0) {
         player->collisionDamageTimer -= GetFrameTime();
@@ -293,24 +294,11 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         else {
             SceneNode* current = GetCurrentScene();
             if (current->next != NULL) {
-                // Apenas P1 pode avançar a cena
-                if (!isPlayer2 && AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
-                    DespawnAllEnemies();
-                    DespawnAllPlayerBullets(); 
-                    DespawnAllEnemyBullets(); 
-                    
-                    Item_DespawnAll();
-                    Caixa_DespawnAll();
-
-                    current->isCleared = true;
-                    
-                    SetCurrentScene(current->next);
-                    player->position.x = 10.0f;
-                    
-                    if (GetGameMode() == GAME_MODE_2P) {
-
-                    }
-
+                
+                // MODIFICADO: Agora P1 e P2 podem ativar a mudança
+                // E apenas sinaliza, não executa a mudança
+                if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
+                    return true; // Sinaliza que quer mudar de cena
                 } else {
                     player->position.x = screenWidth - playerWidth;
                 }
@@ -340,6 +328,8 @@ void UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         player->health += 20;
         if (player->health < 0) player->health = 0;
     }
+
+    return false; // MODIFICADO: Retorno padrão
 }
 
 void DrawPlayer(const Player *player) {
@@ -452,6 +442,11 @@ void UnloadPlayer(Player *player) {
     free(player->idleTextures);
     free(player->walkTextures);
     free(player->attackTextures);
+
+    // MODIFICADO: Descarrega o som de ataque se ele foi carregado
+    if (player->attackSound.frameCount > 0) {
+        UnloadSound(player->attackSound);
+    }
 }
 bool Player_IsReloading(const Player *player) {
     return player->isReloading;
