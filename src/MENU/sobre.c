@@ -8,8 +8,10 @@ void DrawSobreScreen(void) {
 
     DrawText("SMASH TOONS", screenWidth/2 - 300, 120, 80, YELLOW);
 
-    DrawText("Um jogo Beat 'em Up desenvolvido em C com Raylib.", screenWidth/2 - 420, 240, 35, LIGHTGRAY);
-    DrawText("Desenvolvido por André, Caio, Gabriel e Rodrigo.", screenWidth/2 - 420, 300, 35, LIGHTGRAY);
+    DrawText("O macaco louco, junto com outros vilões, criaram um portal", screenWidth/2 - 500, 240, 35, LIGHTGRAY);
+    DrawText("para viajar pelo multiverso e roubar todos os poderes", screenWidth/2 - 500, 300, 35, LIGHTGRAY);
+    DrawText("dos heróis da Cartoon, os  quais se uniram para enfrenta-los", screenWidth/2 - 500, 360, 35, LIGHTGRAY);
+    DrawText("e defender o multiverso da Cartoon dos vilões", screenWidth/2 - 500, 400, 35, LIGHTGRAY);
 
     DrawText("Pressione ENTER para voltar", screenWidth/2 - 180, screenHeight - 80, 20, GRAY);
 }
