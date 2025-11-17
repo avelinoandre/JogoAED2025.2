@@ -112,10 +112,10 @@ static char* BuildPrompt_Boss(int score, float time) {
         "Use esta tabela como guia (pode interpolar):\n"
         "Performance (Score/Tempo) * 1000 | Dificuldade   | Vida | Dano | Velocidade | Cooldown\n"
         "---------------------------------------------------------------------------------\n"
-        "< 15000 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
-        "16000 - 30000 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
-        "31000 - 45000 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
-        "> 45000 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
+        "< 25000 (Fraco)                | Facil         | 350  | 20   | 1.7        | 1.7\n"
+        "25000 - 50000 (Ok)             | Normal        | 500  | 25   | 1.9        | 1.5\n"
+        "50000 - 75000 (Bom)           | Dificil       | 650  | 30   | 2.1        | 1.3\n"
+        "> 75000 (Excelente)        | Muito Dificil | 800  | 35   | 2.3        | 1.1\n"
         "\n"
         "Dados do Jogador:\n";
 

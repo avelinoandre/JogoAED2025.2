@@ -9,11 +9,11 @@
 #define MAX_ENEMIES 10 
 
 typedef enum {
-    ENEMY_GARNET,  
     ENEMY_LIMAO_BRANCO,
     ENEMY_LIMAO_PRETO,   
-    ENEMY_MOJO,   
-    ENEMY_MARVIN   
+    ENEMY_MARVIN,
+    ENEMY_SPINEL,     
+    ENEMY_MOJO     
 } EnemyType;
 
 typedef struct Enemy {
@@ -58,7 +58,6 @@ void InitEnemyPool(void);
 
 void UnloadEnemyAssets(void);
 
-// MODIFICADO: Agora aceita ambos os jogadores e o estado de jogo
 void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int screenHeight, SceneNode* currentScene);
 
 void DrawEnemyPool(void);

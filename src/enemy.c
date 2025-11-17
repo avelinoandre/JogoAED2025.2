@@ -15,14 +15,7 @@
 static Enemy enemyPool[MAX_ENEMIES];
 
 
-#define GARNET_IDLE_FRAMES 2
-#define GARNET_WALK_FRAMES 4
-#define GARNET_ATTACK_FRAMES 2
-#define GARNET_ATTACK_SPEED 15 
-static Texture2D garnetIdleTextures[GARNET_IDLE_FRAMES];
-static Texture2D garnetWalkTextures[GARNET_WALK_FRAMES];
-static Texture2D garnetAttackTextures[GARNET_ATTACK_FRAMES];
-
+// REMOVIDO Bloco da GARNET
 
 #define LIMAO_PRETO_IDLE_FRAMES 2
 #define LIMAO_PRETO_WALK_FRAMES 4
@@ -42,6 +35,7 @@ static Texture2D LimaoBrancoWalkTextures[LIMAO_BRANCO_WALK_FRAMES];
 static Texture2D LimaoBrancoAttackTextures[LIMAO_BRANCO_ATTACK_FRAMES];
 
 
+// MANTIDO - MOJO (Agora é o Boss)
 #define Mojo_IDLE_FRAMES 2
 #define Mojo_WALK_FRAMES 2
 #define Mojo_ATTACK_FRAMES 1
@@ -58,6 +52,15 @@ static Texture2D MojoAttackTextures[Mojo_ATTACK_FRAMES];
 static Texture2D MarvinIdleTextures[Marvin_IDLE_FRAMES];
 static Texture2D MarvinWalkTextures[Marvin_WALK_FRAMES];
 static Texture2D MarvinAttackTextures[Marvin_ATTACK_FRAMES];
+
+// ADICIONADO - SPINEL (Novo inimigo)
+#define SPINEL_IDLE_FRAMES 1
+#define SPINEL_WALK_FRAMES 4
+#define SPINEL_ATTACK_FRAMES 2
+#define SPINEL_ATTACK_SPEED 10
+static Texture2D spinelIdleTextures[SPINEL_IDLE_FRAMES];
+static Texture2D spinelWalkTextures[SPINEL_WALK_FRAMES];
+static Texture2D spinelAttackTextures[SPINEL_ATTACK_FRAMES];
 
 
 Texture2D GetEnemyCurrentTexture(const Enemy *enemy) {
@@ -95,19 +98,7 @@ Rectangle GetEnemyRect(const Enemy *enemy) {
 void InitEnemyPool(void) {
     char path[256]; 
 
-
-    for (int i = 0; i < GARNET_IDLE_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/Garnet/Garnetparada/Garnet_parada%d.png", i + 1);
-        garnetIdleTextures[i] = LoadTexture(path);
-    }
-    for (int i = 0; i < GARNET_WALK_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/Garnet/Garnetmovimentacao/Garnet_andando%d.png", i + 1);
-        garnetWalkTextures[i] = LoadTexture(path);
-    }
-    for (int i = 0; i < GARNET_ATTACK_FRAMES; i++) {
-        sprintf(path, "assets/Sprites/Garnet/Garnetataque/Garnet_ataque%d.png", i + 1);
-        garnetAttackTextures[i] = LoadTexture(path);
-    }
+    // REMOVIDO Bloco de carregamento da GARNET
     
     
     for (int i = 0; i < LIMAO_PRETO_IDLE_FRAMES; i++) {
@@ -137,7 +128,7 @@ void InitEnemyPool(void) {
         LimaoBrancoAttackTextures[i] = LoadTexture(path);
     }
 
-    
+    // MANTIDO - Carregamento do MOJO (Boss)
     for (int i = 0; i < Mojo_IDLE_FRAMES; i++) {
         sprintf(path, "assets/Sprites/Mojo/Mojoparado/Mojoparado%d.png", i + 1);
         MojoIdleTextures[i] = LoadTexture(path);
@@ -165,6 +156,21 @@ void InitEnemyPool(void) {
         MarvinAttackTextures[i] = LoadTexture(path);
     }
 
+    // ADICIONADO - Carregamento da SPINEL
+    for (int i = 0; i < SPINEL_IDLE_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/Spinel/parado/spinel_parado%d.png", i + 1);
+        spinelIdleTextures[i] = LoadTexture(path);
+    }
+    for (int i = 0; i < SPINEL_WALK_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/Spinel/andando/spinel_andando%d.png", i + 1);
+        spinelWalkTextures[i] = LoadTexture(path);
+    }
+    for (int i = 0; i < SPINEL_ATTACK_FRAMES; i++) {
+        sprintf(path, "assets/Sprites/Spinel/ataque/spinel_ataque%d.png", i + 1);
+        spinelAttackTextures[i] = LoadTexture(path);
+    }
+
+
     for (int i = 0; i < MAX_ENEMIES; i++) {
         enemyPool[i].active = false;
         enemyPool[i].idleTextures = NULL; 
@@ -175,11 +181,7 @@ void InitEnemyPool(void) {
 
 void UnloadEnemyAssets(void) {
     
-    
-    for (int i = 0; i < GARNET_IDLE_FRAMES; i++) UnloadTexture(garnetIdleTextures[i]);
-    for (int i = 0; i < GARNET_WALK_FRAMES; i++) UnloadTexture(garnetWalkTextures[i]);
-    for (int i = 0; i < GARNET_ATTACK_FRAMES; i++) UnloadTexture(garnetAttackTextures[i]);
-
+    // REMOVIDO Bloco de unload da GARNET
 
     for (int i = 0; i < LIMAO_PRETO_IDLE_FRAMES; i++) UnloadTexture(LimaoPretoIdleTextures[i]);
     for (int i = 0; i < LIMAO_PRETO_WALK_FRAMES; i++) UnloadTexture(LimaoPretoWalkTextures[i]);
@@ -191,6 +193,7 @@ void UnloadEnemyAssets(void) {
     for (int i = 0; i < LIMAO_BRANCO_ATTACK_FRAMES; i++) UnloadTexture(LimaoBrancoAttackTextures[i]);
 
    
+    // MANTIDO - Unload do MOJO (Boss)
     for (int i = 0; i < Mojo_IDLE_FRAMES; i++) UnloadTexture(MojoIdleTextures[i]);
     for (int i = 0; i < Mojo_WALK_FRAMES; i++) UnloadTexture(MojoWalkTextures[i]);
     for (int i = 0; i < Mojo_ATTACK_FRAMES; i++) UnloadTexture(MojoAttackTextures[i]);
@@ -199,6 +202,11 @@ void UnloadEnemyAssets(void) {
     for (int i = 0; i < Marvin_IDLE_FRAMES; i++) UnloadTexture(MarvinIdleTextures[i]);
     for (int i = 0; i < Marvin_WALK_FRAMES; i++) UnloadTexture(MarvinWalkTextures[i]);
     for (int i = 0; i < Marvin_ATTACK_FRAMES; i++) UnloadTexture(MarvinAttackTextures[i]);
+
+    // ADICIONADO - Unload da SPINEL
+    for (int i = 0; i < SPINEL_IDLE_FRAMES; i++) UnloadTexture(spinelIdleTextures[i]);
+    for (int i = 0; i < SPINEL_WALK_FRAMES; i++) UnloadTexture(spinelWalkTextures[i]);
+    for (int i = 0; i < SPINEL_ATTACK_FRAMES; i++) UnloadTexture(spinelAttackTextures[i]);
 }
 
 Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
@@ -223,24 +231,7 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
 
             switch (type) {
                 
-                case ENEMY_GARNET: {
-                    enemy->health = 100;
-                    enemy->maxHealth = 100;
-                    enemy->speed = 1.8f;
-                    enemy->scale = 4.0f;
-                    enemy->damage = 10;
-                    enemy->attackCooldown = 1.2f; 
-                    enemy->framesSpeed = GARNET_ATTACK_SPEED;
-
-                    enemy->idleFrameCount = GARNET_IDLE_FRAMES;
-                    enemy->walkFrameCount = GARNET_WALK_FRAMES;
-                    enemy->attackFrameCount = GARNET_ATTACK_FRAMES;
-                    
-                    enemy->idleTextures = garnetIdleTextures;
-                    enemy->walkTextures = garnetWalkTextures;
-                    enemy->attackTextures = garnetAttackTextures;
-                    break;
-                }
+                // REMOVIDO case ENEMY_GARNET
 
                 case ENEMY_LIMAO_PRETO: { 
                     enemy->health = 60;
@@ -260,26 +251,26 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     enemy->attackTextures = LimaoPretoAttackTextures;
                     break;
                 }
-                        
-                case ENEMY_MOJO: { 
-                    enemy->health = 200;
-                    enemy->maxHealth = 200;
-                    enemy->speed = 1.0f; 
-                    enemy->scale = 4.5f; 
-                    enemy->damage = 20;   
-                    enemy->attackCooldown = 2.1f; 
-                    enemy->framesSpeed = Mojo_ATTACK_SPEED;
 
-                    enemy->idleFrameCount = Mojo_IDLE_FRAMES;
-                    enemy->walkFrameCount = Mojo_WALK_FRAMES;
-                    enemy->attackFrameCount = Mojo_ATTACK_FRAMES;
-                    
-                    enemy->idleTextures = MojoIdleTextures;
-                    enemy->walkTextures = MojoWalkTextures;
-                    enemy->attackTextures = MojoAttackTextures;
+                case ENEMY_LIMAO_BRANCO: { 
+                    enemy->health = 60;
+                    enemy->maxHealth = 60;
+                    enemy->speed = 2.5f; 
+                    enemy->scale = 3.5f; 
+                    enemy->damage = 5;   
+                    enemy->attackCooldown = 0.8f; 
+                    enemy->framesSpeed = LIMAO_BRANCO_ATTACK_SPEED; 
+
+                    enemy->idleFrameCount = LIMAO_BRANCO_IDLE_FRAMES;
+                    enemy->walkFrameCount = LIMAO_BRANCO_WALK_FRAMES;
+                    enemy->attackFrameCount = LIMAO_BRANCO_ATTACK_FRAMES;
+
+                    enemy->idleTextures = LimaoBrancoIdleTextures;
+                    enemy->walkTextures = LimaoBrancoWalkTextures;
+                    enemy->attackTextures = LimaoBrancoAttackTextures;
                     break;
                 }
-
+                        
                 case ENEMY_MARVIN: { 
                     enemy->health = 80;
                     enemy->maxHealth = 80;
@@ -299,22 +290,41 @@ Enemy* SpawnEnemy(EnemyType type, Vector2 position) {
                     break;
                 }
 
-                case ENEMY_LIMAO_BRANCO: { 
-                    enemy->health = 60;
-                    enemy->maxHealth = 60;
-                    enemy->speed = 2.5f; 
-                    enemy->scale = 3.5f; 
-                    enemy->damage = 5;   
-                    enemy->attackCooldown = 0.8f; 
-                    enemy->framesSpeed = LIMAO_BRANCO_ATTACK_SPEED; 
+                case ENEMY_SPINEL: { // (Stats melee)
+                    enemy->health = 150; 
+                    enemy->maxHealth = 150;
+                    enemy->speed = 2.0f; 
+                    enemy->scale = 4.0f; 
+                    enemy->damage = 18;   
+                    enemy->attackCooldown = 1.5f; 
+                    enemy->framesSpeed = SPINEL_ATTACK_SPEED;
 
-                    enemy->idleFrameCount = LIMAO_BRANCO_IDLE_FRAMES;
-                    enemy->walkFrameCount = LIMAO_BRANCO_WALK_FRAMES;
-                    enemy->attackFrameCount = LIMAO_BRANCO_ATTACK_FRAMES;
+                    enemy->idleFrameCount = SPINEL_IDLE_FRAMES;
+                    enemy->walkFrameCount = SPINEL_WALK_FRAMES;
+                    enemy->attackFrameCount = SPINEL_ATTACK_FRAMES;
+                    
+                    enemy->idleTextures = spinelIdleTextures;
+                    enemy->walkTextures = spinelWalkTextures;
+                    enemy->attackTextures = spinelAttackTextures;
+                    break;
+                }
 
-                    enemy->idleTextures = LimaoBrancoIdleTextures;
-                    enemy->walkTextures = LimaoBrancoWalkTextures;
-                    enemy->attackTextures = LimaoBrancoAttackTextures;
+                case ENEMY_MOJO: { // Base para o Boss
+                    enemy->health = 200;
+                    enemy->maxHealth = 200;
+                    enemy->speed = 1.0f; 
+                    enemy->scale = 4.5f; 
+                    enemy->damage = 20;   
+                    enemy->attackCooldown = 2.1f; 
+                    enemy->framesSpeed = Mojo_ATTACK_SPEED;
+
+                    enemy->idleFrameCount = Mojo_IDLE_FRAMES;
+                    enemy->walkFrameCount = Mojo_WALK_FRAMES;
+                    enemy->attackFrameCount = Mojo_ATTACK_FRAMES;
+                    
+                    enemy->idleTextures = MojoIdleTextures;
+                    enemy->walkTextures = MojoWalkTextures;
+                    enemy->attackTextures = MojoAttackTextures;
                     break;
                 }
 
@@ -385,15 +395,15 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
         if (targetPlayer->isAlive && !enemy->isAttacking && enemy->hitStunTimer <= 0) { 
             
             float distanceX = fabsf(targetPos.x - enemy->position.x);
-            float distanceY = fabsf(targetPos.y - enemy->position.y);
-            float alignThreshold = 20.0f; 
+            float distanceY = fabsf(targetPos.y - enemy->position.y); // Esta linha ainda é usada por Marvin
+            float alignThreshold = 20.0f; // Esta linha ainda é usada por Marvin
 
             
             switch(enemy->type) {
 
-                case ENEMY_GARNET:
                 case ENEMY_LIMAO_PRETO:
                 case ENEMY_LIMAO_BRANCO:
+                case ENEMY_SPINEL: // Spinel usa IA melee
                 {
                     float distance = Vector2Distance(targetPos, enemy->position);
                     float attackRange = 100.0f; 
@@ -407,66 +417,6 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                         enemy->currentFrame = 0;
                         enemy->framesCounter = 0;
                         enemy->attackTimer = enemy->attackCooldown;
-                    }
-                    break;
-                }
-
-                case ENEMY_MOJO:
-                {
-                    float minRange = 300.0f; 
-                    float maxRange = 350.0f; 
-
-                    bool isAlignedY = (distanceY <= alignThreshold);
-                    bool canAttack = (enemy->attackTimer <= 0);
-                    bool inShootRange = (distanceX <= maxRange);
-
-                    
-                    if (canAttack && isAlignedY && inShootRange) 
-                    {
-                        enemy->isAttacking = true;
-                        enemy->currentFrame = 0;
-                        enemy->framesCounter = 0;
-                        enemy->attackTimer = enemy->attackCooldown;
-                        
-                        Rectangle enemyRect = GetEnemyRect(enemy);
-                        Vector2 spawnPos;
-                        spawnPos.y = enemy->position.y + (enemyRect.height * 0.6f); 
-
-                        if (enemy->direction == -1) { 
-                            spawnPos.x = enemy->position.x + (enemyRect.width * 0.2f); 
-                        } else { 
-                            spawnPos.x = enemy->position.x + (enemyRect.width * 0.8f);
-                        }
-                        
-                        SpawnEnemyBullet(spawnPos, enemy->direction, ENEMY_BULLET_SPEED_MOJO, enemy->damage);
-                    } 
-                    else 
-                    {
-                        if (!isAlignedY) {
-                            if (targetPos.y < enemy->position.y) {
-                                enemy->position.y -= enemy->speed * 0.7f;
-                            } else {
-                                enemy->position.y += enemy->speed * 0.7f;
-                            }
-                            enemy->isMoving = true;
-                        }
-
-                        if (distanceX < minRange) { 
-                            if (targetPos.x < enemy->position.x) {
-                                enemy->position.x += enemy->speed * 0.8f; 
-                            } else {
-                                enemy->position.x -= enemy->speed * 0.8f;
-                            }
-                            enemy->isMoving = true;
-                        } 
-                        else if (distanceX > maxRange) { 
-                            if (targetPos.x < enemy->position.x) {
-                                enemy->position.x -= enemy->speed;
-                            } else {
-                                enemy->position.x += enemy->speed;
-                            }
-                            enemy->isMoving = true;
-                        }
                     }
                     break;
                 }
@@ -529,6 +479,93 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                     }
                     break; 
                 }
+                
+                // ##################################################################
+                // ## MODIFICAÇÃO INICIA AQUI
+                // ##################################################################
+                case ENEMY_MOJO:
+                {
+                    if (enemy->isBoss) 
+                    {
+                        // Pega os retângulos do Boss e do Alvo para checar o alinhamento
+                        Rectangle enemyRect = GetEnemyRect(enemy);
+                        Rectangle playerRect = GetPlayerRect(targetPlayer); // Pega o Rect do jogador alvo
+
+                        float minRange = 300.0f; 
+                        float maxRange = 350.0f; 
+
+                        // *** LÓGICA DE ALINHAMENTO CORRIGIDA ***
+                        // Checa se o jogador está *verticalmente sobreposto* ao boss
+                        bool isAlignedY = ( (playerRect.y + playerRect.height) >= enemyRect.y && 
+                                            playerRect.y <= (enemyRect.y + enemyRect.height) );
+
+                        bool canAttack = (enemy->attackTimer <= 0);
+                        bool inShootRange = (distanceX <= maxRange);
+                        
+                        if (canAttack && isAlignedY && inShootRange) 
+                        {
+                            enemy->isAttacking = true;
+                            enemy->currentFrame = 0;
+                            enemy->framesCounter = 0;
+                            enemy->attackTimer = enemy->attackCooldown;
+                            
+                            Vector2 spawnPos;
+                            // A "arma" do Mojo está a 60% da altura do sprite
+                            spawnPos.y = enemyRect.y + (enemyRect.height * 0.6f); 
+
+                            if (enemy->direction == -1) { 
+                                spawnPos.x = enemy->position.x + (enemyRect.width * 0.2f); 
+                            } else { 
+                                spawnPos.x = enemy->position.x + (enemyRect.width * 0.8f);
+                            }
+                            
+                            SpawnEnemyBullet(spawnPos, enemy->direction, ENEMY_BULLET_SPEED_MOJO, enemy->damage);
+                        } 
+                        else 
+                        {
+                            // *** LÓGICA DE MOVIMENTO CORRIGIDA ***
+                            if (!isAlignedY) {
+                                // Se não estiver alinhado, move-se para alinhar a "arma" com o "centro" do player
+                                float bossGunY = enemyRect.y + (enemyRect.height * 0.6f);
+                                float playerCenterY = playerRect.y + (playerRect.height / 2.0f);
+
+                                if (playerCenterY < bossGunY) {
+                                    enemy->position.y -= enemy->speed * 0.7f;
+                                } else {
+                                    enemy->position.y += enemy->speed * 0.7f;
+                                }
+                                enemy->isMoving = true;
+                            }
+
+                            // Lógica de movimento X (distanciamento)
+                            if (distanceX < minRange) { 
+                                if (targetPos.x < enemy->position.x) {
+                                    enemy->position.x += enemy->speed * 0.8f; 
+                                } else {
+                                    enemy->position.x -= enemy->speed * 0.8f;
+                                }
+                                enemy->isMoving = true;
+                            } 
+                            else if (distanceX > maxRange) { 
+                                if (targetPos.x < enemy->position.x) {
+                                    enemy->position.x -= enemy->speed;
+                                } else {
+                                    enemy->position.x += enemy->speed;
+                                }
+                                enemy->isMoving = true;
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        // Se for um Mojo comum spawnado por engano, desativa-o
+                        enemy->active = false; 
+                    }
+                    break;
+                }
+                // ##################################################################
+                // ## MODIFICAÇÃO TERMINA AQUI
+                // ##################################################################
             }
 
             if (targetPos.x < enemy->position.x) {
@@ -550,9 +587,10 @@ void UpdateEnemyPool(Player *player1, Player *player2, bool isPlayer2Active, int
                 enemy->currentFrame++;
                 
                 if (enemy->currentFrame >= (enemy->attackFrameCount - 1)) {
-                    if (enemy->type == ENEMY_GARNET || 
-                        enemy->type == ENEMY_LIMAO_PRETO ||
-                        enemy->type == ENEMY_LIMAO_BRANCO) 
+                    // Adicionado ENEMY_SPINEL ao check de dano melee
+                    if (enemy->type == ENEMY_LIMAO_PRETO || 
+                        enemy->type == ENEMY_LIMAO_BRANCO ||
+                        enemy->type == ENEMY_SPINEL) 
                     {
                         if (player1->isAlive && CheckCollisionRecs(GetEnemyRect(enemy), player1Rect)) {
                             Player_RecebeDano(player1, enemy->damage); 
@@ -707,9 +745,18 @@ void DrawEnemyPool(void) {
 
             Rectangle sourceRec = { 0.0f, 0.0f, (float)textureToDraw.width, (float)textureToDraw.height };
             
-            if (enemy->direction == -1) { 
-                sourceRec.width = -sourceRec.width;
+            // Lógica de flip da Spinel (que olha para a esquerda)
+            if (enemy->type == ENEMY_SPINEL) {
+                if (enemy->direction == 1) { // Se for para a direita, flipa
+                    sourceRec.width = -sourceRec.width;
+                }
+            } else {
+            // Lógica normal (que olha para a direita)
+                if (enemy->direction == -1) { // Se for para a esquerda, flipa
+                    sourceRec.width = -sourceRec.width;
+                }
             }
+
 
             Rectangle destRec = {
                 enemy->position.x, enemy->position.y,

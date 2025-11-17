@@ -41,7 +41,7 @@ static Vector2 GerarPosicaoSpawn(Player* jogador) {
     int chanceSpawnDireita;
 
     if (jogador->position.x < centroTela - 200) {
-       
+        
         chanceSpawnDireita = 70; 
     } else if (jogador->position.x > centroTela + 200) {
         
@@ -72,23 +72,32 @@ static void SpawnarUmInimigo(Player* jogador) {
         
     int randomType;
     
+    // grupoInimigo 0 = Melee Fraco (Limões)
+    // grupoInimigo 1 = Melee Forte (Spinel)
+    // grupoInimigo 2 = Ranged (Marvin)
     int grupoInimigo = rand() % 3; 
 
     if (saudeJogadorCache < 50) {
+        // Se a vida está baixa, força o grupo 0 (só Limões)
         grupoInimigo = 0;
     } else if (jogador->health >= jogador->maxHealth && inimigosJaSpawnados == 0) {
-        printf("ControleSpawn (Tático): Vida cheia. Enviando especialista (Mojo/Marvin).\n");
-        grupoInimigo = 1 + (rand() % 2); 
+        // Se a vida está cheia no início, manda um especialista
+        printf("ControleSpawn (Tático): Vida cheia. Enviando especialista (Spinel/Marvin).\n");
+        grupoInimigo = 1 + (rand() % 2); // Escolhe 1 (Spinel) ou 2 (Marvin)
     }
 
     switch (grupoInimigo) {
-        case 0: 
+        case 0: // Limões
             randomType = (rand() % 2 == 0) ? ENEMY_LIMAO_PRETO : ENEMY_LIMAO_BRANCO;
             break;
-        case 1: 
-            randomType = ENEMY_MOJO;
+        
+        // *** MODIFICADO AQUI ***
+        case 1: // Era ENEMY_MOJO, agora é ENEMY_SPINEL
+            randomType = ENEMY_SPINEL; 
             break;
-        case 2: 
+        // *** FIM DA MODIFICAÇÃO ***
+
+        case 2: // Marvin
             randomType = ENEMY_MARVIN;
             break;
     }
@@ -154,10 +163,11 @@ void ControleSpawn_IniciaCena(SceneNode* cena, Player* jogador) {
 
         totalInimigosParaSpawnar = 1; 
         inimigosJaSpawnados = 1;      
-        controleAtivo = false;       
+        controleAtivo = false;        
 
         return; 
     }
+    
     int totalInimigosBase = 2 + (int)(cena->id * 2);
     printf("ControleSpawn (Progressão): Cena ID %d. Calculando %d inimigos base.\n", cena->id, totalInimigosBase);
 
@@ -223,6 +233,7 @@ void ControleSpawn_Update(float deltaTime, Player* jogador) {
 
         if (podeSpawnarAgora > 0) {
             
+            // Esta é a linha que faz spawnar "grupos" de inimigos
             int quantosSpawnar = (rand() % podeSpawnarAgora) + 1;
             
             
