@@ -94,12 +94,12 @@ make run
 
 ### 1 Jogador
 - Escolha um personagem para enfrentar o mal
-- Enfrente ordas de inimigos para passar as fases
+- Enfrente hordas de inimigos para passar as fases
 - Quando se escolhe o modo 1 jogador, o player já começa com uma vida extra
 
 ### 2 Jogadores
 - Cada jogador escolhe um personagem diferente para enfrentar o mal
-- Enfrente ordas de inimigos com seu amigo
+- Enfrente hordas de inimigos com seu amigo
 
 ---
 
@@ -132,7 +132,7 @@ Este jogo foi desenvolvido  na linguagem **C**, como um projeto da disciplina de
 <details>
 <summary> VIDEO DA JOGABILIDADE </summary>
 
-[**Video da jogabilidade**]
+[**Clique Aqui para ser redirecionado**](https://youtu.be/N_4XiQFfT-k)
 
 </details>
 
