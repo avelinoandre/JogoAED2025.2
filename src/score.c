@@ -46,13 +46,13 @@ void Score_CalculateFinal(void) {
     if (gameTimer < 1.0f) { 
         finalScore = 0;
     } else {
-        finalScore = (int)(((float)playerScore * 100.0f) / gameTimer);
+        finalScore = (int)(((float)playerScore) / gameTimer);
     }
     
-    if (finalScore > 750) rankText = "RANK: S (SMASHING!)";
-    else if (finalScore > 500) rankText = "RANK: A (AWESOME)";
-    else if (finalScore > 250) rankText = "RANK: B (COOL)";
-    else if (finalScore > 100) rankText = "RANK: C (OKAY)";
+    if (finalScore > 45) rankText = "RANK: S (SMASHING!)";
+    else if (finalScore > 30) rankText = "RANK: A (AWESOME)";
+    else if (finalScore > 15) rankText = "RANK: B (COOL)";
+    else if (finalScore > 5) rankText = "RANK: C (OKAY)";
     else rankText = "RANK: D (TRY AGAIN)";
 
     scoreCalculated = true;
