@@ -243,7 +243,6 @@ int UpdateGame(void) {
     }
 
     if (!Score_IsPlayerDead()) {
-        // MODIFICADO: Captura o retorno bool
         bool p1WantsChange = UpdatePlayer(&player, screenWidth, screenHeight, currentScene, false);
         bool p2WantsChange = false;
         
@@ -251,7 +250,6 @@ int UpdateGame(void) {
             p2WantsChange = UpdatePlayer(&player2, screenWidth, screenHeight, currentScene, true);
         }
 
-        // MODIFICADO: Lógica de mudança de cena movida para cá
         if (p1WantsChange || p2WantsChange) {
             SceneNode* current = GetCurrentScene(); 
             
@@ -265,13 +263,10 @@ int UpdateGame(void) {
             
             SetCurrentScene(current->next);
             
-            // Reseta a Posição de P1
             player.position.x = 10.0f;
             
-            // Reseta a Posição de P2 (se ativo)
             if (isPlayer2Active) {
                 player2.position.x = 10.0f;
-                // Alinha o P2 com o P1 no eixo Y
                 player2.position.y = player.position.y; 
             }
         }
@@ -419,11 +414,38 @@ void DrawGame(void) {
         DrawEnemyCounter();
     }
 
-    int hudCenterX = screenWidth / 2 - 100;
-    DrawText(TextFormat("SCORE: %08i", Score_GetScore()), hudCenterX, 20, 20, RAYWHITE);
-    DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), hudCenterX, 45, 20, RAYWHITE);
-    DrawText(TextFormat("LIVES: %d", extraLives), hudCenterX, 70, 20, RAYWHITE); 
+    // ##################################################################
+    // ## MODIFICAÇÃO INICIA AQUI: HUD de Score e Tempo
+    // ##################################################################
+
+    const char* scoreText = TextFormat("SCORE: %08i", Score_GetScore());
+    const char* timeText = TextFormat("TEMPO: %04.1f", Score_GetTimer());
     
+    int fontSize = 30; // "Maior"
+    int padding = 40;
+    
+    int scoreWidth = MeasureText(scoreText, fontSize);
+    int timeWidth = MeasureText(timeText, fontSize);
+    int totalWidth = scoreWidth + timeWidth + padding;
+    
+    int scoreX = (screenWidth - totalWidth) / 2;
+    int timeX = scoreX + scoreWidth + padding;
+    int textY = 20; // Posição Y no topo
+    
+    DrawText(scoreText, scoreX, textY, fontSize, YELLOW);
+    DrawText(timeText, timeX, textY, fontSize, YELLOW);
+
+    // REMOVIDO: A lógica de desenhar "LIVES" foi movida para DrawPlayerHealthBar em player.c
+    // int hudCenterX = screenWidth / 2 - 100;
+    // DrawText(TextFormat("SCORE: %08i", Score_GetScore()), hudCenterX, 20, 20, RAYWHITE);
+    // DrawText(TextFormat("TIME: %04.1f", Score_GetTimer()), hudCenterX, 45, 20, RAYWHITE);
+    // DrawText(TextFormat("LIVES: %d", extraLives), hudCenterX, 70, 20, RAYWHITE); 
+    
+    // ##################################################################
+    // ## MODIFICAÇÃO TERMINA AQUI
+    // ##################################################################
+    
+
     if (Score_IsPlayerDead()) {
         int posX = screenWidth - 923; 
         int posY = 350;

@@ -28,7 +28,7 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
 
     player->isReloading = false;
     player->reloadTimer = 0.0f;
-    player->collisionDamageTimer = 0.0f; // Adicionado para inicializar
+    player->collisionDamageTimer = 0.0f; 
 
     player->attackSound = (Sound){ 0 };
     
@@ -90,23 +90,19 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
             player->attackTextures[1] = LoadTexture("assets/Sprites/Finn/Finnataque/finnataque2.png");
             break;
 
-        // ##################################################################
-        // ## MODIFICAÇÃO INICIA AQUI
-        // ##################################################################
-        case CHAR_GARNET: // ERA CHAR_SAMURAI
-            player->speed = 4.0f;  // Stats (Vel 'C')
-            player->maxHealth = 150; // Stats (Vida 'A')
+        case CHAR_GARNET: 
+            player->speed = 4.0f;  
+            player->maxHealth = 150; 
 
             player->idleFrameCount = 2;
             player->walkFrameCount = 4; 
             player->attackFrameCount = 2;
-            player->attackAnimSpeed = 15; // Soco
+            player->attackAnimSpeed = 15; 
             
             player->idleTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->idleFrameCount);
             player->walkTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->walkFrameCount);
             player->attackTextures = (Texture2D*)malloc(sizeof(Texture2D) * player->attackFrameCount);
 
-            // Garnet usa som de soco
             player->attackSound = LoadSound("assets/audios/punchSound.wav");
             SetSoundVolume(player->attackSound, 0.9f);
             
@@ -121,9 +117,6 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
             player->attackTextures[0] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque1.png");
             player->attackTextures[1] = LoadTexture("assets/Sprites/Garnet/Garnetataque/Garnet_ataque2.png");
             break;
-        // ##################################################################
-        // ## MODIFICAÇÃO TERMINA AQUI
-        // ##################################################################
             
         case CHAR_MORDECAI:
             player->speed = 5.5f;
@@ -159,10 +152,9 @@ void InitPlayer(Player *player, CharacterType charType, int startX, int startY) 
     player->health = player->maxHealth;
 }
 
-// MODIFICADO: Retorna 'bool'
 bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* currentScene, bool isPlayer2) {
 
-    if (!player->isAlive) return false; // MODIFICADO: Retorna false
+    if (!player->isAlive) return false; 
 
     if (player->collisionDamageTimer > 0) {
         player->collisionDamageTimer -= GetFrameTime();
@@ -214,7 +206,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
     if (reloadPressed && player->charType == CHAR_JOHNNY) {
         if (!player->isReloading && GetCurrentAmmo(playerOwner) < 10) { 
             player->isReloading = true;
-            player->reloadTimer = 3.0f; 
+            player->reloadTimer = 1.5f; 
         }
     }
 
@@ -301,10 +293,8 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
             SceneNode* current = GetCurrentScene();
             if (current->next != NULL) {
                 
-                // MODIFICADO: Agora P1 e P2 podem ativar a mudança
-                // E apenas sinaliza, não executa a mudança
                 if (AreAllEnemiesDefeated() && !ControleSpawn_EstaAtivo()) { 
-                    return true; // Sinaliza que quer mudar de cena
+                    return true; 
                 } else {
                     player->position.x = screenWidth - playerWidth;
                 }
@@ -335,7 +325,7 @@ bool UpdatePlayer(Player *player, int screenWidth, int screenHeight, SceneNode* 
         if (player->health < 0) player->health = 0;
     }
 
-    return false; // MODIFICADO: Retorno padrão
+    return false; 
 }
 
 void DrawPlayer(const Player *player) {
@@ -361,12 +351,16 @@ void DrawPlayer(const Player *player) {
     Vector2 origin = { 0.0f, 0.0f };
     DrawTexturePro(textureToDraw, sourceRec, destRec, origin, 0.0f, WHITE);
 }
+
+// ##################################################################
+// ## MODIFICAÇÃO INICIA AQUI: Barra de Vida e Vidas Extras (Com lógica do Johnny)
+// ##################################################################
     
 void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     int barWidth = 200;
     int barHeight = 20;
     int barX;
-    int barY = 20;
+    int barY = 20; // Posição Y da barra de vida (como você reverteu)
 
     if (!isPlayer2) {
         barX = 20;
@@ -380,7 +374,27 @@ void DrawPlayerHealthBar(const Player *player, bool isPlayer2) {
     DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
     DrawRectangle(barX, barY, currentHealthWidth, barHeight, GREEN);
     DrawRectangleLines(barX, barY, barWidth, barHeight, BLACK);
+
+    // --- LÓGICA DE POSIÇÃO DAS VIDAS EXTRAS (MODIFICADA) ---
+    int livesTextY;
+    
+    if (player->charType == CHAR_JOHNNY) {
+        // Se for o Johnny, a munição é desenhada em y=50 (baseado no bullet.c)
+        // Coloca "LIVES" abaixo da munição (assumindo 20px de altura para a munição + 5 de padding)
+        livesTextY = 50 + 20 + 5; // Posição Y = 75
+    } else {
+        // Para outros personagens, coloca "LIVES" abaixo da barra de vida
+        livesTextY = barY + barHeight + 5; // Posição Y = 45
+    }
+    // --- FIM DA LÓGICA ---
+
+    const char* livesText = TextFormat("VIDAS EXTRA: %d", extraLives);
+    DrawText(livesText, barX, livesTextY, 20, RAYWHITE);
 }
+
+// ##################################################################
+// ## MODIFICAÇÃO TERMINA AQUI
+// ##################################################################
 
 
 Texture2D GetPlayerCurrentTexture(const Player *player) {
@@ -449,7 +463,6 @@ void UnloadPlayer(Player *player) {
     free(player->walkTextures);
     free(player->attackTextures);
 
-    // MODIFICADO: Descarrega o som de ataque se ele foi carregado
     if (player->attackSound.frameCount > 0) {
         UnloadSound(player->attackSound);
     }

@@ -146,7 +146,7 @@ void DrawAmmoCount(bool isReloading, int playerOwner) {
         const char* reloadKey = (playerOwner == 1) ? "(R)" : "(J)";
         DrawText(TextFormat("SEM MUNIÇÃO! %s", reloadKey), posX, posY, fontSize, RED);
     } else {
-        DrawText(TextFormat("Balas: %d / %d", currentAmmo[ownerIndex], MAX_AMMO), posX, posY, fontSize, WHITE);
+        DrawText(TextFormat("BALAS: %d / %d", currentAmmo[ownerIndex], MAX_AMMO), posX, posY, fontSize, WHITE);
     }
 }
 
